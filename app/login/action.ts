@@ -1,60 +1,43 @@
 'use server'
 
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-
 import { createClient } from '@/utils/supabase/server';
+import { loginSchema } from '../validationSchema';
 
 // server-side action for logging in a user
 export async function login(formData: FormData) {
-  // initialize Supabase client on the server
-  const supabase = await createClient();
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  // retrieves data from the form
+  // extract form data
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
   }
+
+  // validate input using zod
+  const validate = loginSchema.safeParse(data);
+  if (!validate.success){
+    // return validation errors
+    return {
+      success: false,
+      errors: validate.error.flatten().fieldErrors
+    };
+  }
+
+  // initialize Supabase client on the server
+  const supabase = await createClient();
 
   // authenticate user with their email and password
   const { error } = await supabase.auth.signInWithPassword(data);
 
   // redirects user to error page if authentication fails
   if (error) {
-    redirect('/error');
+    // return an error message for incorrect credentials
+    return {
+      success: false,
+      errors: {
+        general: ['Incorrect email or password. Please try again.']
+      },
+    };
   }
 
-  // revalidate the cache for the root path and layout
-  revalidatePath('/', 'layout');
-  // redirects user after successful authentication
-  redirect('/private');
-}
-
-// server-side action for signing up a new user
-export async function signup(formData: FormData) {
-  // initialize Supabase client on the server
-  const supabase = await createClient();
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  // retrieves data from the form
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
-
-  // register a new user with their email and password
-  const { error } = await supabase.auth.signUp(data);
-
-  // redirects user to error page if authentication fails
-  if (error) {
-    redirect('/error');
-  }
-
-  // revalidate the cache for the root path and layout
-  revalidatePath('/', 'layout');
-  // redirects user after successful authentication
-  redirect('/');
+  // if login successful, return success
+  return { success: true }
 }
