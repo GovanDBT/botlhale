@@ -1,6 +1,9 @@
 "use client";
 // imports
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { login } from "../login/action";
+import { redirect } from "next/navigation";
 
 // shadcn components
 import {
@@ -9,7 +12,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +19,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
 const LoginForm = () => {
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  // function for handling form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // create a FormData object
+    const form = new FormData();
+    form.append("email", formData.email);
+    form.append("password", formData.password);
+    // call the login function
+    const result = await login(form);
+    // if login fails
+    if (!result.success) {
+      // set errors
+      setErrors(result.errors!);
+    } else {
+      // redirects user after successful authentication
+      redirect("/private");
+    }
+  };
   // react hook form
   const form = useForm();
   return (
@@ -24,41 +46,63 @@ const LoginForm = () => {
       {/* Form - shadcn */}
       <Form {...form}>
         {/* Form - React Hook Form */}
-        <form
-          onSubmit={() => console.log("submitted")}
-          className="flex-row max-w-sm space-y-8"
-        >
+        <form onSubmit={handleSubmit} className="flex-row max-w-sm space-y-8">
           {/* Form Title */}
           <h1 className="text-2xl/8 sm:text-xl/8 font-bold">
             Sign in to your account
           </h1>
+          {errors.general && (
+            <p className="text-red-500">{errors.general[0]}</p>
+          )}
           {/* Email input field */}
           <FormField
             control={form.control}
-            name="..."
+            name="email"
             render={() => (
               <FormItem>
-                <FormLabel className="text-base sm:text-sm">
+                <FormLabel htmlFor="email" className="text-base sm:text-sm">
                   Email or Phone
                 </FormLabel>
                 <FormControl>
-                  <Input type="email" className="h-12 sm:h-10" />
+                  <Input
+                    type="email"
+                    id="email"
+                    value={formData.email}
+                    className="h-12 sm:h-10"
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                  />
                 </FormControl>
-                <FormMessage />
+                {errors.email && (
+                  <p className="text-red-500">{errors.email[0]}</p>
+                )}
               </FormItem>
             )}
           />
           {/* Password input field */}
           <FormField
             control={form.control}
-            name="..."
+            name="password"
             render={() => (
               <FormItem>
-                <FormLabel className="text-base sm:text-sm">Password</FormLabel>
+                <FormLabel htmlFor="password" className="text-base sm:text-sm">
+                  Password
+                </FormLabel>
                 <FormControl>
-                  <Input type="password" className="h-12 sm:h-10" />
+                  <Input
+                    type="password"
+                    id="password"
+                    value={formData.password}
+                    className="h-12 sm:h-10"
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                  />
                 </FormControl>
-                <FormMessage />
+                {errors.password && (
+                  <p className="text-red-500">{errors.password[0]}</p>
+                )}
               </FormItem>
             )}
           />
