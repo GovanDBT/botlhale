@@ -36,7 +36,7 @@ const LoginForm = () => {
       setErrors(result.errors!);
     } else {
       // redirects user after successful authentication
-      redirect("/private");
+      redirect("/dashboard/admin");
     }
   };
   // react hook form
@@ -75,7 +75,9 @@ const LoginForm = () => {
                   />
                 </FormControl>
                 {errors.email && (
-                  <p className="text-red-500">{errors.email[0]}</p>
+                  <p className="text-red-500 text-base sm:text-sm">
+                    {errors.email[0]}
+                  </p>
                 )}
               </FormItem>
             )}
@@ -101,7 +103,9 @@ const LoginForm = () => {
                   />
                 </FormControl>
                 {errors.password && (
-                  <p className="text-red-500">{errors.password[0]}</p>
+                  <p className="text-red-500 text-base sm:text-sm">
+                    {errors.password[0]}
+                  </p>
                 )}
               </FormItem>
             )}
