@@ -7,8 +7,7 @@ export default async function StudentDashboard() {
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.getUser();
-  const session = await supabase.auth.getUser();
-  console.log(session);
+
   if (error || !data?.user) {
     redirect("/login");
   }
