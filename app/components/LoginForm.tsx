@@ -2,8 +2,10 @@
 // imports
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { login } from "../login/action";
 import { redirect } from "next/navigation";
+
+import useUserRole from "../hooks/useUserRole";
+import { login } from "../login/action";
 
 // shadcn components
 import {
@@ -21,6 +23,9 @@ import { Label } from "@/components/ui/label";
 const LoginForm = () => {
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [isRedirecting, setIsRedirecting] = useState(false); // Prevent multiple redirects
+  const { fetchUserRole } = useUserRole(); // fetch user role custom hook
+
   // function for handling form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,12 +40,32 @@ const LoginForm = () => {
       // set errors
       setErrors(result.errors!);
     } else {
-      // redirects user after successful authentication
-      redirect("/dashboard/admin");
+      // Fetch the user role asynchronously
+      const userRole = await fetchUserRole();
+
+      // Wait for the userRole to be available before redirecting
+      if (!userRole) {
+        console.error("User role is not available yet.");
+        return;
+      }
+
+      // Redirect user based on their role
+      setIsRedirecting(true); // Prevent multiple redirects
+      if (userRole === "admin") {
+        redirect("/dashboard/admin");
+      } else if (userRole === "teacher") {
+        redirect("/dashboard/teacher");
+      } else if (userRole === "parent") {
+        redirect("/dashboard/parent");
+      } else {
+        redirect("/dashboard/student");
+      }
     }
   };
+
   // react hook form
   const form = useForm();
+
   return (
     <div className="place-items-center place-content-center h-dvh">
       {/* Form - shadcn */}
@@ -127,6 +152,7 @@ const LoginForm = () => {
           {/* Login button */}
           <Button
             type="submit"
+            disabled={isRedirecting}
             className="w-full text-base sm:text-sm py-6 sm:py-5"
           >
             Login
