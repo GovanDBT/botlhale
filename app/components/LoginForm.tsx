@@ -2,7 +2,7 @@
 // imports
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import useUserRole from "../hooks/useUserRole";
 import { login } from "../login/action";
@@ -25,6 +25,7 @@ const LoginForm = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isRedirecting, setIsRedirecting] = useState(false); // Prevent multiple redirects
   const { fetchUserRole } = useUserRole(); // fetch user role custom hook
+  const router = useRouter();
 
   // function for handling form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,13 +53,13 @@ const LoginForm = () => {
       // Redirect user based on their role
       setIsRedirecting(true); // Prevent multiple redirects
       if (userRole === "admin") {
-        redirect("/dashboard/admin");
+        router.push("/dashboard/admin");
       } else if (userRole === "teacher") {
-        redirect("/dashboard/teacher");
+        router.push("/dashboard/teacher");
       } else if (userRole === "parent") {
-        redirect("/dashboard/parent");
+        router.push("/dashboard/parent");
       } else {
-        redirect("/dashboard/student");
+        router.push("/dashboard/student");
       }
     }
   };
