@@ -27,6 +27,6 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // redirect the user to an error page with some instructions
-  redirect('/error')
+  // when an unexpected error occurs
+  throw new Error('An error occurred while verifying the OTP.');
 }
