@@ -25,7 +25,7 @@ export default function Layout({ children }: Props) {
         <div className="mb-3 flex justify-between">
           <SidebarTrigger />
           {buttonTitle && buttonLink && (
-            <Button>
+            <Button className="cursor-pointer">
               <Link href={buttonLink}>{buttonTitle}</Link>
             </Button>
           )}

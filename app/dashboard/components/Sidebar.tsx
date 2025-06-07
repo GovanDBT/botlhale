@@ -70,7 +70,7 @@ export function AppSidebar() {
           },
           {
             title: "Schools",
-            url: "#",
+            url: "/dashboard/superAdmin/schools",
             icon: School,
           },
         ]);
