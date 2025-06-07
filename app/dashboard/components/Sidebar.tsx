@@ -9,6 +9,7 @@ import {
   ChevronDown,
   Search,
   Inbox,
+  School,
 } from "lucide-react";
 
 import {
@@ -60,7 +61,20 @@ export function AppSidebar() {
         return;
       }
 
-      if (userRole === "admin") {
+      if (userRole === "superAdmin") {
+        setMenuItems([
+          {
+            title: "Dashboard",
+            url: "/dashboard/superAdmin",
+            icon: LayoutDashboard,
+          },
+          {
+            title: "Schools",
+            url: "#",
+            icon: School,
+          },
+        ]);
+      } else if (userRole === "admin") {
         setMenuItems([
           {
             title: "Dashboard",
@@ -150,10 +164,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {upperMenus.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className="hover:bg-[#e0e0e0] h-10"
-                  >
+                  <SidebarMenuButton asChild className="hover:bg-[#e0e0e0]">
                     <Link href={item.url}>
                       <item.icon size={40} />
                       <span className="text-base">{item.title}</span>
@@ -180,7 +191,7 @@ export function AppSidebar() {
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton
                           asChild
-                          className="hover:bg-[#e0e0e0] h-10"
+                          className="hover:bg-[#e0e0e0]"
                         >
                           <div className="cursor-pointer">
                             <item.icon />
@@ -195,7 +206,7 @@ export function AppSidebar() {
                             <SidebarMenuSubItem key={subItem.subTitle}>
                               <SidebarMenuSubButton
                                 asChild
-                                className="hover:bg-[#e0e0e0] h-9"
+                                className="hover:bg-[#e0e0e0]"
                               >
                                 <Link href={subItem.subUrl}>
                                   <span className="text-base">
@@ -209,10 +220,7 @@ export function AppSidebar() {
                       </CollapsibleContent>
                     </Collapsible>
                   ) : (
-                    <SidebarMenuButton
-                      asChild
-                      className="hover:bg-[#e0e0e0] h-10"
-                    >
+                    <SidebarMenuButton asChild className="hover:bg-[#e0e0e0]">
                       <Link href={item.url}>
                         <item.icon />
                         <span className="text-base">{item.title}</span>
