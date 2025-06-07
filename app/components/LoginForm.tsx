@@ -52,7 +52,9 @@ const LoginForm = () => {
 
       // Redirect user based on their role
       setIsRedirecting(true); // Prevent multiple redirects
-      if (userRole === "admin") {
+      if (userRole === "superAdmin") {
+        router.push("/dashboard/superAdmin");
+      } else if (userRole === "admin") {
         router.push("/dashboard/admin");
       } else if (userRole === "teacher") {
         router.push("/dashboard/teacher");
