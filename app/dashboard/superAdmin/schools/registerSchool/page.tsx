@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Separator } from "@/components/ui/separator";
+import SchoolForm from "../../components/SchoolForm";
 
 const SchoolRegistrationPage = () => {
   return (
@@ -9,6 +10,7 @@ const SchoolRegistrationPage = () => {
         Schools Registration Form
       </h1>
       <Separator />
+      <SchoolForm />
     </div>
   );
 };
