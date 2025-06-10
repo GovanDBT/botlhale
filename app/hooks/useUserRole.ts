@@ -1,3 +1,4 @@
+"use client";
 import { useState, useCallback } from "react";
 import { jwtDecode } from "jwt-decode"; // to decode our JWT
 

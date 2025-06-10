@@ -21,7 +21,7 @@ export default function Layout({ children }: Props) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="w-screen bg-white grow lg:rounded-lg lg:m-2 px-9 py-8">
+      <main className="w-screen bg-white grow lg:rounded-lg lg:m-2 px-9 lg:px-20 py-8">
         <div className="mb-3 flex justify-between">
           <SidebarTrigger />
           {buttonTitle && buttonLink && (
