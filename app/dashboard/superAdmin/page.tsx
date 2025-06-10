@@ -12,6 +12,11 @@ export default async function PrivatePage() {
     redirect("/login");
   }
 
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  console.log(session);
+
   return (
     <>
       <h1 className="text-2xl/8 sm:text-xl/8 font-bold">Dashboard</h1>
