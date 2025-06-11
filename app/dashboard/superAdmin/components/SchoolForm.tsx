@@ -112,27 +112,6 @@ const SchoolForm = () => {
                 </FormItem>
               )}
             />
-            {/* School admin */}
-            <FormField
-              control={form.control}
-              name="admin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="admin" className="text-base sm:text-sm">
-                    Invite School Admin
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      id="admin"
-                      className="h-12 sm:h-10"
-                      placeholder="example@gmail.com"
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
           </div>
           {/* Login button */}
           <Button

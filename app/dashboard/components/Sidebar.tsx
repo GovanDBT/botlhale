@@ -73,6 +73,29 @@ export function AppSidebar() {
             url: "/dashboard/superAdmin/schools",
             icon: School,
           },
+          {
+            title: "Users",
+            url: "/dashboard/superAdmin/schools",
+            icon: UserRound,
+            subItem: [
+              {
+                subTitle: "Admins",
+                subUrl: "/dashboard/superAdmin/users/admins",
+              },
+              {
+                subTitle: "Staff/Teachers",
+                subUrl: "#",
+              },
+              {
+                subTitle: "Students",
+                subUrl: "/dashboard/superAdmin/users/admins",
+              },
+              {
+                subTitle: "Parents",
+                subUrl: "/dashboard/superAdmin/users/admins",
+              },
+            ],
+          },
         ]);
       } else if (userRole === "admin") {
         setMenuItems([
