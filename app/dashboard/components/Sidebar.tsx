@@ -33,9 +33,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { usePathname } from "next/navigation";
 
 export function AppSidebar() {
   const { fetchUserRole } = useUserRole(); // Fetch user role custom hook
+  const pathname = usePathname(); // Get the current path
   const [menuItems, setMenuItems] = useState<
     {
       title: string;
@@ -88,11 +90,11 @@ export function AppSidebar() {
               },
               {
                 subTitle: "Students",
-                subUrl: "/dashboard/superAdmin/users/admins",
+                subUrl: "we",
               },
               {
                 subTitle: "Parents",
-                subUrl: "/dashboard/superAdmin/users/admins",
+                subUrl: "fe",
               },
             ],
           },
@@ -176,7 +178,12 @@ export function AppSidebar() {
                 height={42}
               />
               <div>
-                <h2 className="font-medium text-3xl">Strype.</h2>
+                <h2 className="text-3xl uppercase text-primary font-logo font-bold">
+                  Strype<span className="text-secondary">.</span>
+                </h2>
+                <p className="text-[9px] text-nowrap italic">
+                  Earn your Strypes, Shape your Future
+                </p>
               </div>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -187,7 +194,13 @@ export function AppSidebar() {
             <SidebarMenu>
               {upperMenus.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="hover:bg-[#e0e0e0]">
+                  <SidebarMenuButton
+                    asChild
+                    className={`h-9 hover:bg-primary/10 ${
+                      pathname === item.url &&
+                      "bg-primary/10 text-primary border-1 font-bold hover:text-primary"
+                    }`}
+                  >
                     <Link href={item.url}>
                       <item.icon size={40} />
                       <span className="text-base">{item.title}</span>
@@ -214,7 +227,7 @@ export function AppSidebar() {
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton
                           asChild
-                          className="hover:bg-[#e0e0e0]"
+                          className="hover:bg-primary/10"
                         >
                           <div className="cursor-pointer">
                             <item.icon />
@@ -229,7 +242,10 @@ export function AppSidebar() {
                             <SidebarMenuSubItem key={subItem.subTitle}>
                               <SidebarMenuSubButton
                                 asChild
-                                className="hover:bg-[#e0e0e0]"
+                                className={`h-9 hover:bg-primary/10 ${
+                                  pathname === subItem.subUrl &&
+                                  "bg-primary/10 text-primary border-1 font-bold hover:text-primary"
+                                }`}
                               >
                                 <Link href={subItem.subUrl}>
                                   <span className="text-base">
@@ -243,7 +259,13 @@ export function AppSidebar() {
                       </CollapsibleContent>
                     </Collapsible>
                   ) : (
-                    <SidebarMenuButton asChild className="hover:bg-[#e0e0e0]">
+                    <SidebarMenuButton
+                      asChild
+                      className={`h-9 hover:bg-primary/10 ${
+                        pathname === item.url &&
+                        "bg-primary/10 text-primary border-1 font-bold hover:text-primary"
+                      }`}
+                    >
                       <Link href={item.url}>
                         <item.icon />
                         <span className="text-base">{item.title}</span>
