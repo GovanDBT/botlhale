@@ -1,4 +1,9 @@
-import { Button } from "@/components/ui/button";
+"use client";
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -7,25 +12,28 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import Image from "next/image";
-import Link from "next/link";
-import React from "react";
+import AppButton from "../components/AppButton";
 
 const Navbar = () => {
+  const pathname = usePathname(); // Get the current path
   return (
-    <nav className="flex justify-between py-5">
+    <nav className="flex justify-between items-center py-5">
       <Link href="/">
-        <Image
-          src="/Strype-logo.svg"
-          alt="Strype logo"
-          width={220}
-          height={220}
-        />
+        <Image src="/Strype.svg" alt="Strype logo" width={220} height={220} />
       </Link>
       <NavigationMenu viewport={false}>
         <NavigationMenuList className="space-x-10">
           <NavigationMenuItem className="px-5">
-            <Link href="/">Home</Link>
+            <NavigationMenuLink asChild>
+              <Link
+                href="/"
+                className={`${
+                  pathname === "/" && "font-bold text-primary"
+                } hover:text-primary`}
+              >
+                Home
+              </Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuTrigger>Features</NavigationMenuTrigger>
@@ -67,16 +75,31 @@ const Navbar = () => {
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
-          <NavigationMenuItem className="px-5">Solutions</NavigationMenuItem>
-          <NavigationMenuItem className="px-5">Pricing</NavigationMenuItem>
-          <NavigationMenuItem className="px-5">
-            <Link href="/register">Register School</Link>
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link href="#">Solutions</Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link href="#">Pricing</Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link
+                href="/register"
+                className={`${
+                  pathname === "/register" && "font-bold text-primary"
+                } hover:text-primary`}
+              >
+                Register school
+              </Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-      <Button>
-        <Link href="/login">Login</Link>
-      </Button>
+      <AppButton href="/login">Login</AppButton>
     </nav>
   );
 };
