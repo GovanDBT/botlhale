@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import useUserRole from "../hooks/useUserRole";
-import { login } from "../login/action";
+import { login } from "../(landing)/login/action";
 
 // shadcn components
 import {
@@ -70,7 +70,7 @@ const LoginForm = () => {
   const form = useForm();
 
   return (
-    <div className="place-items-center place-content-center h-dvh">
+    <div className="place-items-center place-content-center my-30">
       {/* Form - shadcn */}
       <Form {...form}>
         {/* Form - React Hook Form */}

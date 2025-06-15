@@ -12,7 +12,7 @@ const SignOutButton = () => {
     if (error) {
       console.error("Error signing out:", error.message);
     } else {
-      redirect("/login"); // Redirect to login page after successful signout
+      redirect("/"); // Redirect to login page after successful signout
     }
   }
   return <Button onClick={signOut}>Signout</Button>;
