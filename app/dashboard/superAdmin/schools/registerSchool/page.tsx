@@ -9,7 +9,7 @@ const SchoolRegistrationPage = () => {
       <h1 className="text-2xl/8 sm:text-xl/8 font-bold">
         Schools Registration Form
       </h1>
-      <Separator />
+      <Separator className="my-4" />
       <SchoolForm />
     </div>
   );
