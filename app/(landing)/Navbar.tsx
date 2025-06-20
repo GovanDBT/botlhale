@@ -1,10 +1,15 @@
+/**
+ * This is the Navigation Menu outside the dashboard
+ */
 "use client";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Lato } from "next/font/google";
+import { Lato } from "next/font/google"; // Google Lato font
+import { Menu } from "lucide-react"; // burger icon
 
+// Shadcn UI
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,8 +18,22 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+
+// custom button
 import AppButton from "../components/AppButton";
 
+// initiate Lato font
 const lato = Lato({
   weight: "400",
 });
@@ -24,11 +43,14 @@ const Navbar = () => {
 
   return (
     <nav className={`flex justify-between items-center py-5 ${lato.className}`}>
+      {/* Navbar logo */}
       <Link href="/">
         <Image src="/Strype.svg" alt="Strype logo" width={220} height={220} />
       </Link>
-      <NavigationMenu viewport={false}>
+      {/* Desktop Navbar menu list */}
+      <NavigationMenu viewport={false} className="hidden lg:inline-flex">
         <NavigationMenuList className="space-x-10">
+          {/* Home link */}
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
               <Link
@@ -41,6 +63,7 @@ const Navbar = () => {
               </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
+          {/* About link */}
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
               <Link
@@ -53,6 +76,7 @@ const Navbar = () => {
               </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
+          {/* Features links */}
           <NavigationMenuItem>
             <NavigationMenuTrigger>Features</NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -93,6 +117,7 @@ const Navbar = () => {
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
+          {/* Rankings links */}
           <NavigationMenuItem>
             <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -133,6 +158,7 @@ const Navbar = () => {
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
+          {/* Statistics link */}
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
               <Link
@@ -147,7 +173,185 @@ const Navbar = () => {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-      <AppButton href="/login">Login</AppButton>
+      {/* Desktop Navbar button */}
+      <AppButton href="/login" className="hidden lg:inline-flex">
+        Login
+      </AppButton>
+      {/* Mobile Navbar menu list + buttons */}
+      <div className="lg:hidden">
+        <Sheet>
+          {/* Burger */}
+          <SheetTrigger asChild>
+            <Menu
+              color="#576087"
+              size={48}
+              className="cursor-pointer hover:bg-primary/5 rounded p-1"
+            />
+          </SheetTrigger>
+          {/* Content */}
+          <SheetContent side="left">
+            {/* Menu Lists */}
+            <SheetHeader>
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <NavigationMenu viewport={false} className="max-w-full">
+                <NavigationMenuList className="flex-col w-[320px] space-y-5">
+                  {/* Home Link */}
+                  <NavigationMenuItem className="w-full text-center">
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href="/"
+                        className={`${
+                          pathname === "/" && "font-bold text-primary"
+                        } hover:text-primary text-[18px]`}
+                      >
+                        Home
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  <Separator />
+                  {/* About Link */}
+                  <NavigationMenuItem className="w-full text-center">
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href="#"
+                        className={`${
+                          pathname === "/about" && "font-bold text-primary"
+                        } hover:text-primary text-[18px]`}
+                      >
+                        About
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  <Separator />
+                  {/* Features Links */}
+                  <NavigationMenuItem className="w-full text-center">
+                    <NavigationMenuTrigger className="w-full hover:text-primary text-[18px] font-normal py-5.5">
+                      Features
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent className="z-2">
+                      <ul>
+                        <li className="space-y-3">
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href="#"
+                              className={`${
+                                pathname === "/feature1" &&
+                                "font-bold text-primary"
+                              } hover:text-primary text-[18px]`}
+                            >
+                              Components
+                            </Link>
+                          </NavigationMenuLink>
+                          <Separator />
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href="#"
+                              className={`${
+                                pathname === "/feature2" &&
+                                "font-bold text-primary"
+                              } hover:text-primary text-[18px]`}
+                            >
+                              Documentation
+                            </Link>
+                          </NavigationMenuLink>
+                          <Separator />
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href="#"
+                              className={`${
+                                pathname === "/feature3" &&
+                                "font-bold text-primary"
+                              } hover:text-primary text-[18px]`}
+                            >
+                              Blocks
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                  <Separator />
+                  {/* Rankings Links */}
+                  <NavigationMenuItem className="w-full text-center">
+                    <NavigationMenuTrigger className="w-full hover:text-primary text-[18px] font-normal py-5.5">
+                      Rankings
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent className="z-2">
+                      <ul>
+                        <li className="space-y-3">
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href="#"
+                              className={`${
+                                pathname === "/feature1" &&
+                                "font-bold text-primary"
+                              } hover:text-primary text-[18px]`}
+                            >
+                              Components
+                            </Link>
+                          </NavigationMenuLink>
+                          <Separator />
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href="#"
+                              className={`${
+                                pathname === "/feature2" &&
+                                "font-bold text-primary"
+                              } hover:text-primary text-[18px]`}
+                            >
+                              Documentation
+                            </Link>
+                          </NavigationMenuLink>
+                          <Separator />
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href="#"
+                              className={`${
+                                pathname === "/feature3" &&
+                                "font-bold text-primary"
+                              } hover:text-primary text-[18px]`}
+                            >
+                              Blocks
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                  <Separator />
+                  {/* Statistics Link */}
+                  <NavigationMenuItem className="w-full text-center">
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href="#"
+                        className={`${
+                          pathname === "/statistics" && "font-bold text-primary"
+                        } hover:text-primary text-[18px]`}
+                      >
+                        Statistics
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            </SheetHeader>
+            {/* Menu Buttons */}
+            <SheetFooter>
+              {/* Login Button */}
+              <AppButton href="/login">Login</AppButton>
+              {/* Close Sheet Button */}
+              <SheetClose asChild>
+                <Button
+                  variant="outline"
+                  className="rounded-[3px] cursor-pointer px-6 py-5 font-bold uppercase tracking-wide"
+                >
+                  Close
+                </Button>
+              </SheetClose>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      </div>
     </nav>
   );
 };
