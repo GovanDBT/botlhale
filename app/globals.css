@@ -114,6 +114,7 @@
 
 @theme {
   --font-logo: 'Arial';
+  --text-nav-desktop: 15px;
 }
 
 @layer base {
