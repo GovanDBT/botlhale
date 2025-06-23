@@ -15,6 +15,7 @@ import {
 import layoutButtonContext from "@/app/context/layoutButtonContext";
 import SchoolTable from "../components/SchoolTable";
 import LoadingTable from "../components/LoadingTable";
+import AppSeparator from "@/app/components/AppSeparator";
 
 const SchoolsPage = () => {
   const { setButtonTitle, setButtonLink } = useContext(layoutButtonContext); // our button context
@@ -43,21 +44,7 @@ const SchoolsPage = () => {
           </TooltipContent>
         </Tooltip>
       </div>
-      <Separator className="my-4" />
-      {/* <div className="my-4 flex gap-8">
-        <span className="flex items-center gap-1.5">
-          <Rows3 size={15} color="#696969" />
-          <p className="text-[15px] text-[#696969] font-medium">All</p>
-        </span>
-        <span className="flex items-center gap-1.5">
-          <School size={15} color="#696969" />
-          <p className="text-[15px] text-[#696969] font-medium">Public</p>
-        </span>
-        <span className="flex items-center gap-1.5">
-          <GraduationCap size={16} color="#696969" />
-          <p className="text-[15px] text-[#696969] font-medium">Private</p>
-        </span>
-      </div> */}
+      <AppSeparator />
       <SchoolTable />
     </div>
   );
