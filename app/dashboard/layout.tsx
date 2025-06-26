@@ -17,6 +17,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import AppButton from "../components/AppButton";
 
 interface Props {
   children?: React.ReactNode;
@@ -36,9 +37,7 @@ export default function Layout({ children, breadcrumbs }: Props) {
             {breadcrumbs}
           </div>
           {buttonTitle && buttonLink && (
-            <Button className="cursor-pointer">
-              <Link href={buttonLink}>{buttonTitle}</Link>
-            </Button>
+            <AppButton href={buttonLink}>{buttonTitle}</AppButton>
           )}
         </div>
         <layoutButtonContext.Provider value={{ setButtonLink, setButtonTitle }}>

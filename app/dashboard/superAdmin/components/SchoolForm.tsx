@@ -1,19 +1,19 @@
+/**
+ * School registration form component
+ */
 "use client";
-import React from "react";
 import { useForm } from "react-hook-form";
-
 // shadcn components
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+// modules
+import AppButton from "@/app/components/AppButton";
 
 const SchoolForm = () => {
   // react hook form
@@ -32,7 +32,7 @@ const SchoolForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="name" className="text-base sm:text-sm">
-                    School Name:
+                    School Name: <span className="text-red-400">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -56,7 +56,7 @@ const SchoolForm = () => {
                     htmlFor="location"
                     className="text-base sm:text-sm"
                   >
-                    Location:
+                    Location: <span className="text-red-400">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -77,7 +77,7 @@ const SchoolForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="email" className="text-base sm:text-sm">
-                    Email:
+                    Email: <span className="text-red-400">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -98,7 +98,7 @@ const SchoolForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="phone" className="text-base sm:text-sm">
-                    Phone:
+                    Phone: <span className="text-red-400">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -113,13 +113,10 @@ const SchoolForm = () => {
               )}
             />
           </div>
-          {/* Login button */}
-          <Button
-            type="submit"
-            className="w-full md:w-auto text-base sm:text-sm py-6 sm:py-5 mt-10 cursor-pointer"
-          >
+          {/* Register button */}
+          <AppButton type="submit" className="my-10">
             Create School
-          </Button>
+          </AppButton>
         </form>
       </Form>
     </div>

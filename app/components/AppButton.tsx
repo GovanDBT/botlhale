@@ -6,6 +6,7 @@ interface Props {
   children: ReactNode;
   href?: string;
   className?: string;
+  type?: "reset" | "submit";
   variant?:
     | "default"
     | "link"
@@ -20,6 +21,7 @@ const AppButton = ({
   href = "#",
   className,
   variant = "default",
+  type,
 }: Props) => {
   return (
     <Button
@@ -28,6 +30,7 @@ const AppButton = ({
       }
       variant={variant}
       asChild
+      type={type}
     >
       <Link href={href} className="line uppercase tracking-wide text-nowrap">
         {children}

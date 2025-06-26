@@ -41,6 +41,7 @@ export function Breadcrumbs({ routes = [] }: { routes: string[] }) {
     } else {
       breadcrumbItems.push(
         <React.Fragment key={href}>
+          <BreadcrumbSeparator className={i < 3 ? "hidden" : ""} />
           <BreadcrumbItem className={i < 2 ? "hidden" : ""}>
             <BreadcrumbLink href={href}>
               {formatBreadcrumbText(route)}
@@ -55,7 +56,7 @@ export function Breadcrumbs({ routes = [] }: { routes: string[] }) {
     <Breadcrumb>
       <BreadcrumbList>
         {breadcrumbItems}
-        <BreadcrumbSeparator className={routes.length < 4 ? "hidden" : ""} />
+        <BreadcrumbSeparator className={routes.length <= 3 ? "hidden" : ""} />
         {breadcrumbPage}
       </BreadcrumbList>
     </Breadcrumb>

@@ -3,19 +3,11 @@
  */
 "use client";
 import { useContext, useEffect } from "react";
-import { Info, Rows3, School, GraduationCap } from "lucide-react";
-
-import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-
+// modules
 import layoutButtonContext from "@/app/context/layoutButtonContext";
 import SchoolTable from "../components/SchoolTable";
-import LoadingTable from "../components/LoadingTable";
 import AppSeparator from "@/app/components/AppSeparator";
+import AppInfoTooltip from "@/app/components/AppInfoTooltip";
 
 const SchoolsPage = () => {
   const { setButtonTitle, setButtonLink } = useContext(layoutButtonContext); // our button context
@@ -35,14 +27,7 @@ const SchoolsPage = () => {
     <div>
       <div className="flex gap-2 items-center">
         <h1 className="text-2xl/8 sm:text-xl/8 font-bold">Schools</h1>
-        <Tooltip>
-          <TooltipTrigger>
-            <Info size={16} color="#696969" />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>A list of all registered schools</p>
-          </TooltipContent>
-        </Tooltip>
+        <AppInfoTooltip content="A list of all registered Schools" />
       </div>
       <AppSeparator />
       <SchoolTable />
