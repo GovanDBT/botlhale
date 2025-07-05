@@ -1,12 +1,15 @@
+/**
+ * Login form component
+ */
+
 "use client";
 // imports
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+// modules
 import useUserRole from "../../hooks/useUserRole";
-import { login } from "../(landing)/login/action";
-
+import { login } from "../action/loginAction";
 // shadcn components
 import {
   Form,
@@ -20,22 +23,26 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
+type formData = {
+  email: string;
+  password: string;
+};
+
 const LoginForm = () => {
   const [errors, setErrors] = useState<Record<string, string[]>>({});
-  const [formData, setFormData] = useState({ email: "", password: "" });
   const [isRedirecting, setIsRedirecting] = useState(false); // Prevent multiple redirects
   const { fetchUserRole } = useUserRole(); // fetch user role custom hook
   const router = useRouter();
 
   // function for handling form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // makes the event cancelable
     // create a FormData object
-    const form = new FormData();
-    form.append("email", formData.email);
-    form.append("password", formData.password);
+    const formDataObject = new FormData();
+    formDataObject.append("email", form.getValues("email"));
+    formDataObject.append("password", form.getValues("password"));
     // call the login function
-    const result = await login(form);
+    const result = await login(formDataObject);
     // if login fails
     if (!result.success) {
       // set errors
@@ -67,7 +74,12 @@ const LoginForm = () => {
   };
 
   // react hook form
-  const form = useForm();
+  const form = useForm<formData>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   return (
     <div className="place-items-center place-content-center my-30">
@@ -95,11 +107,8 @@ const LoginForm = () => {
                   <Input
                     type="email"
                     id="email"
-                    value={formData.email}
                     className="h-12 sm:h-10"
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
+                    {...form.register("email")}
                   />
                 </FormControl>
                 {errors.email && (
@@ -123,11 +132,8 @@ const LoginForm = () => {
                   <Input
                     type="password"
                     id="password"
-                    value={formData.password}
                     className="h-12 sm:h-10"
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
+                    {...form.register("password")}
                   />
                 </FormControl>
                 {errors.password && (
@@ -158,7 +164,7 @@ const LoginForm = () => {
             disabled={isRedirecting}
             className="w-full text-base sm:text-sm py-6 sm:py-5"
           >
-            Login
+            {isRedirecting ? "Redirecting..." : "Login"}
           </Button>
           {/* How to register */}
           <p className="text-base sm:text-sm">
