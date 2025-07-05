@@ -1,35 +1,46 @@
 "use client";
 import { useState, useCallback } from "react";
-import { jwtDecode } from "jwt-decode"; // to decode our JWT
+import { jwtDecode } from "jwt-decode";
 
-import { createClient } from "@/services/supabase/client"; // supabase server client
+import { createClient } from "@/services/supabase/client"; // Supabase browser client
 
 const useUserRole = () => {
-  const [userRole, setUserRole] = useState<string | null>(null); // state hook for setting user roles
+  const [userRole, setUserRole] = useState<string | null>(null);
 
-  // Asynchronous function to fetch the user role
-  // useCallback prevents function re-rendering
+  // useCallback to prevent re-rendering
   const fetchUserRole = useCallback(async () => {
-    const supabase = createClient(); // initialize supabase client
+    const supabase = createClient();
 
-    // Get the current session
-    const { data: { session } } = await supabase.auth.getSession();
+    // Refresh the session before fetching it
+    await supabase.auth.refreshSession();
 
-    // if session does exist
-    if (session) {
-      // Decode the JWT to extract the user role
-      const jwt: any = jwtDecode(session.access_token);
-      const role = jwt.user_role || null;
-      setUserRole(role);
-      return role;
+    // get the latest session (with refreshed token)
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    if (error) {
+      console.error("Failed to get session:", error.message);
+      setUserRole(null);
+      return null;
     }
 
-    // If no session, return null
+    if (session?.access_token) {
+      try {
+        const jwt: any = jwtDecode(session.access_token);
+        const role = jwt.user_role || null;
+        setUserRole(role);
+        return role;
+      } catch (err) {
+        console.error("Error decoding token:", err);
+        setUserRole(null);
+        return null;
+      }
+    }
+
     setUserRole(null);
     return null;
-  }, [userRole]);
+  }, []);
 
   return { userRole, fetchUserRole };
-}
+};
 
 export default useUserRole;

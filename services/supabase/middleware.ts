@@ -5,6 +5,7 @@
  * If the user is not authenticated, redirects them to /login
  * If user is authenticated, allow the request to proceed
  */
+
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 

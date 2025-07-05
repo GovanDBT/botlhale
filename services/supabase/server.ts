@@ -1,14 +1,18 @@
 /**
- * Supabase server component - to access supabase from server component, which run on the server
+ * Supabase server component client used to access supabase 
+ * from server component, which run on the server
  */
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+
+import { createServerClient } from "@supabase/ssr"; // server side auth to config supabase to use cookies
+import { cookies } from "next/headers"; // reads/write incoming/outgoing requests
 
 // creates a supabase client for the server
 export async function createClient(accessToken?: string) {
     // for accessing and manipulating cookies
     const cookieStore = await cookies();
 
+    // create a server's supabase client with newly configured cookies,
+    // which could be used to maintain user's session
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -24,7 +28,7 @@ export async function createClient(accessToken?: string) {
                             cookieStore.set(name, value, options)
                         );
                     } catch {
-                        // ignored since we have a middleware
+                        // ignored since we have a middleware for refreshing user sessions
                     }
                 }
             },
