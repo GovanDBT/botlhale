@@ -5,18 +5,19 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 
-import { schoolSchema } from "@/app/validationSchema";
+import { schoolSchema } from "@/lib/validationSchema";
 import { fetchUserRoleFromSession } from "@/utils/getUserRole";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/services/supabase/server";
 
 export async function POST(request: NextRequest) {
   const body = await request.json(); // create a new body object
 
-  // TODO: find different way to access token
+  // grabs our current access token
   const accessToken = request.headers
     .get("Authorization")
     ?.replace("Bearer ", "");
 
+  // if no access token
   if (!accessToken) {
     return NextResponse.json(
       { error: "Unauthorized access!" },

@@ -32,7 +32,7 @@ import {
 // modules
 import { cn } from "@/lib/utils";
 import AppButton from "@/app/components/AppButton";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/services/supabase/client";
 
 // school interface
 interface School {

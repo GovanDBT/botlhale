@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/services/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
 // Define the type for the school table

@@ -2,7 +2,7 @@
 import { useState, useCallback } from "react";
 import { jwtDecode } from "jwt-decode"; // to decode our JWT
 
-import { createClient } from "@/utils/supabase/client"; // supabase server client
+import { createClient } from "@/services/supabase/client"; // supabase server client
 
 const useUserRole = () => {
   const [userRole, setUserRole] = useState<string | null>(null); // state hook for setting user roles
