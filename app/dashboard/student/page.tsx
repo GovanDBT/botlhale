@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/services/supabase/server";
 import SignOutButton from "../../components/SignOutButton";
 
 export default async function StudentDashboard() {

@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/services/supabase/server";
 import { jwtDecode } from "jwt-decode";
 
 export async function getUserRole(accessToken: string | null): Promise<string | null> {

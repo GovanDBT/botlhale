@@ -7,7 +7,6 @@ import { cookies } from "next/headers";
 // creates a supabase client for the server
 export async function createClient(accessToken?: string) {
     // for accessing and manipulating cookies
-    // cookies are used to manage sessions and authentication tokens
     const cookieStore = await cookies();
 
     const supabase = createServerClient(
@@ -16,31 +15,33 @@ export async function createClient(accessToken?: string) {
         {
             // manages cookies
             cookies: {
-                // retrieves all cookies
                 getAll() {
                     return cookieStore.getAll();
                 },
-                // sets multiple cookies
                 setAll(cookiesToSet) {
                     try {
-                        cookiesToSet.forEach(({ name, value, options}) =>
+                        cookiesToSet.forEach(({ name, value, options }) =>
                             cookieStore.set(name, value, options)
-                        )
-                    }
-                    catch {
+                        );
+                    } catch {
                         // ignored since we have a middleware
-                        // refreshing sessions
                     }
+                }
+            },
+            // inject the access token in headers (important for RLS policies)
+            global: {
+                headers: {
+                    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
                 }
             }
         }
     );
-
-    // If an access token is provided, set it in the Supabase client
+    
+    // Optional: still useful if you're handling session manually too
     if (accessToken) {
         await supabase.auth.setSession({
             access_token: accessToken,
-            refresh_token: "", // Provide a refresh token if available
+            refresh_token: "", // can be optional or filled if available
         });
     }
 

@@ -2,7 +2,7 @@
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/services/supabase/client";
 
 const SignOutButton = () => {
   const supabase = createClient();

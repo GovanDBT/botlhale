@@ -1,7 +1,7 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server';
-import { loginSchema } from '../../validationSchema';
+import { createClient } from '@/services/supabase/server';
+import { loginSchema } from '../../../lib/validationSchema';
 
 // server-side action for logging in a user
 export async function login(formData: FormData) {

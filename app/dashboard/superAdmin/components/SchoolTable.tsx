@@ -7,7 +7,7 @@ import * as React from "react";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 import LoadingTable from "./LoadingTable";
 import { useQuery } from "@tanstack/react-query";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/services/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/services/supabase/server";
 import SignOutButton from "../../components/SignOutButton";
 import { Separator } from "@/components/ui/separator";
 import AppSeparator from "@/app/components/AppSeparator";
