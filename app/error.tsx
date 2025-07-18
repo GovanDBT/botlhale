@@ -1,8 +1,7 @@
 "use client"; // Error boundaries must be Client Components
-
 import { useEffect } from "react";
-
 import { Button } from "@/components/ui/button";
+import { useRollbar } from "@rollbar/react";
 
 export default function Error({
   error,
@@ -11,8 +10,9 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const rollbar = useRollbar();
   useEffect(() => {
-    // Log the error to an error reporting service
+    rollbar.error(error); // error logger service
     console.error(error);
   }, [error]);
 
