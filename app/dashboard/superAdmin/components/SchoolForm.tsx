@@ -13,6 +13,8 @@ import { schoolSchema } from "@/lib/validationSchema";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import Rollbar from "rollbar";
+import { clientConfig } from "@/services/rollbar/rollbar";
 // shadcn components
 import {
   Form,
@@ -26,6 +28,7 @@ import { Input } from "@/components/ui/input";
 // modules
 import AppButton from "@/app/components/AppButton";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 // import Mark-down-editor using lazy loading
 // simpleMDE is a client-side component that is rendered in the server
@@ -60,9 +63,36 @@ const SchoolForm = () => {
     } as SimpleMDE.Options;
   }, []);
 
+  // Rollbar instance for client-side logging
+  const rollbar = new Rollbar(clientConfig);
+
   // submit handler
   const onSubmit = async (data: schoolData) => {
-    await axios.post("/api/schools", data);
+    const promise = axios
+      .post("/api/schools", data)
+      .then((response) => response.data);
+
+    toast.promise(promise, {
+      loading: "Creating school...",
+      success: () => {
+        form.reset();
+        return "School created successfully!";
+      },
+      error: (err: any) => {
+        const apiError = err?.response?.data?.error;
+
+        if (apiError) {
+          // known error from API
+          return apiError;
+        } else {
+          // unexpected error (e.g. network failure)
+          const fallbackMessage =
+            "An unexpected error occurred while creating school, please try again later";
+          rollbar.error("Unexpected error while creating school", err);
+          return fallbackMessage;
+        }
+      },
+    });
   };
 
   return (
