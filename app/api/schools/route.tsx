@@ -1,9 +1,7 @@
 /**
  * An API route for creating a new school
  */
-
 import { NextRequest, NextResponse } from "next/server";
-
 import { schoolSchema } from "@/lib/validationSchema";
 import { fetchUserRoleFromSession } from "@/utils/getUserRole";
 import { createClient } from "@/services/supabase/server";
@@ -12,21 +10,51 @@ import { serverInstance } from "@/services/rollbar/rollbar";
 export async function POST(request: NextRequest) {
   const body = await request.json(); // create a new body object
 
-  // grabs our current access token
-  const accessToken = request.headers
-    .get("Authorization")
-    ?.replace("Bearer ", "");
+  // initialize supabase server client
+  const client = await createClient();
 
-  // if no access token
-  if (!accessToken) {
+  // grab user session
+  const {
+    data: { session },
+    error: sessionError,
+  } = await client.auth.getSession();
+
+  // if api fails to retrieve user session
+  if (sessionError) {
+    serverInstance.info("System failed to get user session", { sessionError });
     return NextResponse.json(
-      { error: "Unauthorized access!" },
-      { status: 401 }
+      { error: "System failed to get user session" },
+      { status: 400 }
     );
   }
 
+  // get access token
+  const accessToken = session?.access_token;
+
+  // if api fails to retrieve user access token
+  if (!accessToken) {
+    serverInstance.info("System failed to provide access token");
+    return NextResponse.json(
+      { error: "No access token provided" },
+      { status: 400 }
+    );
+  }
+
+  // grabs our current access token - postman testing
+  // const accessToken = request.headers
+  //   .get("Authorization")
+  //   ?.replace("Bearer ", "");
+
+  // if no access token - postman testing
+  // if (!accessToken) {
+  //   return NextResponse.json(
+  //     { error: "Unauthorized access!" },
+  //     { status: 401 }
+  //   );
+  // }
+
   // Fetch the current user's role
-  const userRole = await fetchUserRoleFromSession(accessToken);
+  const userRole = await fetchUserRoleFromSession(accessToken ?? null);
 
   // If user is not superAdmin, throw an error
   if (userRole !== "superAdmin") {
@@ -36,13 +64,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const validation = schoolSchema.safeParse(body); // validate body
+  // validate body
+  const validation = schoolSchema.safeParse(body);
 
   // If validation fails, show error
   if (!validation.success)
-    return NextResponse.json(validation.error.errors, { status: 400 });
+    return NextResponse.json(validation.error.format(), { status: 400 });
 
   const supabase = await createClient(accessToken); // initialize Supabase client on the server
+
+  // grabs the current users data
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
   // Check if the school name already exists
   const { data: schoolName, error: nameError } = await supabase
@@ -109,12 +144,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-
-  // grabs the current users data
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
 
   if (userError) {
     serverInstance.info("System failed to get user id", { userError });

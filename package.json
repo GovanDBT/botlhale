@@ -25,6 +25,7 @@
     "@supabase/ssr": "^0.6.1",
     "@tanstack/react-query": "^5.80.10",
     "@tanstack/react-table": "^8.21.3",
+    "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -37,7 +38,7 @@
     "react-hook-form": "^7.56.4",
     "react-markdown": "^10.1.0",
     "react-simplemde-editor": "^5.2.0",
-    "rollbar": "^3.0.0-alpha.2",
+    "rollbar": "^2.26.4",
     "tailwind-merge": "^3.3.0",
     "zod": "^3.25.28"
   },

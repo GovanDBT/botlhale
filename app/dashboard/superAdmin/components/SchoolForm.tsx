@@ -9,18 +9,23 @@ import { useForm } from "react-hook-form"; // react forms
 import dynamic from "next/dynamic";
 import SimpleMDE from "easymde";
 import "easymde/dist/easymde.min.css"; // Mark-down-editor css
+import { schoolSchema } from "@/lib/validationSchema";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 // shadcn components
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 // modules
 import AppButton from "@/app/components/AppButton";
+import { Button } from "@/components/ui/button";
 
 // import Mark-down-editor using lazy loading
 // simpleMDE is a client-side component that is rendered in the server
@@ -28,8 +33,19 @@ const SimpleMdeReact = dynamic(() => import("react-simplemde-editor"), {
   ssr: false, // disable server-side rendering
 });
 
+type schoolData = z.infer<typeof schoolSchema>;
+
 const SchoolForm = () => {
-  const form = useForm(); // react hook form
+  // define form
+  const form = useForm<schoolData>({
+    resolver: zodResolver(schoolSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      location: "",
+    },
+  });
 
   // Custom renderer options for SimpleMDE
   const customRendererOptions = useMemo(() => {
@@ -44,12 +60,17 @@ const SchoolForm = () => {
     } as SimpleMDE.Options;
   }, []);
 
+  // submit handler
+  const onSubmit = async (data: schoolData) => {
+    await axios.post("/api/schools", data);
+  };
+
   return (
     <div>
       {/* Form - shadcn */}
       <Form {...form}>
         {/* Form - React Hook Form */}
-        <form className="mt-6">
+        <form className="mt-6" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid lg:grid-cols-2 grid-cols-1 gap-8 lg:gap-10">
             {/* School name */}
             <FormField
@@ -70,6 +91,7 @@ const SchoolForm = () => {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -94,6 +116,7 @@ const SchoolForm = () => {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -115,6 +138,7 @@ const SchoolForm = () => {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -136,6 +160,7 @@ const SchoolForm = () => {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -163,9 +188,9 @@ const SchoolForm = () => {
             />
           </div>
           {/* Register button */}
-          <AppButton type="submit" className="my-5">
+          <Button className="rounded-[3px] cursor-pointer px-6 py-5 font-bold line uppercase tracking-wide text-nowrap">
             Create School
-          </AppButton>
+          </Button>
         </form>
       </Form>
     </div>
