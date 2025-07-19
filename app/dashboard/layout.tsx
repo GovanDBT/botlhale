@@ -3,6 +3,7 @@
 import { ReactNode, useState } from "react";
 // Shadcn components
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 // custom components
 import { AppSidebar } from "@/app/dashboard/components/Sidebar";
 import layoutButtonContext from "../context/layoutButtonContext";
@@ -32,6 +33,7 @@ export default function Layout({ children, breadcrumbs }: Props) {
           {children}
         </layoutButtonContext.Provider>
       </main>
+      <Toaster richColors position="top-center" />
     </SidebarProvider>
   );
 }
