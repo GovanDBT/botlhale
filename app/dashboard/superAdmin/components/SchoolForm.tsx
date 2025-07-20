@@ -2,7 +2,7 @@
  * School registration form component
  */
 "use client";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import ReactDOMServer from "react-dom/server";
 import { useForm } from "react-hook-form"; // react forms
@@ -38,7 +38,11 @@ const SimpleMdeReact = dynamic(() => import("react-simplemde-editor"), {
 
 type schoolData = z.infer<typeof schoolSchema>;
 
-const SchoolForm = () => {
+interface Props {
+  formRef?: React.RefObject<HTMLFormElement | null>;
+}
+
+const SchoolForm = ({ formRef }: Props) => {
   // define form
   const form = useForm<schoolData>({
     resolver: zodResolver(schoolSchema),
@@ -100,8 +104,8 @@ const SchoolForm = () => {
       {/* Form - shadcn */}
       <Form {...form}>
         {/* Form - React Hook Form */}
-        <form className="mt-6" onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="grid lg:grid-cols-2 grid-cols-1 gap-8 lg:gap-10">
+        <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="space-y-7">
             {/* School name */}
             <FormField
               control={form.control}
@@ -217,10 +221,6 @@ const SchoolForm = () => {
               )}
             />
           </div>
-          {/* Register button */}
-          <Button className="rounded-[3px] cursor-pointer px-6 py-5 font-bold line uppercase tracking-wide text-nowrap">
-            Create School
-          </Button>
         </form>
       </Form>
     </div>
