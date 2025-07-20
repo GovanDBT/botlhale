@@ -6,32 +6,21 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 // custom components
 import { AppSidebar } from "@/app/dashboard/components/Sidebar";
-import layoutButtonContext from "../context/layoutButtonContext";
-import AppButton from "../components/AppButton";
 interface Props {
   children?: React.ReactNode;
   breadcrumbs: ReactNode;
 }
 
 export default function Layout({ children, breadcrumbs }: Props) {
-  const [buttonTitle, setButtonTitle] = useState("");
-  const [buttonLink, setButtonLink] = useState("");
   return (
     <SidebarProvider>
       <AppSidebar />
       <main className="w-screen bg-white grow lg:rounded-lg lg:m-2 px-9 lg:px-20 py-8">
-        <div className="mb-3 flex justify-between">
-          <div className="flex items-center gap-4">
-            <SidebarTrigger />
-            {breadcrumbs}
-          </div>
-          {buttonTitle && buttonLink && (
-            <AppButton href={buttonLink}>{buttonTitle}</AppButton>
-          )}
+        <div className="flex items-center gap-4 mb-3">
+          <SidebarTrigger />
+          {breadcrumbs}
         </div>
-        <layoutButtonContext.Provider value={{ setButtonLink, setButtonTitle }}>
-          {children}
-        </layoutButtonContext.Provider>
+        {children}
       </main>
       <Toaster richColors position="top-center" />
     </SidebarProvider>

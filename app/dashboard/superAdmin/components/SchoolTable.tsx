@@ -4,7 +4,12 @@
  */
 "use client";
 import * as React from "react";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  CircleX,
+  MoreHorizontal,
+} from "lucide-react";
 import LoadingTable from "./LoadingTable";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/services/supabase/client";
@@ -40,6 +45,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Rollbar from "rollbar";
+import { clientConfig } from "@/services/rollbar/rollbar";
 
 // Define the type for the school table
 interface School {
@@ -49,7 +56,12 @@ interface School {
   admins: string[];
   teachers: string[];
   students: string[];
-  createdBy: string;
+  created_by: string;
+  created_at: string;
+  profile: {
+    firstname: string;
+    lastname: string;
+  } | null;
 }
 
 // Define the columns for the table
@@ -112,10 +124,38 @@ export const columns: ColumnDef<School>[] = [
     cell: ({ row }) => <div className="hidden lg:table cell">#</div>,
   },
   {
-    accessorKey: "createdBy",
+    accessorKey: "profile",
     header: () => <div className="hidden lg:table cell">Created By</div>,
+    cell: ({ row }) => {
+      const profile = row.getValue("profile") as {
+        firstname: string;
+        lastname: string;
+      };
+      if (!profile) return <div className="hidden lg:table cell">—</div>;
+
+      return (
+        <div className="hidden lg:table cell">
+          {profile.firstname} {profile.lastname}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "created_at",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="font-bold hidden lg:flex cell"
+      >
+        Created At
+        <ArrowUpDown />
+      </Button>
+    ),
     cell: ({ row }) => (
-      <div className="hidden">{row.getValue("createdBy")}</div>
+      <div className="hidden lg:table cell">
+        {new Date(row.getValue("created_at")).toLocaleDateString()}
+      </div>
     ),
   },
   {
@@ -151,7 +191,11 @@ export const columns: ColumnDef<School>[] = [
 ];
 
 const SchoolTable = () => {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  // create new rollbar instance
+  const rollbar = new Rollbar(clientConfig);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "created_at", desc: true }, // Default sorting by latest date created
+  ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -163,8 +207,11 @@ const SchoolTable = () => {
 
   // Fetch schools from Supabase
   const fetchSchools = async (): Promise<School[]> => {
-    const { data, error } = await supabase.from("school").select("*");
+    const { data, error } = await supabase
+      .from("school")
+      .select("*, profile:created_by(firstname, lastname)");
     if (error) {
+      rollbar.error("System failed to fetch school", error);
       throw new Error(error.message);
     }
     return data || [];
@@ -206,7 +253,11 @@ const SchoolTable = () => {
   // Render error state
   if (error)
     return (
-      <p className="text-center font-bold text-red-500">{error.message}</p>
+      <p className="font-bold flex gap-2 justify-center h-[200] place-items-center">
+        {" "}
+        <CircleX fill="#000" color="#fff" /> An unexpected error occurred while
+        fetching schools
+      </p>
     );
 
   return (

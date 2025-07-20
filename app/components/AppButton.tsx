@@ -25,14 +25,13 @@ const AppButton = ({
 }: Props) => {
   return (
     <Button
-      className={
-        "rounded-[3px] cursor-pointer px-6 py-5 font-bold " + className
-      }
+      className={"cursor-pointer " + className}
       type={type}
       variant={variant}
       asChild
+      data-layout-button
     >
-      <Link href={href} className="line uppercase tracking-wide text-nowrap">
+      <Link href={href} className="text-nowrap">
         {children}
       </Link>
     </Button>
