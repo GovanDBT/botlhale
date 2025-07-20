@@ -35,12 +35,20 @@ import AppButton from "@/app/components/AppButton";
 import { createClient } from "@/services/supabase/client";
 
 // school interface
-interface School {
-  id: number;
-  name: string;
+interface Props {
+  formRef?: React.RefObject<HTMLFormElement | null>;
+  onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
-const AdminForm = () => {
+type School = {
+  id: number;
+  name: string;
+};
+
+// define schema for admin
+// type schoolData = z.infer<typeof schoolSchema>;
+
+const AdminForm = ({}) => {
   // react hook form
   const form = useForm();
 
