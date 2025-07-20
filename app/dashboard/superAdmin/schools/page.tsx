@@ -10,7 +10,7 @@ const SchoolsPage = () => {
       <div>
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
-            <h1 className="text-2xl/8 sm:text-xl/8 font-bold">Schools</h1>
+            <h1>Schools</h1>
             <AppInfoTooltip content="A list of all registered Schools" />
           </div>
           <SchoolFormSheet />
