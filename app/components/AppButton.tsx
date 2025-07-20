@@ -25,11 +25,10 @@ const AppButton = ({
 }: Props) => {
   return (
     <Button
-      className={"cursor-pointer " + className}
+      className={"cursor-pointer text-base sm:text-sm " + className}
       type={type}
       variant={variant}
       asChild
-      data-layout-button
     >
       <Link href={href} className="text-nowrap">
         {children}

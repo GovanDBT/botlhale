@@ -2,19 +2,17 @@
  * School registration form component
  */
 "use client";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import ReactDOMServer from "react-dom/server";
 import { useForm } from "react-hook-form"; // react forms
 import dynamic from "next/dynamic";
 import SimpleMDE from "easymde";
 import "easymde/dist/easymde.min.css"; // Mark-down-editor css
-import { schoolSchema } from "@/lib/validationSchema";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import Rollbar from "rollbar";
-import { clientConfig } from "@/services/rollbar/rollbar";
 // shadcn components
 import {
   Form,
@@ -25,10 +23,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-// modules
-import AppButton from "@/app/components/AppButton";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+// modules
+import { clientConfig } from "@/services/rollbar/rollbar";
+import { schoolSchema } from "@/lib/validationSchema";
 
 // import Mark-down-editor using lazy loading
 // simpleMDE is a client-side component that is rendered in the server
@@ -36,13 +34,15 @@ const SimpleMdeReact = dynamic(() => import("react-simplemde-editor"), {
   ssr: false, // disable server-side rendering
 });
 
+// define schema
 type schoolData = z.infer<typeof schoolSchema>;
 
 interface Props {
   formRef?: React.RefObject<HTMLFormElement | null>;
+  onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
-const SchoolForm = ({ formRef }: Props) => {
+const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
   // define form
   const form = useForm<schoolData>({
     resolver: zodResolver(schoolSchema),
@@ -72,31 +72,33 @@ const SchoolForm = ({ formRef }: Props) => {
 
   // submit handler
   const onSubmit = async (data: schoolData) => {
-    const promise = axios
-      .post("/api/schools", data)
-      .then((response) => response.data);
+    onSubmittingChange?.(true);
+    try {
+      const promise = axios
+        .post("/api/schools", data)
+        .then((response) => response.data);
 
-    toast.promise(promise, {
-      loading: "Creating school...",
-      success: () => {
-        form.reset();
-        return "School created successfully!";
-      },
-      error: (err: any) => {
-        const apiError = err?.response?.data?.error;
-
-        if (apiError) {
-          // known error from API
-          return apiError;
-        } else {
-          // unexpected error (e.g. network failure)
-          const fallbackMessage =
-            "An unexpected error occurred while creating school, please try again later";
+      toast.promise(promise, {
+        loading: "Creating school...",
+        success: () => {
+          form.reset();
+          return "School created successfully!";
+        },
+        error: (err: any) => {
+          const apiError = err?.response?.data?.error;
+          if (apiError) return apiError;
           rollbar.error("Unexpected error while creating school", err);
-          return fallbackMessage;
-        }
-      },
-    });
+          return "An unexpected error occurred while creating school, please try again later";
+        },
+      });
+      try {
+        await promise;
+      } finally {
+        onSubmittingChange?.(false);
+      }
+    } catch (error) {
+      rollbar.error("Unexpected error while creating school", error as Error);
+    }
   };
 
   return (
