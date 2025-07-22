@@ -58,6 +58,10 @@ export async function POST(request: NextRequest) {
 
   // If user is not superAdmin, throw an error
   if (userRole !== "superAdmin") {
+    serverInstance.warning("An unauthorized users tried to create a school", {
+      accessToken,
+      userRole,
+    });
     return NextResponse.json(
       { error: "Unauthorized access!" },
       { status: 401 }
@@ -72,12 +76,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(validation.error.format(), { status: 400 });
 
   const supabase = await createClient(accessToken); // initialize Supabase client on the server
-
-  // grabs the current users data
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
 
   // Check if the school name already exists
   const { data: schoolName, error: nameError } = await supabase
@@ -144,6 +142,12 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
+
+  // grabs the current users data
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
   if (userError) {
     serverInstance.info("System failed to get user id", { userError });
