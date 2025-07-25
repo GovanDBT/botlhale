@@ -9,7 +9,7 @@ export async function generateUserId(role: string): Promise<string> {
   const prefixMap: Record<string, string> = {
     student: "stu",
     teacher: "tch",
-    parent: "par",
+    guardian: "gua",
     admin: "adm",
     superadmin: "sup",
   };

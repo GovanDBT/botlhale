@@ -1,7 +1,8 @@
-"use client";
 /**
  * This module shows a list of all registered admins
+ * plus shows a popup sheet with a admin registration form
  */
+"use client";
 // modules
 import AppSeparator from "@/app/components/AppSeparator";
 import AppInfoTooltip from "@/app/components/AppInfoTooltip";

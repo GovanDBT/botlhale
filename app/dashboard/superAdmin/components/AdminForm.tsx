@@ -3,7 +3,10 @@
  */
 "use client";
 import { useForm } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Rollbar from "rollbar";
+import axios from "axios";
 // Lucide icons
 import { Check, ChevronsUpDown } from "lucide-react";
 // shadcn components
@@ -17,9 +20,11 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import {
   Command,
@@ -29,53 +34,80 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { toast } from "sonner";
 // modules
 import { cn } from "@/lib/utils";
-import AppButton from "@/app/components/AppButton";
-import { createClient } from "@/services/supabase/client";
+import { adminSchema } from "@/lib/validationSchema";
+import { useSelectSchools } from "@/hooks/useSchools";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { clientConfig } from "@/services/rollbar/rollbar";
 
-// school interface
+// admin interface
 interface Props {
   formRef?: React.RefObject<HTMLFormElement | null>;
   onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
-type School = {
-  id: number;
-  name: string;
-};
-
 // define schema for admin
-// type schoolData = z.infer<typeof schoolSchema>;
+type adminData = z.infer<typeof adminSchema>;
 
-const AdminForm = ({}) => {
-  // react hook form
-  const form = useForm();
-
-  const supabase = createClient(); // Initialize Supabase client
-
-  // Fetch schools from Supabase
-  const fetchSchools = async (): Promise<School[]> => {
-    const { data, error } = await supabase.from("school").select("id, name");
-    if (error) {
-      throw new Error(error.message);
-    }
-    return data || [];
-  };
-
-  // Use React Query to manage fetched schools
-  const { data: schools = [], isLoading } = useQuery<School[], Error>({
-    queryKey: ["schools"],
-    queryFn: fetchSchools,
+const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
+  // define form using react hook form
+  const form = useForm<adminData>({
+    resolver: zodResolver(adminSchema),
+    defaultValues: {
+      firstname: "",
+      lastname: "",
+      email: "",
+      phone: "",
+      school_id: 0,
+    },
   });
+
+  // fetch schools using react query
+  const { data: schools = [], isLoading, error } = useSelectSchools();
+
+  // Rollbar instance for client-side logging
+  const rollbar = new Rollbar(clientConfig);
+
+  // submit handler
+  const onSubmit = async (data: adminData) => {
+    onSubmittingChange?.(true);
+    try {
+      const promise = axios
+        .post("/api/users/admin", data)
+        .then((response) => response.data);
+
+      toast.promise(promise, {
+        loading: "Creating admin...",
+        success: () => {
+          form.reset();
+          return "Admin has been successfully created";
+        },
+        error: (err: any) => {
+          const apiError = err?.response?.data?.error;
+          if (apiError) return apiError;
+          rollbar.error("Unexpected error while creating admin", err);
+          return "An unexpected error occurred while creating admin, please try again later";
+        },
+      });
+      try {
+        await promise;
+      } finally {
+        onSubmittingChange?.(false);
+      }
+    } catch (error) {
+      rollbar.error("Unexpected error while creating admin", error as Error);
+    }
+  };
 
   return (
     <div>
       {/* Form - shadcn */}
       <Form {...form}>
         {/* Form - React Hook Form */}
-        <form className="mt-6">
-          <div className="grid lg:grid-cols-2 grid-cols-1 gap-8 lg:gap-10">
+        <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="space-y-7">
             {/* first name */}
             <FormField
               control={form.control}
@@ -97,6 +129,7 @@ const AdminForm = ({}) => {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -121,6 +154,7 @@ const AdminForm = ({}) => {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -142,6 +176,10 @@ const AdminForm = ({}) => {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                  <FormDescription className="lg:text-xs text-sm">
+                    Invite will be sent to this email address
+                  </FormDescription>
                 </FormItem>
               )}
             />
@@ -163,13 +201,14 @@ const AdminForm = ({}) => {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
             {/* Select School */}
             <FormField
               control={form.control}
-              name="school"
+              name="school_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="school" className="text-base sm:text-sm">
@@ -188,58 +227,69 @@ const AdminForm = ({}) => {
                         >
                           {field.value
                             ? schools.find(
-                                (school) => school.name === field.value
+                                (school) => school.id === field.value
                               )?.name
                             : "Select School"}
                           <ChevronsUpDown className="opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[200px] p-0">
+                    <PopoverContent className="w-[270px] h-[170px] p-0">
                       <Command>
                         <CommandInput
                           placeholder="Search school..."
                           className="h-9"
                         />
                         <CommandList>
-                          <CommandEmpty>
-                            {isLoading
-                              ? "Loading Schools..."
-                              : "No Schools found."}
-                          </CommandEmpty>
-                          <CommandGroup>
-                            {schools.map((school) => (
-                              <CommandItem
-                                value={school.name}
-                                key={school.id}
-                                onSelect={() => {
-                                  form.setValue("school", school.name);
-                                }}
-                              >
-                                {school.name}
-                                <Check
-                                  className={cn(
-                                    "ml-auto",
-                                    school.name === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
+                          <ScrollArea className="h-[130px]">
+                            {isLoading && (
+                              <CommandEmpty>
+                                {isLoading
+                                  ? "Loading Schools..."
+                                  : "No Schools found."}
+                              </CommandEmpty>
+                            )}
+                            {error && (
+                              <p className="text-red-500 text-sm text-center py-5">
+                                {error.message}
+                              </p>
+                            )}
+                            <CommandGroup>
+                              {schools &&
+                                schools.map((school) => (
+                                  <CommandItem
+                                    value={school.name}
+                                    key={school.id}
+                                    onSelect={() => {
+                                      form.setValue("school_id", school.id, {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                        shouldTouch: true,
+                                      });
+                                    }}
+                                  >
+                                    {school.name}
+                                    <Check
+                                      className={cn(
+                                        "ml-auto",
+                                        school.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                          </ScrollArea>
                         </CommandList>
                       </Command>
                     </PopoverContent>
                   </Popover>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-          {/* Register button */}
-          <AppButton type="submit" className="my-10">
-            Create Admin
-          </AppButton>
         </form>
       </Form>
     </div>
