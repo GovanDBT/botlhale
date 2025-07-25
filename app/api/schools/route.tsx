@@ -1,5 +1,5 @@
 /**
- * An API route for creating a new school
+ * An API routes for schools
  */
 import { NextRequest, NextResponse } from "next/server";
 import { schoolSchema } from "@/lib/validationSchema";
@@ -7,6 +7,7 @@ import { fetchUserRoleFromSession } from "@/utils/getUserRole";
 import { createClient } from "@/services/supabase/server";
 import { serverInstance } from "@/services/rollbar/rollbar";
 
+// API request for create a school
 export async function POST(request: NextRequest) {
   const body = await request.json(); // create a new body object
 
@@ -39,19 +40,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-
-  // grabs our current access token - postman testing
-  // const accessToken = request.headers
-  //   .get("Authorization")
-  //   ?.replace("Bearer ", "");
-
-  // if no access token - postman testing
-  // if (!accessToken) {
-  //   return NextResponse.json(
-  //     { error: "Unauthorized access!" },
-  //     { status: 401 }
-  //   );
-  // }
 
   // Fetch the current user's role
   const userRole = await fetchUserRoleFromSession(accessToken ?? null);
@@ -181,4 +169,28 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({ message: "School created successfully!" });
+}
+
+// API request for retrieving all schools
+export async function GET() {
+  // initialize supabase
+  const supabase = await createClient();
+
+  // get all schools
+  const { data, error } = await supabase
+    .from("school")
+    .select("*")
+    .order("name");
+
+  // fails to retrieve schools
+  if (error) {
+    serverInstance.error("System failed to fetch all schools", { error });
+    return NextResponse.json(
+      { error: "Failed to fetch schools" },
+      { status: 400 }
+    );
+  }
+
+  // retrieved schools
+  return NextResponse.json(data);
 }

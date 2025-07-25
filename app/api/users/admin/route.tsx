@@ -11,15 +11,45 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
 
   // grabs our current access token - postman testing
-  const accessToken = request.headers
-    .get("Authorization")
-    ?.replace("Bearer ", "");
+  // const accessToken = request.headers
+  //   .get("Authorization")
+  //   ?.replace("Bearer ", "");
 
   // if no access token - postman testing
-  if (!accessToken) {
+  // if (!accessToken) {
+  //   return NextResponse.json(
+  //     { error: "Unauthorized access!" },
+  //     { status: 403 }
+  //   );
+  // }
+
+  // initialize supabase server client
+  const client = await createClient();
+
+  // grab user session
+  const {
+    data: { session },
+    error: sessionError,
+  } = await client.auth.getSession();
+
+  // if api fails to retrieve user session
+  if (sessionError) {
+    serverInstance.info("System failed to get user session", { sessionError });
     return NextResponse.json(
-      { error: "Unauthorized access!" },
-      { status: 401 }
+      { error: "System failed to get user session" },
+      { status: 400 }
+    );
+  }
+
+  // get access token
+  const accessToken = session?.access_token;
+
+  // if api fails to retrieve user access token
+  if (!accessToken) {
+    serverInstance.info("System failed to provide access token");
+    return NextResponse.json(
+      { error: "No access token provided" },
+      { status: 400 }
     );
   }
 
@@ -34,7 +64,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json(
       { error: "Unauthorized access!" },
-      { status: 401 }
+      { status: 403 }
     );
   }
 
@@ -64,7 +94,7 @@ export async function POST(request: NextRequest) {
     serverInstance.info("System failed to verify user", { userError });
     return NextResponse.json(
       { error: "System failed to verify user" },
-      { status: 400 }
+      { status: 500 }
     );
   }
 
@@ -72,7 +102,7 @@ export async function POST(request: NextRequest) {
   if (user?.email === body.email) {
     return NextResponse.json(
       { error: "Email address already exists!" },
-      { status: 400 }
+      { status: 409 }
     );
   }
 
@@ -80,7 +110,7 @@ export async function POST(request: NextRequest) {
   if (user?.phone === body.phone) {
     return NextResponse.json(
       { error: "Phone address already exists!" },
-      { status: 400 }
+      { status: 409 }
     );
   }
 
@@ -96,7 +126,7 @@ export async function POST(request: NextRequest) {
     serverInstance.error("System failed to get school ID", schoolError);
     return NextResponse.json(
       { error: "Failed to get and verify school ID" },
-      { status: 400 }
+      { status: 500 }
     );
   }
 
@@ -105,12 +135,21 @@ export async function POST(request: NextRequest) {
     serverInstance.info("School ID that does not exist was submitted");
     return NextResponse.json(
       { error: "School does not exist" },
-      { status: 400 }
+      { status: 404 }
     );
   }
 
   // generates a new admin ID
   const userId = await generateUserId("admin");
+
+  // if user ID not generated
+  if (!userId) {
+    serverInstance.error("System failed to generate user ID");
+    return NextResponse.json(
+      { error: "Failed to generate user ID. Please try again later." },
+      { status: 500 }
+    );
+  }
 
   // register user
   let { data: newUser, error: newUserError } = await supabase.auth.signUp({
@@ -124,7 +163,7 @@ export async function POST(request: NextRequest) {
     serverInstance.error("system failed to register user", newUserError);
     return NextResponse.json(
       { error: "User registration failed" },
-      { status: 400 }
+      { status: 500 }
     );
   }
 
@@ -137,7 +176,7 @@ export async function POST(request: NextRequest) {
         firstname: body.firstname,
         lastname: body.lastname,
         user_id: userId,
-        school_id: body.school,
+        school_id: body.school_id,
         role: "admin",
         user_status: "invited",
       },
@@ -166,10 +205,13 @@ export async function POST(request: NextRequest) {
     serverInstance.error("System failed to send email invite", inviteError);
     return NextResponse.json(
       { error: "Failed to send invite email" },
-      { status: 400 }
+      { status: 500 }
     );
   }
 
   // send success response
-  return NextResponse.json({ message: "Admin successfully registered" });
+  return NextResponse.json(
+    { message: "Admin successfully registered" },
+    { status: 201 }
+  );
 }

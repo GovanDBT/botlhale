@@ -11,6 +11,7 @@ import {
 import React, { useRef, useState } from "react";
 import SchoolForm from "./SchoolForm";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Spinner from "@/app/components/Spinner";
 
 const SchoolFormSheet = () => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -25,9 +26,12 @@ const SchoolFormSheet = () => {
           Register School
         </Button>
       </SheetTrigger>
-      <SheetContent className="sm:max-w-xl w-full flex flex-col">
+      <SheetContent
+        className="sm:max-w-xl w-full flex flex-col"
+        onInteractOutside={(event) => event.preventDefault()}
+      >
         {/* Header */}
-        <div className="border-b px-4">
+        <div className="border-b">
           <SheetHeader>
             <SheetTitle className="text-xl/8 sm:text-lg font-bold">
               Register New School
@@ -61,7 +65,14 @@ const SchoolFormSheet = () => {
             className="text-base sm:text-sm cursor-pointer"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Registering..." : "Register"}
+            {isSubmitting ? (
+              <div className="flex items-center gap-2">
+                <Spinner />
+                Registering...
+              </div>
+            ) : (
+              "Register"
+            )}
           </Button>
         </div>
       </SheetContent>

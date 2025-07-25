@@ -9,8 +9,9 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import React, { useRef, useState } from "react";
-import SchoolForm from "./SchoolForm";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import AdminForm from "./AdminForm";
+import Spinner from "@/app/components/Spinner";
 
 const AdminFormSheet = () => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -25,22 +26,27 @@ const AdminFormSheet = () => {
           Register Admin
         </Button>
       </SheetTrigger>
-      <SheetContent className="sm:max-w-xl w-full flex flex-col">
+      <SheetContent
+        className="sm:max-w-xl w-full flex flex-col"
+        onInteractOutside={(event) => event.preventDefault()}
+      >
         {/* Header */}
-        <div className="border-b px-4">
+        <div className="border-b">
           <SheetHeader>
             <SheetTitle className="text-xl/8 sm:text-lg font-bold">
               Register New Admin
             </SheetTitle>
             <SheetDescription className="text-base sm:text-sm">
-              Fill in the form below to register a new school admin.
+              Fill in the form below to register a new school admin. An email
+              will be sent to the user where they will be prompted to complete
+              their registration.
             </SheetDescription>
           </SheetHeader>
         </div>
 
         {/* Scrollable Form Area */}
         <ScrollArea className="flex-1 px-4 overflow-y-auto">
-          <SchoolForm
+          <AdminForm
             formRef={formRef}
             onSubmittingChange={(submitting) => setIsSubmitting(submitting)}
           />
@@ -61,7 +67,14 @@ const AdminFormSheet = () => {
             className="text-base sm:text-sm cursor-pointer"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Registering..." : "Register"}
+            {isSubmitting ? (
+              <div className="flex items-center gap-2">
+                <Spinner />
+                Registering...
+              </div>
+            ) : (
+              "Register"
+            )}
           </Button>
         </div>
       </SheetContent>

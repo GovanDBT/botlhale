@@ -24,6 +24,7 @@
     "@rollbar/react": "^0.12.1",
     "@supabase/ssr": "^0.6.1",
     "@tanstack/react-query": "^5.80.10",
+    "@tanstack/react-query-devtools": "^5.83.0",
     "@tanstack/react-table": "^8.21.3",
     "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
