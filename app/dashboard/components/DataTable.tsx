@@ -36,11 +36,13 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   isLoading?: boolean;
   error?: string | null;
+  search: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  search,
   isLoading = false,
   error = null,
 }: DataTableProps<TData, TValue>) {
@@ -91,10 +93,10 @@ export function DataTable<TData, TValue>({
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter names..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder={`Filter ${search}...`}
+          value={(table.getColumn(search)?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn(search)?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

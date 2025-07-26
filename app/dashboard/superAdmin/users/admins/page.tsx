@@ -7,8 +7,27 @@
 import AppSeparator from "@/app/components/AppSeparator";
 import AppInfoTooltip from "@/app/components/AppInfoTooltip";
 import AdminFormSheet from "../../components/AdminFormSheet";
+import { DataTable } from "@/app/dashboard/components/DataTable";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { columns } from "./AdminTableColumn";
 
 const AdminsListPage = () => {
+  // Fetch data using react-query
+  const fetchAdmins = async () => {
+    const { data } = await axios.get("/api/users/admin/table");
+    return data;
+  };
+
+  const {
+    data: admins = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["admins"],
+    queryFn: fetchAdmins,
+  });
+
   return (
     <div>
       <div className="flex justify-between items-center">
@@ -19,7 +38,13 @@ const AdminsListPage = () => {
         <AdminFormSheet />
       </div>
       <AppSeparator />
-      <p>Admins table goes here...</p>
+      <DataTable
+        search="fullname"
+        columns={columns}
+        data={admins}
+        isLoading={isLoading}
+        error={error ? "Failed to fetch admins" : null}
+      />
     </div>
   );
 };

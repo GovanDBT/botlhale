@@ -153,9 +153,9 @@ export async function POST(request: NextRequest) {
 
   // register user
   let { data: newUser, error: newUserError } = await supabase.auth.signUp({
+    phone: body.phone,
     email: body.email,
     password: userId,
-    phone: body.phone,
   });
 
   // fails to register user
@@ -175,6 +175,8 @@ export async function POST(request: NextRequest) {
         id: newUser.user?.id,
         firstname: body.firstname,
         lastname: body.lastname,
+        email: body.email,
+        phone: body.phone,
         user_id: userId,
         school_id: body.school_id,
         role: "admin",
