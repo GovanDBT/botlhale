@@ -104,7 +104,9 @@ export const columns: ColumnDef<Admin>[] = [
       };
       if (!school) return <div className="hidden lg:table cell">—</div>;
 
-      return <div className="hidden lg:table cell">{school.name}</div>;
+      return (
+        <div className="hidden lg:table cell text-wrap">{school.name}</div>
+      );
     },
   },
   // date created
