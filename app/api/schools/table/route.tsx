@@ -2,7 +2,7 @@ import { serverInstance } from "@/services/rollbar/rollbar";
 import { createClient } from "@/services/supabase/server";
 import { NextResponse } from "next/server";
 
-// API request for retrieving schools profile
+// API request for retrieving schools table data
 export async function GET() {
   // initialize supabase
   const supabase = await createClient();

@@ -3,7 +3,7 @@
 import AppSeparator from "@/app/components/AppSeparator";
 import AppInfoTooltip from "@/app/components/AppInfoTooltip";
 import { DataTable } from "../../components/DataTable";
-import { columns } from "./TableColumn";
+import { columns } from "./SchoolTableColumn";
 import SchoolFormSheet from "../components/SchoolFormSheet";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -11,7 +11,7 @@ import axios from "axios";
 const SchoolsPage = () => {
   // Fetch data using react-query
   const fetchSchools = async () => {
-    const { data } = await axios.get("/api/schools/profile");
+    const { data } = await axios.get("/api/schools/table");
     return data;
   };
 
@@ -34,8 +34,8 @@ const SchoolsPage = () => {
         <SchoolFormSheet />
       </div>
       <AppSeparator />
-
       <DataTable
+        search="name"
         columns={columns}
         data={schools}
         isLoading={isLoading}
