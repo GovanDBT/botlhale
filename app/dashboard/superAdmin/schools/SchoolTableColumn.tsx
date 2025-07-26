@@ -71,6 +71,9 @@ export const columns: ColumnDef<School>[] = [
         <ArrowUpDown />
       </Button>
     ),
+    cell: ({ getValue }) => (
+      <div className="text-wrap">{getValue<string>()}</div>
+    ),
   },
   // school email
   {
