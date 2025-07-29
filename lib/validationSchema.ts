@@ -1,10 +1,60 @@
 import { z } from "zod";
 
-// validate login input
 export const loginSchema = z.object({
-    email: z.string().nonempty("Email is required!").email('Invalid email address!'),
-    password: z.string().nonempty('Password is required!')
-});
+    email: z.string().email("Invalid email address!").optional(),
+    password: z.string().optional(),
+    forcePasswordChange: z.boolean().optional(), // Make it optional
+    newPassword: z.string().optional(),
+    confirmPassword: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.forcePasswordChange === false) {
+        if (!data.password) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Password is required",
+          path: ["password"],
+        });
+      }
+      if (!data.email) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Email is required",
+          path: ["email"],
+        });
+      }
+    }
+    if (data.forcePasswordChange) {
+      if (!data.newPassword) {
+        ctx.addIssue({
+          code: "custom",
+          message: "New password is required",
+          path: ["newPassword"],
+        });
+      }
+      if ((data.newPassword ?? "").length < 8) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Password should be 8 characters long",
+          path: ["newPassword"],
+        });
+      }
+      if (!data.confirmPassword) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Confirm password is required",
+          path: ["confirmPassword"],
+        });
+      }
+      if (data.newPassword !== data.confirmPassword) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Passwords do not match",
+          path: ["confirmPassword"],
+        });
+      }
+    }
+  });
 
 // validate school registration input
 export const schoolSchema = z.object({
