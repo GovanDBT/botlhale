@@ -4,7 +4,7 @@ import { serverInstance } from "@/services/rollbar/rollbar";
 import { adminSchema } from "@/lib/validationSchema";
 import { createClient } from "@/services/supabase/server";
 import { generateUserId } from "@/lib/generateUserId";
-import { createServerClient } from "@/services/supabase/serviceRole";
+import { adminAuthClient } from "@/services/supabase/admin";
 
 export async function POST(request: NextRequest) {
   // create a new body request
@@ -194,11 +194,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // init service role key client
-  const serviceRole = createServerClient();
-
   // send invite email
-  const { error: inviteError } = await serviceRole.auth.admin.inviteUserByEmail(
+  const { error: inviteError } = await adminAuthClient.inviteUserByEmail(
     body.email
   );
 
@@ -210,6 +207,38 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+
+  // Fetch user profile
+    const { data: profile, error: profileError } = await supabase
+      .from("profile")
+      .select("role, user_id, id")
+      .eq("email", body.email)
+      .single();
+
+    if (profileError || !profile) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Profile not found. Please contact support.",
+        },
+        { status: 404 }
+      );
+    }
+
+    // Confirm email (optional, only if required for your flow)
+    const { error: confirmError } =
+      await adminAuthClient.updateUserById(profile.id, {
+        email_confirm: true,
+      });
+
+    if (confirmError) {
+      serverInstance.error("Failed to confirm user email", confirmError);
+      return NextResponse.json(
+        { error: "Failed to confirm user after creation" },
+        { status: 500 }
+      );
+    }
 
   // send success response
   return NextResponse.json(
