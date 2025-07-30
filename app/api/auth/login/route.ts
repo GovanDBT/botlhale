@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     // Fetch user profile
     const { data: profile, error: profileError } = await supabase
       .from("profile")
-      .select("role, user_id")
+      .select("role, user_id, school_id")
       .eq("email", email)
       .single();
 
@@ -67,10 +67,16 @@ export async function POST(request: Request) {
       });
     }
 
+    const { data: school, error: schoolError } = await supabase
+      .from("school")
+      .select("id")
+      .eq("id", profile.school_id)
+      .single();
+
     // Determine redirect path
     let redirectPath = "/dashboard/student";
     if (profile.role === "superAdmin") redirectPath = "/dashboard/superAdmin";
-    else if (profile.role === "admin") redirectPath = "/dashboard/admin";
+    else if (profile.role === "admin") redirectPath = `/dashboard/${school?.id}`;
     else if (profile.role === "teacher") redirectPath = "/dashboard/teacher";
     else if (profile.role === "parent") redirectPath = "/dashboard/parent";
 
