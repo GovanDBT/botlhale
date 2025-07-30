@@ -34,6 +34,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-primary-darker: var(--primary-darker);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -53,6 +54,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   --primary: #576087;
+  --primary-darker: #464d6c;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: #F6B595;
   --secondary-foreground: oklch(0.205 0 0);
@@ -118,6 +120,13 @@
   --text-nav-desktop: 15px;
 }
 
+/* Removes animation in navbar dropdown menu (mobile) */
+.no-animation {
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -125,14 +134,13 @@
   body {
     @apply bg-background text-foreground;
   }
- h1 {
-  @apply text-2xl/8 sm:text-xl/8 font-bold;
- }
- h2 {
-  @apply text-xl/8 sm:text-lg font-bold;
- }
- p {
-  @apply text-base sm:text-sm;
- }
-
+  h1 {
+    @apply text-2xl/8 sm:text-xl/8 font-bold;
+  }
+  h2 {
+    @apply text-xl/8 sm:text-lg font-bold;
+  }
+  p {
+    @apply text-base sm:text-sm;
+  }
 }
