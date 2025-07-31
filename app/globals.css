@@ -136,6 +136,10 @@
   color: var(--primary);
 }
 
+.white-gradient-background {
+  background: radial-gradient(ellipse at center, #ffffff 40%, transparent 100%);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

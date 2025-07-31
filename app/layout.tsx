@@ -24,7 +24,7 @@ export default function RootLayout({
   // Dynamic background logic
   const backgroundClass = (() => {
     if (pathname.startsWith("/login"))
-      return "bg-[url('/background.jpg')] bg-cover lg:bg-center md:bg-left";
+      return "bg-[url('/zebra-background.jpg')] bg-cover lg:bg-center";
     return "bg-white";
   })();
   return (

@@ -43,7 +43,7 @@ const Navbar = () => {
   const handleRouting = () => router.push("/login"); // handles button routing
 
   return (
-    <nav className="flex justify-between items-center py-5">
+    <nav className="flex justify-between items-center py-5 lg:border-b">
       {/* Navbar logo */}
       <Link href="/" className="block w-[140]">
         <Image
