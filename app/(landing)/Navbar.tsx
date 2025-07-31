@@ -45,15 +45,15 @@ const Navbar = () => {
   return (
     <nav className="flex justify-between items-center py-5">
       {/* Navbar logo */}
-      <Link href="/">
+      <Link href="/" className="block w-[140]">
         <Image
           src="/Strype.svg"
           alt="Strype logo"
           width={0}
           height={0}
           title="Strype Logo"
-          style={{ width: "50%", height: "auto" }}
           priority
+          style={{ width: "100%", height: "auto" }}
           className="hover:opacity-80 transition ease-in-out"
         />
       </Link>
@@ -88,7 +88,7 @@ const Navbar = () => {
           </NavigationMenuItem>
           {/* Features links */}
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-nav-desktop font-normal hover:!text-primary">
+            <NavigationMenuTrigger className="text-nav-desktop font-normal hover:!text-primary bg-transparent">
               Features
             </NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -131,7 +131,7 @@ const Navbar = () => {
           </NavigationMenuItem>
           {/* Rankings links */}
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-nav-desktop font-normal hover:!text-primary">
+            <NavigationMenuTrigger className="text-nav-desktop font-normal hover:!text-primary bg-transparent">
               Rankings
             </NavigationMenuTrigger>
             <NavigationMenuContent>

@@ -1,11 +1,16 @@
+// app/components/LoginForm.tsx
+// Login form component
 "use client";
-
+// modules
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { loginSchema } from "@/lib/validationSchema"; // <-- your existing schema
+import z from "zod";
+import Rollbar from "rollbar";
+import { CircleArrowLeftIcon, Eye, EyeOff } from "lucide-react";
+// Shadcn UI components
 import {
   Form,
   FormControl,
@@ -18,22 +23,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import z from "zod";
-import Spinner from "./Spinner";
-import { clientConfig } from "@/services/rollbar/rollbar";
-import Rollbar from "rollbar";
-import { CircleArrowLeftIcon, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+// custom modules
+import { loginSchema } from "@/lib/validationSchema";
+import { clientConfig } from "@/services/rollbar/rollbar";
+import Spinner from "./Spinner";
+import Link from "next/link";
 
+// infer TypeScript type from Zod login schema
 type LoginData = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const [forcePasswordChange, setForcePasswordChange] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-  const rollbar = new Rollbar(clientConfig);
+  const [error, setError] = useState<string | null>(null); // when error message occues
+  const [isRedirecting, setIsRedirecting] = useState(false); // when user is redirected
+  const [forcePasswordChange, setForcePasswordChange] = useState(false); // when user is forced to change password
+  const [showPassword, setShowPassword] = useState(false); // show or hide password
+  const router = useRouter(); // programmatic navigation
+  const rollbar = new Rollbar(clientConfig); // client error logging
 
   // Initialize form with Zod validation
   const form = useForm<LoginData>({
@@ -41,7 +47,7 @@ const LoginForm = () => {
     defaultValues: {
       email: "",
       password: "",
-      forcePasswordChange: false, // initialize as false
+      forcePasswordChange: false,
       newPassword: "",
       confirmPassword: "",
     },
@@ -112,85 +118,115 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="place-items-center place-content-center my-30">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="flex-row max-w-sm space-y-8"
-        >
-          {/* Form header */}
-          {!forcePasswordChange ? (
-            <h1 className="text-2xl/8 sm:text-xl/8 font-bold">
-              Sign in to your account
-            </h1>
-          ) : (
-            <h1 className="text-2xl/8 sm:text-xl/8 font-bold flex items-center gap-2">
-              <Button
-                variant="link"
-                className="
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="flex-row max-w-sm space-y-8"
+      >
+        {/* Form header */}
+        {!forcePasswordChange ? (
+          <h1 className="text-2xl/8 sm:text-xl/8 font-bold">
+            Sign in to your account
+          </h1>
+        ) : (
+          <h1 className="text-2xl/8 sm:text-xl/8 font-bold flex items-center gap-2">
+            <Button
+              variant="link"
+              className="
                 p-0 cursor-pointer hover:-translate-x-0.5"
-                title="Back to login"
-                asChild
-                onClick={() => {
-                  form.setValue("forcePasswordChange", false);
-                  setForcePasswordChange(false);
-                }}
-              >
-                <CircleArrowLeftIcon color="#576087" />
-              </Button>
-              Please change your password
-            </h1>
+              title="Back to login"
+              asChild
+              onClick={() => {
+                form.setValue("forcePasswordChange", false);
+                setForcePasswordChange(false);
+              }}
+            >
+              <CircleArrowLeftIcon color="#576087" />
+            </Button>
+            Please change your password
+          </h1>
+        )}
+
+        {/* Show error message */}
+        {error && <p className="text-red-500">{error}</p>}
+
+        {/* Email */}
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="email" className="text-base sm:text-sm">
+                Email or Phone
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="email"
+                  id="email"
+                  autoComplete="email"
+                  className="h-12 sm:h-10"
+                  {...field}
+                />
+              </FormControl>
+              {/* Client-side validation errors */}
+              <FormMessage />
+            </FormItem>
           )}
+        />
 
-          {/* Show error message */}
-          {error && <p className="text-red-500">{error}</p>}
-
-          {/* Email */}
+        {/* Password or new password field */}
+        {!forcePasswordChange ? (
           <FormField
             control={form.control}
-            name="email"
+            name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor="email" className="text-base sm:text-sm">
-                  Email or Phone
+                <FormLabel htmlFor="password" className="text-base sm:text-sm">
+                  Password
                 </FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    id="email"
-                    className="h-12 sm:h-10"
-                    {...field}
-                  />
-                </FormControl>
-                {/* Client-side validation errors */}
+                <div className="relative">
+                  <FormControl>
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      className="h-12 sm:h-10 pr-10"
+                      {...field}
+                    />
+                  </FormControl>
+                  {/* Eye icon button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700 cursor-pointer"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <EyeOff size={18} color="#F6B595" />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
           />
-
-          {/* Password or new password field */}
-          {!forcePasswordChange ? (
+        ) : (
+          <>
             <FormField
               control={form.control}
-              name="password"
+              name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel
-                    htmlFor="password"
-                    className="text-base sm:text-sm"
-                  >
-                    Password
-                  </FormLabel>
+                  <FormLabel>New Password</FormLabel>
                   <div className="relative">
                     <FormControl>
                       <Input
+                        id="newPassword"
                         type={showPassword ? "text" : "password"}
-                        id="password"
-                        className="h-12 sm:h-10 pr-10"
                         {...field}
                       />
                     </FormControl>
-                    {/* Eye icon button */}
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
@@ -208,115 +244,89 @@ const LoginForm = () => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input id="confirmPassword" type="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+
+        {/* Remember me + forgot password */}
+        {!forcePasswordChange && (
+          <div className="flex justify-between">
+            <div className="flex items-center space-x-2">
+              <Checkbox id="remember" name="remember" />
+              <Label htmlFor="remember" className="text-base sm:text-sm">
+                Remember Me
+              </Label>
+            </div>
+            <Link href="#" className="text-base sm:text-sm font-semibold link">
+              Forgot Password?
+            </Link>
+          </div>
+        )}
+
+        {/* Login button */}
+        <Button
+          type="submit"
+          disabled={isRedirecting}
+          className="w-full text-base sm:text-sm py-6 sm:py-5 text-nowrap tracking-wide cursor-pointer hover:bg-primary-darker transition ease-in font-bold"
+        >
+          {!forcePasswordChange ? (
+            <>
+              {" "}
+              {isRedirecting ? (
+                <div className="flex items-center gap-2">
+                  <Spinner />
+                  Redirecting...
+                </div>
+              ) : (
+                "Login"
+              )}
+            </>
           ) : (
             <>
-              <FormField
-                control={form.control}
-                name="newPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>New Password</FormLabel>
-                    <div className="relative">
-                      <FormControl>
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          {...field}
-                        />
-                      </FormControl>
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700 cursor-pointer"
-                        tabIndex={-1}
-                      >
-                        {showPassword ? (
-                          <EyeOff size={18} color="#F6B595" />
-                        ) : (
-                          <Eye size={18} />
-                        )}
-                      </button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
-                    <FormControl>
-                      <Input type="text" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {" "}
+              {isRedirecting ? (
+                <div className="flex items-center gap-2">
+                  <Spinner />
+                  Changing Password...
+                </div>
+              ) : (
+                "Change Password"
+              )}
             </>
           )}
+        </Button>
 
-          {/* Remember me + forgot password */}
-          {!forcePasswordChange && (
-            <div className="flex justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
-                <Label htmlFor="remember" className="text-base sm:text-sm">
-                  Remember Me
-                </Label>
-              </div>
-              <p className="underline text-base sm:text-sm font-semibold">
-                Forgot Password?
-              </p>
-            </div>
-          )}
-
-          {/* Login button */}
-          <Button
-            type="submit"
-            disabled={isRedirecting}
-            className="w-full text-base sm:text-sm py-6 sm:py-5"
-          >
-            {!forcePasswordChange ? (
-              <>
-                {" "}
-                {isRedirecting ? (
-                  <div className="flex items-center gap-2">
-                    <Spinner />
-                    Redirecting...
-                  </div>
-                ) : (
-                  "Login"
-                )}
-              </>
-            ) : (
-              <>
-                {" "}
-                {isRedirecting ? (
-                  <div className="flex items-center gap-2">
-                    <Spinner />
-                    Changing Password...
-                  </div>
-                ) : (
-                  "Change Password"
-                )}
-              </>
-            )}
-          </Button>
-
-          {/* Footer */}
-          <p className="text-base sm:text-sm">
-            Don&apos;t have an account?{" "}
-            <span className="underline">How to register</span>
-          </p>
-          <p className="text-xs">
-            By logging in you agree to our{" "}
-            <span className="underline">Terms of Use</span> and our{" "}
-            <span className="underline">Privacy Policy</span>
-          </p>
-        </form>
-      </Form>
-    </div>
+        {/* Footer */}
+        <p className="text-base sm:text-sm">
+          Don&apos;t have an account?{" "}
+          <Link href="#" className="link">
+            How to register
+          </Link>
+        </p>
+        <p className="text-xs">
+          By logging in you agree to our{" "}
+          <Link href="#" className="link">
+            Terms of Use
+          </Link>{" "}
+          and our{" "}
+          <Link href="#" className="link">
+            Privacy Policy
+          </Link>
+        </p>
+      </form>
+    </Form>
   );
 };
 

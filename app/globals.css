@@ -127,6 +127,15 @@
   opacity: 1 !important;
 }
 
+.link {
+  transition: color 0.2s ease-in-out;
+  text-decoration: underline;
+}
+
+.link:hover {
+  color: var(--primary);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -1,7 +1,14 @@
 import LoginForm from "../../components/LoginForm";
 
 const LoginPage = () => {
-  return <LoginForm />;
+  return (
+    <div className="grid lg:grid-cols-2 gap-4 justify-items-center w-full mt-5">
+      <div className="place-self-center mt-10 lg:mt-0 px-4">
+        <LoginForm />
+      </div>
+      <div className="bg-[#f2f4ff] rounded-3xl w-full min-h-[520px] p-8 text-center hidden lg:grid"></div>
+    </div>
+  );
 };
 
 export default LoginPage;
