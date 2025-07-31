@@ -1,5 +1,4 @@
 // app/api/auth/login/route.ts
-
 import { NextResponse } from "next/server";
 import { createClient } from "@/services/supabase/server";
 import { loginSchema } from "@/lib/validationSchema";
@@ -42,11 +41,7 @@ export async function POST(request: Request) {
     }
 
     // Attempt login FIRST
-    const { error: signInError } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (signInError) {
       return NextResponse.json(
@@ -67,19 +62,41 @@ export async function POST(request: Request) {
       });
     }
 
-    const { data: school, error: schoolError } = await supabase
-      .from("school")
-      .select("id")
-      .eq("id", profile.school_id)
-      .single();
+    let redirectPath = "";
 
-    // Determine redirect path
-    let redirectPath = "/dashboard/student";
-    if (profile.role === "superAdmin") redirectPath = "/dashboard/superAdmin";
-    else if (profile.role === "admin") redirectPath = `/dashboard/${school?.id}`;
-    else if (profile.role === "teacher") redirectPath = "/dashboard/teacher";
-    else if (profile.role === "parent") redirectPath = "/dashboard/parent";
+    if (profile.role !== "superAdmin") {
+      // fetch school ID
+      const { data: school, error: schoolError } = await supabase
+        .from("school")
+        .select("id")
+        .eq("id", profile.school_id)
+        .single();
+  
+      if (schoolError) {
+        serverInstance.error('System failed to fetch school id', schoolError);
+        return NextResponse.json({
+          success: false,
+          error: "Unable to find your school at the moment, please try again later",
+        },
+        { status: 404 }
+      )}
 
+      if (profile.role === "student") redirectPath = `/dashboard/student`;
+      else if (profile.role === "admin") redirectPath = `/dashboard/${school?.id}`;
+      else if (profile.role === "teacher") redirectPath = "/dashboard/teacher";
+      else if (profile.role === "guardian") redirectPath = "/dashboard/guardian";
+      else {
+        serverInstance.warning('Unknown role tried to login');
+        return NextResponse.json(
+          { success: false, error: "Cannot login. User role is unauthorized" },
+          { status: 401 }
+        );
+      }
+    } else {
+      redirectPath = "/dashboard/superAdmin"
+    }
+
+    // response
     return NextResponse.json({
       success: true,
       redirectPath,

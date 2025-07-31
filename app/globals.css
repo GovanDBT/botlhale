@@ -146,6 +146,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    height: max-content;
   }
   h1 {
     @apply text-2xl/8 sm:text-xl/8 font-bold;
