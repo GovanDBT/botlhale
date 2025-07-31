@@ -49,9 +49,11 @@ const Navbar = () => {
         <Image
           src="/Strype.svg"
           alt="Strype logo"
-          width={140}
-          height={140}
+          width={0}
+          height={0}
           title="Strype Logo"
+          style={{ width: "50%", height: "auto" }}
+          priority
           className="hover:opacity-80 transition ease-in-out"
         />
       </Link>
