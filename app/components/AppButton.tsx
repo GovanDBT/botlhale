@@ -1,13 +1,12 @@
 // app/components/LinkButton.tsx
 // Custom link button to navigate users to different pages
 import { Button } from "@/components/ui/button";
-import { ChevronRight, CircleArrowRight } from "lucide-react";
-import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
-  href?: string;
+  onClick?: () => void;
   className?: string;
   icon?: boolean;
   variant?:
@@ -21,10 +20,10 @@ interface Props {
 
 const AppButton = ({
   children,
-  href = "",
   className,
   icon = false,
   variant = "default",
+  onClick,
 }: Props) => {
   return (
     <Button
@@ -33,17 +32,14 @@ const AppButton = ({
         className
       }
       variant={variant}
-      asChild
+      onClick={onClick}
     >
-      <Link
-        href={href}
-        className="text-base sm:text-sm text-nowrap tracking-wide !gap-1 "
-      >
+      <span className="text-base sm:text-sm text-nowrap tracking-wide !gap-1">
         {children}
-        {icon && (
-          <ChevronRight className="transition duration-300 ease-in-out group-hover:translate-x-0.5" />
-        )}
-      </Link>
+      </span>
+      {icon && (
+        <ChevronRight className="transition duration-300 ease-in-out group-hover:translate-x-0.5" />
+      )}
     </Button>
   );
 };

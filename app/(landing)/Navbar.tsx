@@ -4,7 +4,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Lato } from "next/font/google"; // Google Lato font
 import { CircleX, Menu } from "lucide-react"; // burger icon
 // Shadcn UI
@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 // custom modules
-import LinkButton from "../components/LinkButton";
+import AppButton from "../components/AppButton";
 
 // Initiate Lato font
 const lato = Lato({
@@ -38,6 +38,9 @@ const lato = Lato({
 
 const Navbar = () => {
   const pathname = usePathname(); // Get the current path
+  const router = useRouter(); // programmatic navigation
+
+  const handleRouting = () => router.push("/login"); // handles button routing
 
   return (
     <nav className="flex justify-between items-center py-5">
@@ -183,9 +186,9 @@ const Navbar = () => {
         </NavigationMenuList>
       </NavigationMenu>
       {/* Desktop Navbar button */}
-      <LinkButton href="/login" className="hidden lg:inline-flex" icon>
+      <AppButton onClick={handleRouting} className="hidden lg:inline-flex" icon>
         Login
-      </LinkButton>
+      </AppButton>
       {/* Mobile Navbar menu list + buttons */}
       <div className="lg:hidden">
         <Sheet>
@@ -404,12 +407,12 @@ const Navbar = () => {
             {/* Menu Buttons */}
             <SheetFooter>
               {/* Login Button */}
-              <LinkButton
-                href="/login"
+              <AppButton
+                onClick={handleRouting}
                 className="rounded-[3px] py-5 uppercase"
               >
                 Login
-              </LinkButton>
+              </AppButton>
               {/* Close Sheet Button */}
               <SheetClose asChild>
                 <Button
