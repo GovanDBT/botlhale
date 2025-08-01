@@ -1,5 +1,4 @@
 "use client";
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReactQueryProvider from "../providers/ReactQueryProvider";
@@ -23,7 +22,7 @@ export default function RootLayout({
   const pathname = usePathname();
   // Dynamic background logic
   const backgroundClass = (() => {
-    if (pathname.startsWith("/login"))
+    if (pathname.match("/login"))
       return "bg-[url('/zebra-background.jpg')] bg-cover lg:bg-center";
     return "bg-white";
   })();

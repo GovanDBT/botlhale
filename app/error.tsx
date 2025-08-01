@@ -4,7 +4,6 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRollbar } from "@rollbar/react";
-import Link from "next/link";
 import Image from "next/image";
 import { RefreshCcw } from "lucide-react";
 
@@ -24,7 +23,7 @@ export default function Error({
 
   return (
     <div className="container mx-auto px-4">
-      <Link href="/" className="block w-[140] pt-10">
+      <div className="block w-[140] pt-10">
         <Image
           src="/Strype.svg"
           alt="Strype logo"
@@ -35,7 +34,7 @@ export default function Error({
           style={{ width: "100%", height: "auto" }}
           className="hover:opacity-80 transition ease-in-out"
         />
-      </Link>
+      </div>
       <div className="place-content-center place-items-center ">
         {/* Error image */}
         <Image
