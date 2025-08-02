@@ -1,5 +1,6 @@
 /**
- * Custom hook for selecting schools
+ * /hooks/useSchools.ts
+ * Custom hook for fetching schools
  */
 import { createClient } from "@/services/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +16,7 @@ interface School {
 
 // selects all the schools data
 export default function useSchools () {
-    const supabase = createClient(); // initiate supabase on the client side
+  const supabase = createClient(); // initiate supabase on the client side
 
   // fetch schools from supabase
   const fetchSchools = async (): Promise<School[]> => {
@@ -33,6 +34,7 @@ export default function useSchools () {
 }
 
 // selects the school name and Id only
+// used in the select input to assign admin a school
 export function useSelectSchools() {
   const fetchSchools = async () => {
     try {

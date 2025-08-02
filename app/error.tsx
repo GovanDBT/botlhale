@@ -7,6 +7,7 @@ import { useRollbar } from "@rollbar/react";
 import Image from "next/image";
 import { RefreshCcw } from "lucide-react";
 import Link from "next/link";
+import AppButton from "./components/AppButton";
 
 export default function Error({
   error,
@@ -79,19 +80,15 @@ export default function Error({
         </p>
         {/* Refresh button */}
         <div className="mt-8">
-          <Button
-            className="rounded-[3px] cursor-pointer py-5 font-bold uppercase tracking-wide hover:bg-primary-darker transition ease-in group !px-6"
+          <AppButton
+            icon={RefreshCcw}
+            largerBtn
             onClick={handleTryAgain}
+            iconStyle="group-hover:rotate-45"
             disabled={isDisabled}
           >
-            {isDisabled ? "Button Disabled" : "Try again"}
-            {!isDisabled && (
-              <RefreshCcw
-                strokeWidth={2.5}
-                className="transition duration-300 ease-in-out group-hover:rotate-45"
-              />
-            )}
-          </Button>
+            try again
+          </AppButton>
           {!isDisabled && (
             <p className="text-xs text-center mt-2 text-gray-400">
               {10 - clickCount} attempts remaining

@@ -25,7 +25,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 // custom modules
@@ -188,7 +187,11 @@ const Navbar = () => {
         </NavigationMenuList>
       </NavigationMenu>
       {/* Desktop Navbar button */}
-      <AppButton onClick={handleRouting} className="hidden lg:inline-flex" icon>
+      <AppButton
+        onClick={handleRouting}
+        className="hidden lg:inline-flex"
+        redirectIcon
+      >
         Login
       </AppButton>
       {/* Mobile Navbar menu list + buttons */}
@@ -409,20 +412,18 @@ const Navbar = () => {
             {/* Menu Buttons */}
             <SheetFooter>
               {/* Login Button */}
-              <AppButton
-                onClick={handleRouting}
-                className="rounded-[3px] py-5 uppercase"
-              >
+              <AppButton onClick={handleRouting} largerBtn>
                 Login
               </AppButton>
               {/* Close Sheet Button */}
               <SheetClose asChild>
-                <Button
+                <AppButton
                   variant="outline"
-                  className="rounded-[3px] cursor-pointer py-5 font-bold uppercase tracking-wide"
+                  largerBtn
+                  className="hover:bg-gray-100"
                 >
                   Close
-                </Button>
+                </AppButton>
               </SheetClose>
             </SheetFooter>
           </SheetContent>

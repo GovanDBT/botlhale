@@ -29,6 +29,7 @@ import { loginSchema } from "@/lib/validationSchema";
 import { clientConfig } from "@/services/rollbar/rollbar";
 import Spinner from "./Spinner";
 import Link from "next/link";
+import AppButton from "./AppButton";
 
 // infer TypeScript type from Zod login schema
 type LoginData = z.infer<typeof loginSchema>;
@@ -165,6 +166,7 @@ const LoginForm = () => {
                   id="email"
                   autoComplete="email"
                   className="h-12 sm:h-10"
+                  disabled={forcePasswordChange}
                   {...field}
                 />
               </FormControl>
@@ -276,10 +278,10 @@ const LoginForm = () => {
         )}
 
         {/* Login button */}
-        <Button
+        <AppButton
           type="submit"
           disabled={isRedirecting}
-          className="w-full text-base sm:text-sm py-6 sm:py-5 text-nowrap tracking-wide cursor-pointer hover:bg-primary-darker transition ease-in font-bold"
+          className="w-full py-5"
         >
           {!forcePasswordChange ? (
             <>
@@ -306,7 +308,7 @@ const LoginForm = () => {
               )}
             </>
           )}
-        </Button>
+        </AppButton>
 
         {/* Footer */}
         <p className="text-base sm:text-sm">

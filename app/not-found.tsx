@@ -1,10 +1,10 @@
 // app/not-found.tsx
 // 404 not found page
 "use client";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import AppButton from "./components/AppButton";
 
 const NotFoundPage = () => {
   const router = useRouter();
@@ -48,16 +48,14 @@ const NotFoundPage = () => {
         </p>
         {/* Go back button */}
         <div className="mt-8">
-          <Button
-            className="rounded-[3px] cursor-pointer py-5 font-bold uppercase tracking-wide hover:bg-primary-darker transition ease-in !px-6 group"
+          <AppButton
+            icon={ArrowLeft}
+            iconLeft
+            largerBtn
             onClick={() => router.back()}
           >
-            <ArrowLeft
-              strokeWidth={2.5}
-              className="transition duration-300 ease-in-out group-hover:-translate-x-0.5"
-            />
-            Go Back
-          </Button>
+            go back
+          </AppButton>
         </div>
       </div>
     </div>
