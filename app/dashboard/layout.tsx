@@ -15,7 +15,7 @@ export default function Layout({ children, breadcrumbs }: Props) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="w-screen bg-white grow lg:rounded-lg lg:m-2 px-9 lg:px-20 py-8">
+      <main className="w-screen bg-white grow lg:rounded-lg lg:m-2 px-4 lg:px-20 py-8">
         <div className="flex items-center gap-4 mb-3">
           <SidebarTrigger />
           {breadcrumbs}

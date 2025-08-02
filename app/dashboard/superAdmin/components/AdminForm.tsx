@@ -214,7 +214,7 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
                   <FormLabel htmlFor="school" className="text-base sm:text-sm">
                     School: <span className="text-red-400">*</span>
                   </FormLabel>
-                  <Popover>
+                  <Popover modal={true}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -234,14 +234,14 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[270px] h-[170px] p-0">
+                    <PopoverContent className="w-[270px] p-0">
                       <Command>
                         <CommandInput
                           placeholder="Search school..."
                           className="h-9"
                         />
                         <CommandList>
-                          <ScrollArea className="h-[130px]">
+                          <ScrollArea className="flex-1 overflow-y-auto">
                             {isLoading && (
                               <CommandEmpty>
                                 {isLoading
