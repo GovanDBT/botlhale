@@ -44,7 +44,7 @@ const NotFoundPage = () => {
           The requested page could not be found
         </h1>
         <p className="text-primary text-base text-center">
-          Oop! It seems the requested URL was not found on this server
+          Oops! It seems the requested URL was not found on this server
         </p>
         {/* Go back button */}
         <div className="mt-8">

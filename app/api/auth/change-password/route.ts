@@ -13,7 +13,7 @@ export async function PUT(request: Request) {
     const result = loginSchema.safeParse({ email, newPassword, confirmPassword });
     // if input validation fails
     if (!result.success) {
-        serverInstance.error('Change password input validation failed')
+      serverInstance.error('Change password input validation failed')
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
         { status: 400 }

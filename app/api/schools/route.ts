@@ -3,7 +3,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { schoolSchema } from "@/lib/validationSchema";
-import { fetchUserRoleFromSession } from "@/utils/getUserRole";
+import { getUserRole } from "@/utils/getUserRole";
 import { createClient } from "@/services/supabase/server";
 import { serverInstance } from "@/services/rollbar/rollbar";
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Fetch the current user's role
-  const userRole = await fetchUserRoleFromSession(accessToken ?? null);
+  const userRole = await getUserRole(accessToken);
 
   // If user is not superAdmin, throw an error
   if (userRole !== "superAdmin") {

@@ -76,7 +76,7 @@ export default function Error({
           An unexpected error occurred!
         </h1>
         <p className="text-primary text-base text-center">
-          Oop! Something went wrong while trying to fetch a request
+          Oops! Something went wrong while trying to fetch a request
         </p>
         {/* Refresh button */}
         <div className="mt-8">

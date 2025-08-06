@@ -1,4 +1,6 @@
-import { fetchUserRoleFromSession } from "@/utils/getUserRole";
+// app/api/users/admin/route.ts
+// admin response api's
+import { getUserRole } from "@/utils/getUserRole";
 import { NextRequest, NextResponse } from "next/server";
 import { serverInstance } from "@/services/rollbar/rollbar";
 import { adminSchema } from "@/lib/validationSchema";
@@ -7,242 +9,224 @@ import { generateUserId } from "@/lib/generateUserId";
 import { adminAuthClient } from "@/services/supabase/admin";
 
 export async function POST(request: NextRequest) {
-  // create a new body request
-  const body = await request.json();
+  try {
+    // create a new body request
+    const body = await request.json();
 
-  // grabs our current access token - postman testing
-  // const accessToken = request.headers
-  //   .get("Authorization")
-  //   ?.replace("Bearer ", "");
+    // grabs our current access token - postman testing
+    let accessToken = request.headers
+      .get("Authorization")
+      ?.replace("Bearer ", "");
 
-  // if no access token - postman testing
-  // if (!accessToken) {
-  //   return NextResponse.json(
-  //     { error: "Unauthorized access!" },
-  //     { status: 403 }
-  //   );
-  // }
+    // initialize Supabase client on the server
+    let supabase = await createClient();
 
-  // initialize supabase server client
-  const client = await createClient();
+    // if no access token, grab token from session - client-side path
+    if (!accessToken) {
+      // grab user session
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
 
-  // grab user session
-  const {
-    data: { session },
-    error: sessionError,
-  } = await client.auth.getSession();
+      // if api fails to retrieve user session
+      if (sessionError) {
+        serverInstance.info(`Session error: ${sessionError.message}`);
+        return NextResponse.json(
+          { error: `Session error: ${sessionError.message}` || "Failed to fetch user session" },
+          { status: sessionError.status }
+        );
+      }
 
-  // if api fails to retrieve user session
-  if (sessionError) {
-    serverInstance.info("System failed to get user session", { sessionError });
-    return NextResponse.json(
-      { error: "System failed to get user session" },
-      { status: 400 }
-    );
-  }
+      // get access token from session and assign to accessToken
+      accessToken = session?.access_token;
+    
+      // if no access token was provided
+      if (!accessToken) {
+        serverInstance.info("System failed to provide access token");
+        return NextResponse.json(
+          { error: "No access token provided" },
+          { status: 409 }
+        );
+      }
+    }
+  
+    // Fetch the current user's role
+    const userRole = await getUserRole(accessToken);
 
-  // get access token
-  const accessToken = session?.access_token;
-
-  // if api fails to retrieve user access token
-  if (!accessToken) {
-    serverInstance.info("System failed to provide access token");
-    return NextResponse.json(
-      { error: "No access token provided" },
-      { status: 400 }
-    );
-  }
-
-  // Fetch the current user's role
-  const userRole = await fetchUserRoleFromSession(accessToken);
-
-  // If user is not superAdmin, throw an error
-  if (userRole !== "superAdmin") {
-    serverInstance.warning("An unauthorized users tried to create admin user", {
-      accessToken,
-      userRole,
-    });
-    return NextResponse.json(
-      { error: "Unauthorized access!" },
-      { status: 403 }
-    );
-  }
-
-  //validate body
-  const validation = adminSchema.safeParse(body);
-
-  // If validation fails, show error
-  if (!validation.success) {
-    serverInstance.warning(
-      "System failed to validate admin schema",
-      validation.error
-    );
-    return NextResponse.json(validation.error.format(), { status: 400 });
-  }
-
-  // initialize Supabase client on the server
-  const supabase = await createClient(accessToken);
-
-  // Get user data to check if user already exists
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  // if system fails to verify user data
-  if (userError) {
-    serverInstance.info("System failed to verify user", { userError });
-    return NextResponse.json(
-      { error: "System failed to verify user" },
-      { status: 500 }
-    );
-  }
-
-  // check if email or user already exists
-  if (user?.email === body.email) {
-    return NextResponse.json(
-      { error: "Email address already exists!" },
-      { status: 409 }
-    );
-  }
-
-  // check if phone or user already exists
-  if (user?.phone === body.phone) {
-    return NextResponse.json(
-      { error: "Phone address already exists!" },
-      { status: 409 }
-    );
-  }
-
-  // get school
-  const { data: school, error: schoolError } = await supabase
-    .from("school")
-    .select("id")
-    .eq("id", body.school_id)
-    .maybeSingle();
-
-  // if system fails to verify school
-  if (schoolError) {
-    serverInstance.error("System failed to get school ID", schoolError);
-    return NextResponse.json(
-      { error: "Failed to get and verify school ID" },
-      { status: 500 }
-    );
-  }
-
-  // if school ID does not exist
-  if (!school) {
-    serverInstance.info("School ID that does not exist was submitted");
-    return NextResponse.json(
-      { error: "School does not exist" },
-      { status: 404 }
-    );
-  }
-
-  // generates a new admin ID
-  const userId = await generateUserId("admin");
-
-  // if user ID not generated
-  if (!userId) {
-    serverInstance.error("System failed to generate user ID");
-    return NextResponse.json(
-      { error: "Failed to generate user ID. Please try again later." },
-      { status: 500 }
-    );
-  }
-
-  // register user
-  let { data: newUser, error: newUserError } = await supabase.auth.signUp({
-    phone: body.phone,
-    email: body.email,
-    password: userId,
-  });
-
-  // fails to register user
-  if (newUserError) {
-    serverInstance.error("system failed to register user", newUserError);
-    return NextResponse.json(
-      { error: "User registration failed" },
-      { status: 500 }
-    );
-  }
-
-  // create profile
-  const { error } = await supabase
-    .from("profile")
-    .insert([
-      {
-        id: newUser.user?.id,
-        firstname: body.firstname,
-        lastname: body.lastname,
-        email: body.email,
-        phone: body.phone,
-        user_id: userId,
-        school_id: body.school_id,
-        role: "admin",
-        user_status: "invited",
-      },
-    ])
-    .select();
-
-  // fails to create profile
-  if (error) {
-    serverInstance.error("System failed to register user profile", error);
-    return NextResponse.json(
-      { error: "Failed to create user profile" },
-      { status: 500 }
-    );
-  }
-
-  // send invite email
-  const { error: inviteError } = await adminAuthClient.inviteUserByEmail(
-    body.email
-  );
-
-  // if email invite fails
-  if (inviteError) {
-    serverInstance.error("System failed to send email invite", inviteError);
-    return NextResponse.json(
-      { error: "Failed to send invite email" },
-      { status: 500 }
-    );
-  }
-
-  // Fetch user profile
-    const { data: profile, error: profileError } = await supabase
-      .from("profile")
-      .select("role, user_id, id")
-      .eq("email", body.email)
-      .single();
-
-    if (profileError || !profile) {
+    // If user is not superAdmin, throw an error
+    if (userRole !== "superAdmin") {
+      serverInstance.warning("An unauthorized users tried to create admin user", {
+        accessToken,
+        userRole,
+      });
       return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Profile not found. Please contact support.",
-        },
+        { error: "Unauthorized access!" },
+        { status: 403 }
+      );
+    }
+
+    //validate body
+    const validation = adminSchema.safeParse(body);
+
+    // If validation fails, show error
+    if (!validation.success) {
+      return NextResponse.json(validation.error.format() || "Invalid input data", { status: 400 });
+    }
+
+    // initialize Supabase client with access
+    supabase = await createClient(accessToken);
+
+    // Get user data (email and phone) to check if user already exists
+    const { data: user, error: userError } = await supabase
+      .from("profile")
+      .select('email, phone')
+      .eq('email', body.email)
+      .maybeSingle();
+
+    // if system fails to verify user data
+    if (userError) {
+      serverInstance.error(`Verify User Profile Error: ${userError.message}`);
+      return NextResponse.json(
+        { error: `Verify User Profile Error: ${userError.message}` || "Failed to fetch user profile" },
         { status: 404 }
       );
     }
 
-    // Confirm email (optional, only if required for your flow)
-    const { error: confirmError } =
-      await adminAuthClient.updateUserById(profile.id, {
-        email_confirm: true,
-      });
-
-    if (confirmError) {
-      serverInstance.error("Failed to confirm user email", confirmError);
+    // check if email or user already exists
+    if (user?.email === body.email) {
       return NextResponse.json(
-        { error: "Failed to confirm user after creation" },
+        { error: "Email address already exists!" },
+        { status: 409 }
+      );
+    }
+
+    // check if phone or user already exists
+    if (user?.phone === body.phone) {
+      return NextResponse.json(
+        { error: "Phone address already exists!" },
+        { status: 409 }
+      );
+    }
+
+    // get school
+    const { data: school, error: schoolError } = await supabase
+      .from("school")
+      .select("id")
+      .eq("id", body.school_id)
+      .maybeSingle();
+
+    // if system fails to verify school
+    if (schoolError) {
+      serverInstance.error(`School Error: ${schoolError.message}`);
+      return NextResponse.json(
+        { error: `School Error: ${schoolError.message}` || "Failed to fetch school id" },
         { status: 500 }
       );
     }
 
-  // send success response
-  return NextResponse.json(
-    { message: "Admin successfully registered" },
-    { status: 201 }
-  );
+    // if school ID does not exist
+    if (!school) {
+      serverInstance.info("School ID that does not exist was submitted");
+      return NextResponse.json(
+        { error: "School does not exist" },
+        { status: 404 }
+      );
+    }
+
+    // generates a new admin ID
+    const userId = await generateUserId("admin");
+
+    // if user ID not generated
+    if (!userId) {
+      serverInstance.error("System failed to generate user ID");
+      return NextResponse.json(
+        { error: "Failed to generate user ID. Please try again later." },
+        { status: 500 }
+      );
+    }
+
+    // ----------- Begin pseudo-transaction -----------
+    
+    let createdAuthUserId;
+
+    try {
+      // register user
+      let { data: newUser, error: newUserError } = await adminAuthClient.createUser({
+        phone: body.phone,
+        email: body.email,
+        password: userId,
+        email_confirm: true,
+        user_metadata: {
+          display_name: body.firstname + " " + body.lastname
+        }
+      });
+    
+      // fails to register user
+      if (newUserError) {
+        throw new Error(newUserError.message || "Failed to signup user");
+      }
+
+      createdAuthUserId = newUser.user?.id;
+    
+      // create profile
+      const { error: profileError } = await supabase
+        .from("profile")
+        .insert([
+          {
+            id: createdAuthUserId,
+            firstname: body.firstname,
+            lastname: body.lastname,
+            email: body.email,
+            phone: body.phone,
+            user_id: userId,
+            school_id: body.school_id,
+            role: "admin",
+            user_status: "invited",
+          },
+        ])
+        .select();
+    
+      // fails to create profile
+      if (profileError) {
+        throw new Error(profileError.message || "Failed to create user profile");
+      }
+    
+      // send invite email
+      // const { data: invite } = await adminAuthClient.inviteUserByEmail(
+      //   body.email
+      // );
+
+      // if (!invite) {
+      //   throw new Error("Failed to send Invite");
+      // }
+
+      // send success response
+      return NextResponse.json(
+        { message: "Admin successfully registered" },
+        { status: 201 }
+      );
+      
+    } catch (error: any) {
+      // Rollback: delete created Auth user if something failed
+      if (createdAuthUserId) {
+        await adminAuthClient.deleteUser(createdAuthUserId);
+      }
+
+      return NextResponse.json(
+        { error: `User Registration Error: ${error.message}` },
+        { status: 500 }
+      );
+    }
+
+    // ----------- End pseudo-transaction -----------
+
+  } catch (error: any) {
+    serverInstance.critical("System failed to log in a user", error);
+    return NextResponse.json(
+      { success: false, error: `Server error: ${error.message}`, },
+      { status: 500 }
+    );
+  }
+  
 }
