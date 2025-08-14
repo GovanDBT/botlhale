@@ -60,7 +60,7 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
       lastname: "",
       email: "",
       phone: "",
-      school_id: 0,
+      school: 0,
     },
   });
 
@@ -208,7 +208,7 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
             {/* Select School */}
             <FormField
               control={form.control}
-              name="school_id"
+              name="school"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="school" className="text-base sm:text-sm">
@@ -261,7 +261,7 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
                                     value={school.name}
                                     key={school.id}
                                     onSelect={() => {
-                                      form.setValue("school_id", school.id, {
+                                      form.setValue("school", school.id, {
                                         shouldValidate: true,
                                         shouldDirty: true,
                                         shouldTouch: true,

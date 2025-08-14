@@ -17,7 +17,7 @@ export async function generateUserId(role: string): Promise<string> {
   const prefix = prefixMap[role.toLowerCase()];
   if (!prefix) throw new Error("Invalid role");
 
-  const { data, error } = await supabase.from("profile").select("user_id");
+  const { data, error } = await supabase.from("profile").select("profile_id");
 
   if (error) {
     serverInstance.error("System failed to fetch existing ID", error);
@@ -28,7 +28,7 @@ export async function generateUserId(role: string): Promise<string> {
   // Filter only relevant IDs
   const existingNumbers = new Set(
     (data ?? [])
-      .map((row) => row.user_id)
+      .map((row) => row.profile_id)
       .filter(
         (id) => typeof id === "string" && id.startsWith(`${prefix}-${year}-`)
       )

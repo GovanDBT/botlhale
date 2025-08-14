@@ -70,7 +70,7 @@ export const schoolSchema = z.object({
 export const adminSchema = z.object({
     firstname: z.string().min(1, "Firstname is required!"),
     lastname: z.string().min(1, "lastname is required!"),
-    school_id: z.number().min(1, "School is required!"),
+    school: z.number().min(1, "School is required!"),
     email: z.string().email().min(1, "Email is required"),
     phone: z.string().min(1, "Phone number is required!")
 })

@@ -10,9 +10,9 @@ export async function GET() {
   const { data, error } = await supabase
     .from("profile")
     .select(
-      "id, user_id, firstname, lastname, email, phone, created_at, school:school_id(name)"
+      "id, user_id, firstname, lastname, email, phone, created_at, school:school(name)"
     )
-    .eq("role", "admin")
+    .eq("user_role", "admin")
     .order("created_at");
 
   if (error) {

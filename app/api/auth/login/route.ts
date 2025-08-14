@@ -1,4 +1,5 @@
 // app/api/auth/login/route.ts
+// login api
 import { NextResponse } from "next/server";
 import { createClient } from "@/services/supabase/server";
 import { loginSchema } from "@/lib/validationSchema";
@@ -6,56 +7,61 @@ import { serverInstance } from "@/services/rollbar/rollbar";
 
 export async function POST(request: Request) {
   try {
+    // create a new body
     const body = await request.json();
     const { email, password } = body;
 
-    // Validate inputs
-    const result = loginSchema.safeParse({ email, password });
-    if (!result.success) {
-      serverInstance.error("Login input validation failed");
+    // Validate body
+    const validate = loginSchema.safeParse({ email, password });
+
+    if (!validate.success) {
       return NextResponse.json(
-        { success: false, error: "Invalid credentials" },
+        { success: false, error:  validate.error.format() || "Invalid credentials" },
         { status: 400 }
       );
     }
 
     // Initialize Supabase client
-    const supabase = await createClient();
+    let supabase = await createClient();
 
-    // Fetch user profile
-    const { data: profile, error: profileError } = await supabase
-      .from("profile")
-      .select("role, user_id, school_id")
-      .eq("email", email)
-      .single();
-
-    if (profileError || !profile) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Profile not found. Please contact support.",
-        },
-        { status: 404 }
-      );
-    }
-
-    // Attempt login FIRST
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-
+    // Attempt login
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    
+    // if login fails
     if (signInError) {
       return NextResponse.json(
         {
           success: false,
           error:
-            "Incorrect Email or Password, Please verify your credentials",
+          `Login Error: ${signInError.message}` || "Incorrect Email or Password, Please verify your credentials",
         },
         { status: 401 }
       );
     }
 
+    supabase = await createClient(signInData.session?.access_token);
+    
+    // Fetch user profile
+    const { data: profile, error: profileError } = await supabase
+      .from("profile")
+      .select("profile_role, profile_id, school")
+      .eq("email", email)
+      .single();
+
+    // if user profile does not exist or fails to fetch user profile
+    if (profileError || !profile) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            `Profile Error: ${profileError.message}` || "Profile not found. Please contact support.",
+        },
+        { status: 404 }
+      );
+    }
+
     // Check if password equals user_id AFTER successful login
-    if (password === profile.user_id) {
+    if (password === profile.profile_id) {
       return NextResponse.json({
         success: false,
         forcePasswordChange: true,
@@ -64,27 +70,27 @@ export async function POST(request: Request) {
 
     let redirectPath = "";
 
-    if (profile.role !== "superAdmin") {
+    if (profile.profile_role !== "superAdmin") {
       // fetch school ID
       const { data: school, error: schoolError } = await supabase
         .from("school")
         .select("id")
-        .eq("id", profile.school_id)
+        .eq("id", profile.school)
         .single();
   
       if (schoolError) {
         serverInstance.error('System failed to fetch school id', schoolError);
         return NextResponse.json({
           success: false,
-          error: "Unable to find your school at the moment, please try again later",
+          error: `School Error: ${schoolError.message}` || "Unable to find your school at the moment, please try again later",
         },
         { status: 404 }
       )}
 
-      if (profile.role === "student") redirectPath = `/dashboard/student`;
-      else if (profile.role === "admin") redirectPath = `/dashboard/${school?.id}`;
-      else if (profile.role === "teacher") redirectPath = "/dashboard/teacher";
-      else if (profile.role === "guardian") redirectPath = "/dashboard/guardian";
+      if (profile.profile_role === "student") redirectPath = `/dashboard/student`;
+      else if (profile.profile_role === "admin") redirectPath = `/dashboard/${school?.id}`;
+      else if (profile.profile_role === "teacher") redirectPath = "/dashboard/teacher";
+      else if (profile.profile_role === "guardian") redirectPath = "/dashboard/guardian";
       else {
         serverInstance.warning('Unknown role tried to login');
         return NextResponse.json(

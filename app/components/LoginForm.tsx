@@ -35,7 +35,7 @@ import AppButton from "./AppButton";
 type LoginData = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
-  const [error, setError] = useState<string | null>(null); // when error message occues
+  const [error, setError] = useState<string | null>(null); // when error message occurs
   const [isRedirecting, setIsRedirecting] = useState(false); // when user is redirected
   const [forcePasswordChange, setForcePasswordChange] = useState(false); // when user is forced to change password
   const [showPassword, setShowPassword] = useState(false); // show or hide password
