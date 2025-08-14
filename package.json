@@ -22,6 +22,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@rollbar/react": "^0.12.1",
+    "@sentry/nextjs": "^10.5.0",
     "@supabase/ssr": "^0.6.1",
     "@tanstack/react-query": "^5.80.10",
     "@tanstack/react-query-devtools": "^5.83.0",

@@ -3,7 +3,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/services/supabase/server";
 import { loginSchema } from "@/lib/validationSchema";
-import { serverInstance } from "@/services/rollbar/rollbar";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(request: Request) {
   try {
@@ -14,6 +14,7 @@ export async function POST(request: Request) {
     // Validate body
     const validate = loginSchema.safeParse({ email, password });
 
+    // if validation fails
     if (!validate.success) {
       return NextResponse.json(
         { success: false, error:  validate.error.format() || "Invalid credentials" },
@@ -22,24 +23,21 @@ export async function POST(request: Request) {
     }
 
     // Initialize Supabase client
-    let supabase = await createClient();
+    const supabase = await createClient();
 
     // Attempt login
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     
     // if login fails
     if (signInError) {
       return NextResponse.json(
         {
           success: false,
-          error:
-          `Login Error: ${signInError.message}` || "Incorrect Email or Password, Please verify your credentials",
+          error: "Incorrect Email or Password, Please verify your credentials",
         },
         { status: 401 }
       );
     }
-
-    supabase = await createClient(signInData.session?.access_token);
     
     // Fetch user profile
     const { data: profile, error: profileError } = await supabase
@@ -50,6 +48,7 @@ export async function POST(request: Request) {
 
     // if user profile does not exist or fails to fetch user profile
     if (profileError || !profile) {
+      Sentry.captureException(`Profile Error: ${profileError.message}`)
       return NextResponse.json(
         {
           success: false,
@@ -70,6 +69,7 @@ export async function POST(request: Request) {
 
     let redirectPath = "";
 
+    // redirect user to their dashboard
     if (profile.profile_role !== "superAdmin") {
       // fetch school ID
       const { data: school, error: schoolError } = await supabase
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
         .single();
   
       if (schoolError) {
-        serverInstance.error('System failed to fetch school id', schoolError);
+        Sentry.captureException(`Profile Error: ${schoolError.message}`)
         return NextResponse.json({
           success: false,
           error: `School Error: ${schoolError.message}` || "Unable to find your school at the moment, please try again later",
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       else if (profile.profile_role === "teacher") redirectPath = "/dashboard/teacher";
       else if (profile.profile_role === "guardian") redirectPath = "/dashboard/guardian";
       else {
-        serverInstance.warning('Unknown role tried to login');
+        Sentry.captureMessage('Unknown role tried to login', "warning")
         return NextResponse.json(
           { success: false, error: "Cannot login. User role is unauthorized" },
           { status: 401 }
@@ -108,8 +108,9 @@ export async function POST(request: Request) {
       redirectPath,
       message: "Login Successful",
     });
+
   } catch (err: any) {
-    serverInstance.critical("System failed to log in a user", err);
+    Sentry.captureException("Failed to log in user", err)
     return NextResponse.json(
       { success: false, error: "Server error occurred" },
       { status: 500 }
