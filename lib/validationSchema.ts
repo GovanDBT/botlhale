@@ -1,13 +1,13 @@
 import { z } from "zod";
 
+// validate email input
 export const loginSchema = z.object({
     email: z.string().email("Invalid email address!").optional(),
     password: z.string().optional(),
     forcePasswordChange: z.boolean().optional(), // Make it optional
     newPassword: z.string().optional(),
     confirmPassword: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
+}).superRefine((data, ctx) => {
     if (data.forcePasswordChange === false) {
         if (!data.password) {
         ctx.addIssue({
@@ -74,3 +74,12 @@ export const adminSchema = z.object({
     email: z.string().email().min(1, "Email is required"),
     phone: z.string().min(1, "Phone number is required!")
 })
+
+// validate reset password input
+export const resetPasswordSchema = z.object({
+    newPassword: z.string().min(8, "Password must be at least 8 characters long"),
+    confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });

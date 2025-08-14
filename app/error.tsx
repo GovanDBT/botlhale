@@ -2,12 +2,11 @@
 // Error message page when an issue occurs
 "use client";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useRollbar } from "@rollbar/react";
 import Image from "next/image";
 import { RefreshCcw } from "lucide-react";
 import Link from "next/link";
 import AppButton from "./components/AppButton";
+import * as Sentry from "@sentry/nextjs";
 
 export default function Error({
   error,
@@ -19,11 +18,9 @@ export default function Error({
   // Track number of button clicks
   const [clickCount, setClickCount] = useState(0);
   const [isDisabled, setIsDisabled] = useState(false);
-  const rollbar = useRollbar();
 
   useEffect(() => {
-    rollbar.error("System error occurred", error); // error logger service
-    console.error(error);
+    Sentry.captureException(`System Error: ${error.message}`); // error logger service
   }, [error]);
 
   const handleTryAgain = () => {

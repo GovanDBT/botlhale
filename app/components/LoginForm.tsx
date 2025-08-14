@@ -205,7 +205,7 @@ const LoginForm = () => {
                     {showPassword ? (
                       <EyeOff size={18} color="#F6B595" />
                     ) : (
-                      <Eye size={18} />
+                      <Eye size={18} color="#F6B595" />
                     )}
                   </button>
                 </div>
