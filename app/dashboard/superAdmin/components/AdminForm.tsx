@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { adminSchema } from "@/lib/validationSchema";
 import { useSelectSchools } from "@/hooks/useSchools";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 // admin interface
 interface Props {
@@ -50,6 +51,9 @@ interface Props {
 type adminData = z.infer<typeof adminSchema>;
 
 const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
+  // query client for updating data
+  const queryClient = useQueryClient();
+
   // define form using react hook form
   const form = useForm<adminData>({
     resolver: zodResolver(adminSchema),
@@ -62,18 +66,16 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
     },
   });
 
-  // fetch schools using react query
-  const { data: schools = [], isLoading, error } = useSelectSchools();
+  // fresh data after creation
+  const addAdmin = useMutation({
+    mutationFn: async (admin: adminData) => {
+      // get create admin api request
+      const request = axios
+        .post("/api/users/admin", admin)
+        .then((res) => res.data);
 
-  // submit handler
-  const onSubmit = async (data: adminData) => {
-    onSubmittingChange?.(true);
-    try {
-      const promise = axios
-        .post("/api/users/admin", data)
-        .then((response) => response.data);
-
-      toast.promise(promise, {
+      // show toast
+      await toast.promise(request, {
         loading: "Creating admin...",
         success: () => {
           form.reset();
@@ -86,14 +88,25 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
           return "An unexpected error occurred while creating admin, please try again later";
         },
       });
-      try {
-        await promise;
-      } finally {
-        onSubmittingChange?.(false);
-      }
-    } catch (error: any) {
-      Sentry.captureException(`Admin Creation Server Error: ${error.message}`);
-    }
+
+      // Return the resolved data so useMutation has it
+      return request;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admins"] });
+    },
+    onSettled: () => {
+      onSubmittingChange?.(false);
+    },
+  });
+
+  // fetch schools using react query
+  const { data: schools = [], isLoading, error } = useSelectSchools();
+
+  // submit handler
+  const onSubmit = async (data: adminData) => {
+    onSubmittingChange?.(true);
+    addAdmin.mutate(data);
   };
 
   return (

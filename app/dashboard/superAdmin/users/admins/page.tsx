@@ -24,7 +24,6 @@ const AdminsListPage = () => {
   } = useQuery({
     queryKey: ["admins"],
     queryFn: fetchAdmins,
-    staleTime: 10 * 1000, // 10s
   });
 
   return (
