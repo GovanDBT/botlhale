@@ -84,13 +84,13 @@ export function DataTable<TData, TValue>({
   }
 
   // Error state
-  if (error) {
-    return (
-      <p className="font-bold flex gap-2 justify-center h-[200] place-items-center">
-        <CircleX fill="#000" color="#fff" /> {error}
-      </p>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <p className="flex gap-2 justify-center h-[100] text-red-500 place-items-center text-[1px]">
+  //       {error}
+  //     </p>
+  //   );
+  // }
 
   return (
     <div className="w-full">
@@ -167,7 +167,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {error ? `${error}` : "No Results found."}
                 </TableCell>
               </TableRow>
             )}
