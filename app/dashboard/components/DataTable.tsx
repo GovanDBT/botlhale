@@ -33,13 +33,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import LoadingTable from "../superAdmin/components/LoadingTable";
+import {} from "@tanstack/react-table";
+// import { rankItem } from "@tanstack/match-sorter-utils"; // optional for fuzzy search
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   isLoading?: boolean;
   error?: string | null;
-  search: string;
+  search: string[];
 }
 
 export function DataTable<TData, TValue>({
@@ -49,32 +51,35 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   error = null,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([
+  const [sorting, setSorting] = React.useState([
     { id: "created_at", desc: true },
   ]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [globalFilter, setGlobalFilter] = React.useState("");
 
   const table = useReactTable({
     data,
     columns,
+    state: {
+      sorting,
+      globalFilter,
+    },
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
+    globalFilterFn: (row, columnId, filterValue) => {
+      // If search is one column, default to built-in filtering
+      if (search.length === 1) {
+        const value = row.getValue(search[0]);
+        return String(value).toLowerCase().includes(filterValue.toLowerCase());
+      }
+      // Multi-column search
+      return search.some((col) => {
+        const value = row.getValue(col);
+        return String(value).toLowerCase().includes(filterValue.toLowerCase());
+      });
     },
   });
 
@@ -83,24 +88,13 @@ export function DataTable<TData, TValue>({
     return <LoadingTable />;
   }
 
-  // Error state
-  // if (error) {
-  //   return (
-  //     <p className="flex gap-2 justify-center h-[100] text-red-500 place-items-center text-[1px]">
-  //       {error}
-  //     </p>
-  //   );
-  // }
-
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder={`Filter ${search}...`}
-          value={(table.getColumn(search)?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn(search)?.setFilterValue(event.target.value)
-          }
+          placeholder={`Search by ${search.join(", ")}...`}
+          value={globalFilter ?? ""}
+          onChange={(e) => setGlobalFilter(e.target.value)}
           className="max-w-sm"
         />
         <DropdownMenu>

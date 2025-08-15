@@ -22,7 +22,7 @@ const AdminsListPage = () => {
       </div>
       <AppSeparator />
       <DataTable
-        search="fullname"
+        search={["fullname", "school"]}
         columns={columns}
         data={admins}
         isLoading={isLoading}

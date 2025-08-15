@@ -35,7 +35,7 @@ const SchoolsPage = () => {
       </div>
       <AppSeparator />
       <DataTable
-        search="name"
+        search={["name"]}
         columns={columns}
         data={schools}
         isLoading={isLoading}

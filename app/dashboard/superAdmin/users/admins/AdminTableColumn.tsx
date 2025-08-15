@@ -113,18 +113,12 @@ export const columns: ColumnDef<Admin>[] = [
   },
   // admin school
   {
-    accessorKey: "school",
+    accessorFn: (row) => row.school?.name ?? "",
+    id: "school",
     header: () => <div className="hidden lg:table cell">School</div>,
-    cell: ({ row }) => {
-      const school = row.getValue("school") as {
-        name: string;
-      };
-      if (!school) return <div className="hidden lg:table cell">—</div>;
-
-      return (
-        <div className="hidden lg:table cell text-wrap">{school.name}</div>
-      );
-    },
+    cell: ({ getValue }) => (
+      <div className="hidden lg:table cell text-wrap">{getValue<string>()}</div>
+    ),
   },
   // date created
   {
