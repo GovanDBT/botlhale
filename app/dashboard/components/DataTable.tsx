@@ -34,7 +34,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import LoadingTable from "../superAdmin/components/LoadingTable";
 import {} from "@tanstack/react-table";
-// import { rankItem } from "@tanstack/match-sorter-utils"; // optional for fuzzy search
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -42,19 +43,23 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean;
   error?: string | null;
   search: string[];
+  refresh?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   search,
+  refresh,
   isLoading = false,
   error = null,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState([
-    { id: "created_at", desc: true },
-  ]);
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [sorting, setSorting] = useState([{ id: "created_at", desc: true }]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // query client for updating data
+  const queryClient = useQueryClient();
 
   const table = useReactTable({
     data,
@@ -88,6 +93,12 @@ export function DataTable<TData, TValue>({
     return <LoadingTable />;
   }
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: [`${refresh}`] });
+    setIsRefreshing(false);
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between pb-4 gap-2">
@@ -101,8 +112,15 @@ export function DataTable<TData, TValue>({
           <Button
             variant="outline"
             className="ml-auto text-[12px] cursor-pointer"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
           >
-            <RefreshCcw className="!size-[14]" /> Refresh
+            <RefreshCcw
+              className={
+                isRefreshing === true ? "!size-[14] animate-spin" : "!size-[14]"
+              }
+            />{" "}
+            Refresh
           </Button>
           <Button
             variant="outline"

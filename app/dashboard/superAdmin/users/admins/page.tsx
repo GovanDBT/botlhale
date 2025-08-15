@@ -26,6 +26,7 @@ const AdminsListPage = () => {
         columns={columns}
         data={admins}
         isLoading={isLoading}
+        refresh="admins"
         error={error ? "Failed to fetch admins" : null}
       />
     </div>
