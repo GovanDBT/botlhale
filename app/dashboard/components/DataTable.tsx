@@ -1,3 +1,5 @@
+// app/dashboard/components/DataTable.tsx
+// table data
 "use client";
 
 import * as React from "react";
@@ -30,6 +32,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import LoadingTable from "../superAdmin/components/LoadingTable";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -77,7 +80,7 @@ export function DataTable<TData, TValue>({
 
   // Loading state
   if (isLoading) {
-    return <p className="text-center py-6">Loading...</p>;
+    return <LoadingTable />;
   }
 
   // Error state

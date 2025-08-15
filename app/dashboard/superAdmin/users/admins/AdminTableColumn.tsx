@@ -1,13 +1,20 @@
 /**
  * Admin table columns used to define the core of the table
- * data shown: ID, user_id, fullname, email, phone,
+ * data shown: ID, profile_id, fullname, email, phone,
  * school, and date created.
  */
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import {
+  ArrowUpDown,
+  BookUser,
+  Clipboard,
+  MoreHorizontal,
+  SquarePen,
+  Trash,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +27,8 @@ import {
 // Define the type for the admin table
 export default interface Admin {
   id: number;
-  user_id: string;
+  profile_id: string;
+  profile_status: string;
   firstname: string;
   lastname: string;
   email: string;
@@ -58,9 +66,18 @@ export const columns: ColumnDef<Admin>[] = [
   },
   // User id
   {
-    accessorKey: "user_id",
+    accessorFn: (row) => (
+      <div>
+        {row.profile_id}
+        <br />
+        <span className="text-[10px] bg-[#db8e01]/15 px-2 py-0.3 rounded-xl inline-block text-[#db8e01] font-bold mt-1">
+          {row.profile_status}
+        </span>
+      </div>
+    ),
+    id: "profile_id",
     header: () => <div>User ID</div>,
-    cell: ({ row }) => <div>{row.getValue("user_id")}</div>,
+    cell: ({ getValue }) => <div>{getValue<string>()}</div>,
   },
   // admin fullname
   {
@@ -148,10 +165,31 @@ export const columns: ColumnDef<Admin>[] = [
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(id.toString())}
             >
-              Copy Admin ID
+              <Clipboard />
+              Copy ID
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              {" "}
+              <Clipboard /> Copy Email
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              {" "}
+              <Clipboard /> Copy Phone
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
+            <DropdownMenuItem>
+              {" "}
+              <BookUser /> View details
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              {" "}
+              <SquarePen /> Edit User
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-red-500 hover:!text-red-500">
+              <Trash color="#fb2c36" />
+              Delete User
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

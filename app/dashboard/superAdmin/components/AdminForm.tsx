@@ -1,12 +1,11 @@
-/**
- * Admin registration form component
- */
+// app/dashboard/superAdmin/components/AdminForm.tsx
+// Admin registration form component
 "use client";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Rollbar from "rollbar";
 import axios from "axios";
+import * as Sentry from "@sentry/nextjs";
 // Lucide icons
 import { Check, ChevronsUpDown } from "lucide-react";
 // shadcn components
@@ -40,7 +39,6 @@ import { cn } from "@/lib/utils";
 import { adminSchema } from "@/lib/validationSchema";
 import { useSelectSchools } from "@/hooks/useSchools";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { clientConfig } from "@/services/rollbar/rollbar";
 
 // admin interface
 interface Props {
@@ -48,7 +46,7 @@ interface Props {
   onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
-// define schema for admin
+// define schema for admin data
 type adminData = z.infer<typeof adminSchema>;
 
 const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
@@ -67,9 +65,6 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
   // fetch schools using react query
   const { data: schools = [], isLoading, error } = useSelectSchools();
 
-  // Rollbar instance for client-side logging
-  const rollbar = new Rollbar(clientConfig);
-
   // submit handler
   const onSubmit = async (data: adminData) => {
     onSubmittingChange?.(true);
@@ -87,7 +82,7 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
         error: (err: any) => {
           const apiError = err?.response?.data?.error;
           if (apiError) return apiError;
-          rollbar.error("Unexpected error while creating admin", err);
+          Sentry.captureException("Unexpected error while creating admin", err);
           return "An unexpected error occurred while creating admin, please try again later";
         },
       });
@@ -96,8 +91,8 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
       } finally {
         onSubmittingChange?.(false);
       }
-    } catch (error) {
-      rollbar.error("Unexpected error while creating admin", error as Error);
+    } catch (error: any) {
+      Sentry.captureException(`Admin Creation Server Error: ${error.message}`);
     }
   };
 

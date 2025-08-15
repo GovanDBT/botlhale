@@ -1,7 +1,5 @@
-/**
- * This module shows a list of all registered admins
- * plus shows a popup sheet with a admin registration form
- */
+// app/dashboard/superAdmin/users/admins/page.tsx
+// module shows a list of all registered admins
 "use client";
 // modules
 import AppSeparator from "@/app/components/AppSeparator";
@@ -26,6 +24,7 @@ const AdminsListPage = () => {
   } = useQuery({
     queryKey: ["admins"],
     queryFn: fetchAdmins,
+    staleTime: 10 * 1000, // 10s
   });
 
   return (

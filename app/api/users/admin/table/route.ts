@@ -1,28 +1,42 @@
-import { serverInstance } from "@/services/rollbar/rollbar";
+// app/api/users/admin/table
+// retrieves list of admins for the admin table
+import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/services/supabase/server";
 import { NextResponse } from "next/server";
 
+// (GET/admin/table) - retrieves admins
 export async function GET() {
-  // init supabase client
-  const supabase = await createClient();
-
-  // API to fetch admin table data from supabase
-  const { data, error } = await supabase
-    .from("profile")
-    .select(
-      "id, user_id, firstname, lastname, email, phone, created_at, school:school(name)"
-    )
-    .eq("user_role", "admin")
-    .order("created_at");
-
-  if (error) {
-    serverInstance.error("System failed to fetch admin data", { error });
+  try {
+    // init supabase client
+    const supabase = await createClient();
+    
+    // fetch admin - join with school
+    const { data, error } = await supabase
+      .from("profile")
+      .select(
+        "id, profile_id, firstname, lastname, email, phone, created_at, profile_status, school!school(name)"
+      )
+      .eq("profile_role", "admin")
+      .order("created_at");
+  
+    // if fetch fails
+    if (error) {
+      Sentry.captureException(`Admin Table Error: ${error.message}`)
+      return NextResponse.json(
+        { success: false, error: `Admin Table Error: ${error.message}` || "Failed to fetch admin data" },
+        { status: 404 }
+      );
+    }
+  
+    // response
+    return NextResponse.json(data);
+  } catch (error: any) {
+    // any unexpected errors
+    Sentry.captureException(`Get Admin Table Server Error: ${error.message}`)
     return NextResponse.json(
-      { error: "Failed to fetch admin data" },
-      { status: 500 }
+      { success: false, error: `Server error: ${error.message}`, },
+      { status: error.status }
     );
   }
 
-  // retrieved schools
-  return NextResponse.json(data);
 }
