@@ -8,6 +8,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
+  Archive,
   ArrowUpDown,
   BookUser,
   Clipboard,
@@ -159,29 +160,29 @@ export const columns: ColumnDef<Admin>[] = [
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(id.toString())}
             >
-              <Clipboard />
-              Copy ID
+              {" "}
+              <Clipboard className="!size-[14]" /> Copy Email
             </DropdownMenuItem>
             <DropdownMenuItem>
               {" "}
-              <Clipboard /> Copy Email
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              {" "}
-              <Clipboard /> Copy Phone
+              <Clipboard className="!size-[14]" /> Copy Phone
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               {" "}
-              <BookUser /> View details
+              <BookUser className="!size-[14]" /> View details
             </DropdownMenuItem>
             <DropdownMenuItem>
               {" "}
-              <SquarePen /> Edit User
+              <SquarePen className="!size-[14]" /> Edit User
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              {" "}
+              <Archive className="!size-[14]" /> Archive User
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-red-500 hover:!text-red-500">
-              <Trash color="#fb2c36" />
+              <Trash color="#fb2c36" className="!size-[14]" />
               Delete User
             </DropdownMenuItem>
           </DropdownMenuContent>
