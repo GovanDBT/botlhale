@@ -3,7 +3,13 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown, CircleX, ListFilter, RefreshCcw } from "lucide-react";
+import {
+  ChevronDown,
+  CircleX,
+  Columns3,
+  ListFilter,
+  RefreshCcw,
+} from "lucide-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -30,6 +36,10 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import LoadingTable from "../superAdmin/components/LoadingTable";
@@ -57,6 +67,8 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState([{ id: "created_at", desc: true }]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [filterMine, setFilterMine] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
 
   // query client for updating data
   const queryClient = useQueryClient();
@@ -106,12 +118,13 @@ export function DataTable<TData, TValue>({
           placeholder={`Search by ${search.join(", ")}...`}
           value={globalFilter ?? ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
-          className="max-w-xs"
+          className="max-w-sm"
         />
         <div className="flex gap-2">
+          {/* refresh button */}
           <Button
             variant="outline"
-            className="ml-auto text-[12px] cursor-pointer"
+            className="ml-auto text-[12px] cursor-pointer hidden md:inline-flex"
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
@@ -122,18 +135,52 @@ export function DataTable<TData, TValue>({
             />{" "}
             Refresh
           </Button>
-          <Button
-            variant="outline"
-            className="ml-auto text-[12px] cursor-pointer"
-          >
-            <ListFilter /> Filter <ChevronDown className="!size-3" />
-          </Button>
+          {/* filter button */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 className="ml-auto text-[12px] cursor-pointer"
               >
+                <ListFilter /> Filter <ChevronDown className="!size-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Created By</DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value={filterMine}
+                onValueChange={setFilterMine}
+              >
+                <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="mine">Me</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Status</DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value={filterStatus}
+                onValueChange={setFilterStatus}
+              >
+                <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="invited">
+                  Invited
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="authenticated">
+                  Authenticated
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="suspended">
+                  Suspended
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/* columns button */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="ml-auto text-[12px] cursor-pointer hidden lg:inline-flex"
+              >
+                <Columns3 className="!size-[14]" />
                 Columns <ChevronDown className="!size-3" />
               </Button>
             </DropdownMenuTrigger>
