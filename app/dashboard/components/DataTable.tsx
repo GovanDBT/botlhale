@@ -49,6 +49,17 @@ import LoadingTable from "../superAdmin/components/LoadingTable";
 import {} from "@tanstack/react-table";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -191,22 +202,55 @@ export function DataTable<TData, TValue>({
           // --- Bulk actions toolbar (when rows are selected) ---
           <div className="flex gap-2">
             {/* Delete user button */}
-            <Button
-              variant="destructive"
-              className="text-[12px] cursor-pointer"
-              onClick={() => {
-                const selectedIds = table
-                  .getFilteredSelectedRowModel()
-                  .rows.map((row) => (row.original as any).id);
-                console.log("Delete these users", selectedIds);
-              }}
-            >
-              <Trash2 />
-              Delete {table.getFilteredSelectedRowModel().rows.length}{" "}
-              {table.getFilteredSelectedRowModel().rows.length > 1
-                ? "users"
-                : "user"}
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  className="text-[12px] cursor-pointer"
+                  onClick={() => {
+                    const selectedIds = table
+                      .getFilteredSelectedRowModel()
+                      .rows.map((row) => (row.original as any).id);
+                    console.log("Delete these users", selectedIds);
+                  }}
+                >
+                  <Trash2 />
+                  Delete {table.getFilteredSelectedRowModel().rows.length}{" "}
+                  {table.getFilteredSelectedRowModel().rows.length > 1
+                    ? "users"
+                    : "user"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2">
+                    {" "}
+                    <Trash2 size={18} className="mb-0.5" /> Are you absolutely
+                    sure?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently the
+                    selected data{" "}
+                    <span className="font-bold text-red-400">
+                      ({table.getFilteredSelectedRowModel().rows.length}{" "}
+                      {table.getFilteredSelectedRowModel().rows.length > 1
+                        ? "users"
+                        : "user"}
+                      )
+                    </span>{" "}
+                    and remove the data from our servers and database.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="cursor-pointer">
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction className="bg-red-500 cursor-pointer hover:bg-red-700">
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             {/* Export CSV button */}
             <Button
               variant="outline"
