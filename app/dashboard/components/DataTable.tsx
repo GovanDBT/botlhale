@@ -6,9 +6,12 @@ import * as React from "react";
 import {
   ChevronDown,
   CircleX,
+  ClipboardList,
   Columns3,
+  FolderOutput,
   ListFilter,
   RefreshCcw,
+  Trash2,
 } from "lucide-react";
 import {
   ColumnDef,
@@ -67,8 +70,6 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState([{ id: "created_at", desc: true }]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [filterMine, setFilterMine] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
 
   // query client for updating data
   const queryClient = useQueryClient();
@@ -113,97 +114,131 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full">
+      {/* Toolbar */}
       <div className="flex items-center justify-between pb-4 gap-2">
-        <Input
-          placeholder={`Search by ${search.join(", ")}...`}
-          value={globalFilter ?? ""}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-          className="max-w-sm"
-        />
-        <div className="flex gap-2">
-          {/* refresh button */}
-          <Button
-            variant="outline"
-            className="ml-auto text-[12px] cursor-pointer hidden md:inline-flex"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            <RefreshCcw
-              className={
-                isRefreshing === true ? "!size-[14] animate-spin" : "!size-[14]"
-              }
-            />{" "}
-            Refresh
-          </Button>
-          {/* filter button */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+        {table.getFilteredSelectedRowModel().rows.length === 0 ? (
+          // --- Default toolbar (no selection) ---
+          <>
+            <Input
+              placeholder={`Search by ${search.join(", ")}...`}
+              value={globalFilter ?? ""}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="max-w-sm"
+            />
+            <div className="flex gap-2">
+              {/* Refresh */}
               <Button
                 variant="outline"
-                className="ml-auto text-[12px] cursor-pointer"
+                className="text-[12px] cursor-pointer hidden md:inline-flex"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
               >
-                <ListFilter /> Filter <ChevronDown className="!size-3" />
+                <RefreshCcw
+                  className={
+                    isRefreshing ? "!size-[14] animate-spin" : "!size-[14]"
+                  }
+                />
+                Refresh
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Created By</DropdownMenuLabel>
-              <DropdownMenuRadioGroup
-                value={filterMine}
-                onValueChange={setFilterMine}
-              >
-                <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="mine">Me</DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel>Status</DropdownMenuLabel>
-              <DropdownMenuRadioGroup
-                value={filterStatus}
-                onValueChange={setFilterStatus}
-              >
-                <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="invited">
-                  Invited
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="authenticated">
-                  Authenticated
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="suspended">
-                  Suspended
-                </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {/* columns button */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="ml-auto text-[12px] cursor-pointer hidden lg:inline-flex"
-              >
-                <Columns3 className="!size-[14]" />
-                Columns <ChevronDown className="!size-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
+
+              {/* Filter */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="text-[12px] cursor-pointer"
                   >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                    <ListFilter /> Filter <ChevronDown className="!size-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {/* your filter options here */}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Columns */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="text-[12px] cursor-pointer hidden lg:inline-flex"
+                  >
+                    <Columns3 className="!size-[14]" />
+                    Columns <ChevronDown className="!size-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }
+                      >
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </>
+        ) : (
+          // --- Bulk actions toolbar (when rows are selected) ---
+          <div className="flex gap-2">
+            {/* Delete user button */}
+            <Button
+              variant="destructive"
+              className="text-[12px] cursor-pointer"
+              onClick={() => {
+                const selectedIds = table
+                  .getFilteredSelectedRowModel()
+                  .rows.map((row) => (row.original as any).id);
+                console.log("Delete these users", selectedIds);
+              }}
+            >
+              <Trash2 />
+              Delete {table.getFilteredSelectedRowModel().rows.length}{" "}
+              {table.getFilteredSelectedRowModel().rows.length > 1
+                ? "users"
+                : "user"}
+            </Button>
+            {/* Export CSV button */}
+            <Button
+              variant="outline"
+              className="text-[12px] cursor-pointer"
+              onClick={() => {
+                const selectedRows = table
+                  .getFilteredSelectedRowModel()
+                  .rows.map((row) => row.original);
+                console.log("Export these rows", selectedRows);
+              }}
+            >
+              <FolderOutput />
+              Export CSV
+            </Button>
+            {/* Copy CSV button */}
+            <Button
+              variant="outline"
+              className="text-[12px] cursor-pointer"
+              onClick={() => {
+                const selectedIds = table
+                  .getFilteredSelectedRowModel()
+                  .rows.map((row) => (row.original as any).id);
+                navigator.clipboard.writeText(selectedIds.join(", "));
+              }}
+            >
+              <ClipboardList />
+              Copy CSV
+            </Button>
+          </div>
+        )}
       </div>
+      {/* Table */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -252,6 +287,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
+      {/* Footer */}
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
