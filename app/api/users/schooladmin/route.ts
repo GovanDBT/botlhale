@@ -1,14 +1,14 @@
-// app/api/users/admin/route.ts
-// admin response api's
+// app/api/users/schooladmin/route.ts
+// school admin response api's
 import { getUserRole } from "@/utils/getUserRole";
 import { NextRequest, NextResponse } from "next/server";
-import { adminSchema } from "@/lib/validationSchema";
+import { schoolAdminSchema } from "@/lib/validationSchema";
 import { createClient } from "@/services/supabase/server";
 import { generateUserId } from "@/lib/generateUserId";
 import * as Sentry from "@sentry/nextjs";
 import { adminAuthClient } from "@/services/supabase/admin";
 
-// POST /admin - create new admin
+// POST /schooladmin - create new school admin
 export async function POST(request: NextRequest) {
   try {
     // create a new body request
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     //validate body
-    const validation = adminSchema.safeParse(body);
+    const validation = schoolAdminSchema.safeParse(body);
 
     // If validation fails, show error
     if (!validation.success) {
@@ -132,8 +132,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // generates a new admin ID
-    const userId = await generateUserId("admin");
+    // generates a new school admin ID
+    const userId = await generateUserId("schoolAdmin");
 
     // if user ID not generated
     if (!userId) {
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
         school: body.school,
         email: body.email,
         phone: body.phone,
-        profile_role: "admin",
+        profile_role: "schoolAdmin",
         profile_id: userId,
         profile_status: "invited",
         display_name: `${body.firstname} ${body.lastname}`
@@ -187,13 +187,13 @@ export async function POST(request: NextRequest) {
 
     // send success response
     return NextResponse.json(
-      { message: "Admin successfully registered" },
+      { message: "School Admin successfully registered" },
       { status: 201 }
     );
   } catch (error: any) {
-    Sentry.captureException(`Post Admin Server Error: ${error.message}`)
+    Sentry.captureException(`Post School Admin Server Error: ${error.message}`)
     return NextResponse.json(
-      { success: false, error: `Server error: ${error.message}`, },
+      { error: `Server error: ${error.message}`, },
       { status: error.status }
     );
   }

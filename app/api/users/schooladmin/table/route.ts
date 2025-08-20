@@ -1,10 +1,10 @@
-// app/api/users/admin/table
+// app/api/users/schooladmin/table
 // retrieves list of admins for the admin table
 import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/services/supabase/server";
 import { NextResponse } from "next/server";
 
-// (GET/admin/table) - retrieves admins
+// GET/schooladmin/table - retrieves admins
 export async function GET() {
   try {
     // init supabase client
@@ -16,14 +16,14 @@ export async function GET() {
       .select(
         "id, profile_id, firstname, lastname, email, phone, created_at, profile_status, school!school(name)"
       )
-      .eq("profile_role", "admin")
+      .eq("profile_role", "schoolAdmin")
       .order("created_at");
   
     // if fetch fails
     if (error) {
-      Sentry.captureException(`Admin Table Error: ${error.message}`)
+      Sentry.captureException(`School Admin Table Error: ${error.message}`)
       return NextResponse.json(
-        { success: false, error: `Admin Table Error: ${error.message}` || "Failed to fetch admin data" },
+        { success: false, error: `School Admin Table Error: ${error.message}` || "Failed to fetch school admin data" },
         { status: 404 }
       );
     }
@@ -32,7 +32,7 @@ export async function GET() {
     return NextResponse.json(data);
   } catch (error: any) {
     // any unexpected errors
-    Sentry.captureException(`Get Admin Table Server Error: ${error.message}`)
+    Sentry.captureException(`Get School Admin Table Server Error: ${error.message}`)
     return NextResponse.json(
       { success: false, error: `Server error: ${error.message}`, },
       { status: error.status }

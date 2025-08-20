@@ -21,12 +21,3 @@ export async function getUserRole(accessToken: string | null): Promise<string | 
     return null;
   }
 }
-
-// export async function fetchUserRoleFromSession(accessToken: string | null): Promise<string | null> {
-//   if (!accessToken) {
-//     console.error("Access token is missing!");
-//     return null;
-//   }
-
-//   return getUserRole(accessToken);
-// }

@@ -1,5 +1,5 @@
-// app/dashboard/superAdmin/components/AdminForm.tsx
-// Admin registration form component
+// app/dashboard/superAdmin/components/SchoolAdminForm.tsx
+// School Admin registration form component
 "use client";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -36,27 +36,28 @@ import {
 import { toast } from "sonner";
 // modules
 import { cn } from "@/lib/utils";
-import { adminSchema } from "@/lib/validationSchema";
+import { schoolAdminSchema } from "@/lib/validationSchema";
 import { useSelectSchools } from "@/hooks/useSchools";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
 
-// admin interface
+// school admin interface
 interface Props {
   formRef?: React.RefObject<HTMLFormElement | null>;
   onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
-// define schema for admin data
-type adminData = z.infer<typeof adminSchema>;
+// define schema for school admin data
+type schoolAdminData = z.infer<typeof schoolAdminSchema>;
 
-const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
+const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
   // query client for updating data
   const queryClient = useQueryClient();
 
   // define form using react hook form
-  const form = useForm<adminData>({
-    resolver: zodResolver(adminSchema),
+  const form = useForm<schoolAdminData>({
+    resolver: zodResolver(schoolAdminSchema),
     defaultValues: {
       firstname: "",
       lastname: "",
@@ -67,25 +68,29 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
   });
 
   // fresh data after creation
-  const addAdmin = useMutation({
-    mutationFn: async (admin: adminData) => {
-      // get create admin api request
+  const addSchoolAdmin = useMutation({
+    mutationFn: async (schoolAdmin: schoolAdminData) => {
+      // create school admin api request
       const request = axios
-        .post("/api/users/admin", admin)
-        .then((res) => res.data);
+        .post("/api/users/schooladmin", schoolAdmin)
+        .then((res) => res.data)
+        .catch((err) => {
+          const apiError = err?.response?.data?.error;
+          if (apiError) {
+            throw new Error(apiError); // pass message into toast.promise
+          }
+          throw err;
+        });
 
       // show toast
       await toast.promise(request, {
-        loading: "Creating admin...",
+        loading: "Creating school admin...",
         success: () => {
           form.reset();
-          return "Admin has been successfully created";
+          return "School admin has been successfully created";
         },
         error: (err: any) => {
-          const apiError = err?.response?.data?.error;
-          if (apiError) return apiError;
-          Sentry.captureException("Unexpected error while creating admin", err);
-          return "An unexpected error occurred while creating admin, please try again later";
+          return err.message || "An unexpected error occurred";
         },
       });
 
@@ -93,7 +98,7 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
       return request;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admins"] });
+      queryClient.invalidateQueries({ queryKey: CACHE_KEY_SCHOOLADMIN });
     },
     onSettled: () => {
       onSubmittingChange?.(false);
@@ -104,9 +109,9 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
   const { data: schools = [], isLoading, error } = useSelectSchools();
 
   // submit handler
-  const onSubmit = async (data: adminData) => {
+  const onSubmit = async (data: schoolAdminData) => {
     onSubmittingChange?.(true);
-    addAdmin.mutate(data);
+    addSchoolAdmin.mutate(data);
   };
 
   return (
@@ -166,14 +171,14 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
                 </FormItem>
               )}
             />
-            {/* Admin Email */}
+            {/* school admin email */}
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="email" className="text-base sm:text-sm">
-                    Admin Email: <span className="text-red-400">*</span>
+                    School Admin Email: <span className="text-red-400">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -191,14 +196,14 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
                 </FormItem>
               )}
             />
-            {/* Admin phone */}
+            {/* school admin phone */}
             <FormField
               control={form.control}
               name="phone"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="phone" className="text-base sm:text-sm">
-                    Admin Phone: <span className="text-red-400">*</span>
+                    School Admin Phone: <span className="text-red-400">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -304,4 +309,4 @@ const AdminForm = ({ formRef, onSubmittingChange }: Props) => {
   );
 };
 
-export default AdminForm;
+export default SchoolAdminForm;

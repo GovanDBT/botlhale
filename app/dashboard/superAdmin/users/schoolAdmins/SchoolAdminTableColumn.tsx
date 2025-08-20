@@ -1,8 +1,5 @@
-/**
- * Admin table columns used to define the core of the table
- * data shown: ID, profile_id, fullname, email, phone,
- * school, and date created.
- */
+// app/dashboard/superAdmin/users/school_admins/SchoolAdminTableColumn.tsx
+// School admins data table columns
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -26,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 // Define the type for the admin table
-export default interface Admin {
+export default interface SchoolAdmin {
   id: number;
   profile_id: string;
   profile_status: string;
@@ -41,7 +38,7 @@ export default interface Admin {
 }
 
 // Define the columns for the table
-export const columns: ColumnDef<Admin>[] = [
+export const columns: ColumnDef<SchoolAdmin>[] = [
   // admin supabase id as a checkbox
   {
     id: "select",
@@ -80,7 +77,7 @@ export const columns: ColumnDef<Admin>[] = [
     header: () => <div>User ID</div>,
     cell: ({ getValue }) => <div>{getValue<string>()}</div>,
   },
-  // admin fullname
+  // school admin fullname
   {
     accessorFn: (row) => `${row.firstname} ${row.lastname}`,
     id: "fullname",
@@ -96,7 +93,7 @@ export const columns: ColumnDef<Admin>[] = [
     ),
     cell: ({ getValue }) => <div>{getValue<string>()}</div>,
   },
-  // admin email
+  // school admin email
   {
     accessorKey: "email",
     header: () => <div className="hidden sm:table cell">Email</div>,
@@ -104,7 +101,7 @@ export const columns: ColumnDef<Admin>[] = [
       <div className="hidden sm:table cell">{row.getValue("email")}</div>
     ),
   },
-  // admin phone
+  // school admin phone
   {
     accessorKey: "phone",
     header: () => <div className="hidden md:table cell">Phone</div>,
@@ -112,7 +109,7 @@ export const columns: ColumnDef<Admin>[] = [
       <div className="hidden md:table cell">{row.getValue("phone")}</div>
     ),
   },
-  // admin school
+  // school admins school
   {
     accessorFn: (row) => row.school?.name ?? "",
     id: "school",

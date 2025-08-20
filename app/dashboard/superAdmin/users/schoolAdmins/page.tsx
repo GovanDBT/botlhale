@@ -3,31 +3,32 @@
 "use client";
 import AppSeparator from "@/app/components/AppSeparator";
 import AppInfoTooltip from "@/app/components/AppInfoTooltip";
-import AdminFormSheet from "../../components/AdminFormSheet";
+import SchoolAdminFormSheet from "../../components/SchoolAdminFormSheet";
 import { DataTable } from "@/app/dashboard/components/DataTable";
-import { columns } from "./AdminTableColumn";
-import useAdminTable from "@/hooks/useAdminTable";
+import { columns } from "./SchoolAdminTableColumn";
+import useSchoolAdminTable from "@/hooks/useSchoolAdminTable";
+import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
 
 const AdminsListPage = () => {
   // Fetch data using react-query
-  const { data: admins = [], isLoading, error } = useAdminTable();
+  const { data: schoolAdmins = [], isLoading, error } = useSchoolAdminTable();
   return (
     <div>
       <div className="flex justify-between items-center">
         <div className="flex gap-2 items-center">
-          <h1>Admins</h1>
-          <AppInfoTooltip content="A list of all registered Admins" />
+          <h1>School Admins</h1>
+          <AppInfoTooltip content="A list of all registered school Admins" />
         </div>
-        <AdminFormSheet />
+        <SchoolAdminFormSheet />
       </div>
       <AppSeparator />
       <DataTable
         search={["fullname", "school"]}
         columns={columns}
-        data={admins}
+        data={schoolAdmins}
         isLoading={isLoading}
-        refresh="admins"
-        error={error ? "Failed to fetch admins" : null}
+        refresh={`${CACHE_KEY_SCHOOLADMIN}`}
+        error={error ? "Failed to fetch school admins" : null}
       />
     </div>
   );

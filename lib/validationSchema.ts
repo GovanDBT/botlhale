@@ -66,8 +66,8 @@ export const schoolSchema = z.object({
     phone: z.string().min(1, 'School phone number is required!'),
 });
 
-// validate admin registration input
-export const adminSchema = z.object({
+// validate school admin registration input
+export const schoolAdminSchema = z.object({
     firstname: z.string().min(1, "Firstname is required!"),
     lastname: z.string().min(1, "lastname is required!"),
     school: z.number().min(1, "School is required!"),

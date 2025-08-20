@@ -1,3 +1,5 @@
+// lib/generateUserId.ts
+// library for generating a user ID depending on their role
 import dayjs from "dayjs";
 import { serverInstance } from "@/services/rollbar/rollbar";
 import { createServerClient } from "@/services/supabase/serviceRole";
@@ -7,14 +9,15 @@ export async function generateUserId(role: string): Promise<string> {
   const supabase = createServerClient();
 
   const prefixMap: Record<string, string> = {
-    student: "stu",
-    teacher: "tch",
-    guardian: "gua",
+    superAdmin: "sup",
     admin: "adm",
-    superadmin: "sup",
+    schoolAdmin: "sad",
+    teacher: "tch",
+    student: "stu",
+    guardian: "gua",
   };
 
-  const prefix = prefixMap[role.toLowerCase()];
+  const prefix = prefixMap[role];
   if (!prefix) throw new Error("Invalid role");
 
   const { data, error } = await supabase.from("profile").select("profile_id");

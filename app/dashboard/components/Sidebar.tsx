@@ -81,8 +81,8 @@ export function AppSidebar() {
             icon: UserRound,
             subItem: [
               {
-                subTitle: "Admins",
-                subUrl: "/dashboard/superAdmin/users/admins",
+                subTitle: "School Admins",
+                subUrl: "/dashboard/superAdmin/users/schoolAdmins",
               },
               {
                 subTitle: "Staff/Teachers",
@@ -99,7 +99,7 @@ export function AppSidebar() {
             ],
           },
         ]);
-      } else if (userRole === "admin") {
+      } else if (userRole === "schoolAdmin") {
         setMenuItems([
           {
             title: "Dashboard",

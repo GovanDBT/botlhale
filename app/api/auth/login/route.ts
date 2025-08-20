@@ -88,7 +88,7 @@ export async function POST(request: Request) {
       )}
 
       if (profile.profile_role === "student") redirectPath = `/dashboard/student`;
-      else if (profile.profile_role === "admin") redirectPath = `/dashboard/${school?.id}`;
+      else if (profile.profile_role === "schoolAdmin") redirectPath = `/dashboard/${school?.id}`;
       else if (profile.profile_role === "teacher") redirectPath = "/dashboard/teacher";
       else if (profile.profile_role === "guardian") redirectPath = "/dashboard/guardian";
       else {

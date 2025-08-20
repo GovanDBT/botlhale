@@ -1,3 +1,5 @@
+// app/dashboard/superAdmin/components/SchoolAdminFormSheet.tsx
+// client side sheet form for registering school admin
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -10,10 +12,10 @@ import {
 } from "@/components/ui/sheet";
 import React, { useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import AdminForm from "./AdminForm";
+import SchoolAdminForm from "./SchoolAdminForm";
 import Spinner from "@/app/components/Spinner";
 
-const AdminFormSheet = () => {
+const SchoolAdminFormSheet = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const handleRegisterClick = () => {
@@ -34,7 +36,7 @@ const AdminFormSheet = () => {
         <div className="border-b">
           <SheetHeader>
             <SheetTitle className="text-xl/8 sm:text-lg font-bold">
-              Register New Admin
+              Register New School Admin
             </SheetTitle>
             <SheetDescription className="text-base sm:text-sm">
               Fill in the form below to register a new school admin. An email
@@ -46,7 +48,7 @@ const AdminFormSheet = () => {
 
         {/* Scrollable Form Area */}
         <ScrollArea className="flex-1 px-4 overflow-y-auto">
-          <AdminForm
+          <SchoolAdminForm
             formRef={formRef}
             onSubmittingChange={(submitting) => setIsSubmitting(submitting)}
           />
@@ -82,4 +84,4 @@ const AdminFormSheet = () => {
   );
 };
 
-export default AdminFormSheet;
+export default SchoolAdminFormSheet;

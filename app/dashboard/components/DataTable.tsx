@@ -5,7 +5,6 @@
 import * as React from "react";
 import {
   ChevronDown,
-  CircleX,
   ClipboardList,
   Columns3,
   FolderOutput,
