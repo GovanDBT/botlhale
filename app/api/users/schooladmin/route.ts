@@ -193,14 +193,14 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     Sentry.captureException(`Post School Admin Server Error: ${error.message}`)
     return NextResponse.json(
-      { error: `Server error: ${error.message}`, },
-      { status: error.status }
+      { error: `Server error: ${error?.message || "An unexpected error has occurred"}`, },
+      { status: error?.status || 500 }
     );
   }
   
 }
 
-// DELETE /admin - delete admin
+// DELETE /schooladmin - delete admin
 export async function DELETE(request: NextRequest) {
   try {
     // create a new body request

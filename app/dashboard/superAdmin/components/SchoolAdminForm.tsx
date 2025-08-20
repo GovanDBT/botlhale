@@ -77,7 +77,7 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
         .catch((err) => {
           const apiError = err?.response?.data?.error;
           if (apiError) {
-            throw new Error(apiError); // pass message into toast.promise
+            throw new Error(apiError);
           }
           throw err;
         });
@@ -90,7 +90,7 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
           return "School admin has been successfully created";
         },
         error: (err: any) => {
-          return err.message || "An unexpected error occurred";
+          return err.message || "An unexpected error has occurred";
         },
       });
 
