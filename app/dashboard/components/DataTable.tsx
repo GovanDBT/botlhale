@@ -223,10 +223,13 @@ export function DataTable<TData, TValue>({
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="flex items-center gap-2">
+                  <AlertDialogTitle className="flex items-center gap-2 justify-center md:justify-start">
                     {" "}
-                    <Trash2 size={18} className="mb-0.5" /> Are you absolutely
-                    sure?
+                    <Trash2
+                      size={18}
+                      className="mb-0.5 hidden md:inline-flex"
+                    />{" "}
+                    Are you absolutely sure?
                   </AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently the
@@ -268,7 +271,7 @@ export function DataTable<TData, TValue>({
             {/* Copy CSV button */}
             <Button
               variant="outline"
-              className="text-[12px] cursor-pointer"
+              className="text-[12px] cursor-pointer hidden sm:inline-flex"
               onClick={() => {
                 const selectedIds = table
                   .getFilteredSelectedRowModel()

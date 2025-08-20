@@ -8,7 +8,7 @@ import { generateUserId } from "@/lib/generateUserId";
 import * as Sentry from "@sentry/nextjs";
 import { adminAuthClient } from "@/services/supabase/admin";
 
-// (POST/admin) create new admin
+// POST /admin - create new admin
 export async function POST(request: NextRequest) {
   try {
     // create a new body request
@@ -198,4 +198,45 @@ export async function POST(request: NextRequest) {
     );
   }
   
+}
+
+// DELETE /admin - delete admin
+export async function DELETE(request: NextRequest) {
+  try {
+    // create a new body request
+    const body = await request.json();
+    const { ids } = body; // expecting { "ids": [1,2,3] }
+
+    // if no id's are empty
+    if (!ids || ids.length === 0 ) {
+      return NextResponse.json(
+        { error: "No IDs provided for deletion" },
+        { status: 400 }
+      )
+    }
+    
+    // delete user(s)
+    const { data, error } = await adminAuthClient.deleteUser(ids);
+
+    // error response
+    if (error) {
+      console.error(`Supabase Delete error: ${error.message}`);
+      return NextResponse.json(
+        { success: false, error:`Supabase Delete error: ${error.message}` },
+        { status: error.status }
+      )
+    }
+
+    // success response
+    return NextResponse.json(
+      { success: true, message: `${ids.length} Admin(s) Successfully Deleted`, data},
+      { status: 200 }
+    )
+  } catch (error) {
+    console.error("Bulk delete error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete admins" },
+      { status: 500 }
+    );
+  }
 }
