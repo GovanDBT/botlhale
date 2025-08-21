@@ -3,16 +3,11 @@
  * Custom hook for fetching schools
  */
 import { createClient } from "@/services/supabase/client";
+import { CACHE_KEY_SCHOOLS } from "@/utils/constants";
+import { SCHOOL_ENDPOINT } from "@/utils/endpoints";
+import { School } from "@/utils/interfaces";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-
-// Define the type for the school table
-interface School {
-  id: number;
-  name: string;
-  location?: string;
-  students?: string[];
-}
 
 // selects all the schools data
 export default function useSchools () {
@@ -28,7 +23,7 @@ export default function useSchools () {
   };
 
   return useQuery<School[], Error>({
-    queryKey: ["schools"],
+    queryKey: CACHE_KEY_SCHOOLS,
     queryFn: fetchSchools,
   });
 }
@@ -38,7 +33,7 @@ export default function useSchools () {
 export function useSelectSchools() {
   const fetchSchools = async () => {
     try {
-      const res = await axios.get<School[]>("/api/schools");
+      const res = await axios.get<School[]>(SCHOOL_ENDPOINT);
       const allSchools = res.data;
 
       // Return only id and name
@@ -59,7 +54,7 @@ export function useSelectSchools() {
   };
 
   return useQuery<School[]>({
-    queryKey: ["schools"],
+    queryKey: CACHE_KEY_SCHOOLS,
     queryFn: fetchSchools,
   });
 }

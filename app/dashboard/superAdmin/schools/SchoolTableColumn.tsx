@@ -16,22 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-// Define the type for the school table
-export default interface School {
-  id: number;
-  name: string;
-  email: string;
-  // admins: string[];
-  // teachers: string[];
-  // students: string[];
-  created_by: string;
-  created_at: string;
-  profile: {
-    firstname: string;
-    lastname: string;
-  } | null;
-}
+import { School } from "@/utils/interfaces";
 
 // Define the columns for the table
 export const columns: ColumnDef<School>[] = [

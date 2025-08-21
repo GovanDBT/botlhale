@@ -2,6 +2,7 @@
 // custom hook for add a new school admin using mutation
 import { schoolAdminSchema } from "@/lib/validationSchema";
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
+import { SCHOOLADMIN_ENDPOINT } from "@/utils/endpoints";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import z from "zod"
@@ -17,7 +18,7 @@ const useAddSchoolAdmin = (onAdd: (request: Promise<string>) => void, onSubmit?:
         mutationFn: async (schoolAdmin: schoolAdminData) => {
             // create school admin api request
             const request = axios
-                .post("/api/users/schooladmin", schoolAdmin)
+                .post(SCHOOLADMIN_ENDPOINT, schoolAdmin)
                 .then((res) => res.data)
                 .catch((err) => {
                     const apiError = err?.response?.data?.error;
