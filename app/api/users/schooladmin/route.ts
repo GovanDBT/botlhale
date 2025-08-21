@@ -207,6 +207,56 @@ export async function DELETE(request: NextRequest) {
     const body = await request.json();
     const { ids } = body; // expecting { "ids": [1,2,3] }
 
+    // grabs our current access token - postman testing
+    let accessToken = request.headers
+      .get("Authorization")
+      ?.replace("Bearer ", "");
+
+    // initialize Supabase client on the server
+    let supabase = await createClient();
+
+    // if no access token, grab token from session - client-side path
+    if (!accessToken) {
+      // grab user session
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      // if api fails to retrieve user session
+      if (sessionError) {
+        Sentry.captureException(`Session error: ${sessionError.message}`)
+        return NextResponse.json(
+          { error: `Session error: ${sessionError.message}` || "Failed to fetch user session" },
+          { status: sessionError.status }
+        );
+      }
+
+      // get access token from session and assign to accessToken
+      accessToken = session?.access_token;
+    
+      // if no access token was provided
+      if (!accessToken) {
+        Sentry.captureMessage("System fails to provide access token", "error")
+        return NextResponse.json(
+          { error: "No access token provided" },
+          { status: 409 }
+        );
+      }
+    }
+  
+    // Fetch the current user's role
+    const userRole = await getUserRole(accessToken);
+
+    // If user is not superAdmin, throw an error
+    if (userRole !== "superAdmin") {
+      Sentry.captureMessage("An unauthorized users tried to delete school admin", "warning")
+      return NextResponse.json(
+        { error: "Unauthorized access!" },
+        { status: 403 }
+      );
+    }
+
     // if no id's are empty
     if (!ids || ids.length === 0 ) {
       return NextResponse.json(
@@ -215,21 +265,24 @@ export async function DELETE(request: NextRequest) {
       )
     }
     
-    // delete user(s)
-    const { data, error } = await adminAuthClient.deleteUser(ids);
+    // iterate through each user ids - for bulk or single delete
+    for (let id of ids) {
+      // delete user
+      const { error } = await adminAuthClient.deleteUser(id);
 
-    // error response
-    if (error) {
-      console.error(`Supabase Delete error: ${error.message}`);
-      return NextResponse.json(
-        { success: false, error:`Supabase Delete error: ${error.message}` },
-        { status: error.status }
-      )
+      // error response
+      if (error) {
+        console.error(`Supabase Delete error: ${error.message}`);
+        return NextResponse.json(
+          { success: false, error:`Supabase Delete error: ${error.message}` },
+          { status: error?.status }
+        )
+      }
     }
 
     // success response
     return NextResponse.json(
-      { success: true, message: `${ids.length} Admin(s) Successfully Deleted`, data},
+      { success: true, message: `${ids.length} School Admin(s) Successfully Deleted`},
       { status: 200 }
     )
   } catch (error) {
