@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
   
 }
 
-// DELETE /schooladmin - delete admin
+// DELETE /schooladmin - delete school admin
 export async function DELETE(request: NextRequest) {
   try {
     // create a new body request

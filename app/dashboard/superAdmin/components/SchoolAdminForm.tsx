@@ -1,21 +1,21 @@
 // app/dashboard/superAdmin/components/SchoolAdminForm.tsx
 // School Admin registration form component
 "use client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import * as Sentry from "@sentry/nextjs";
 // Lucide icons
 import { Check, ChevronsUpDown } from "lucide-react";
 // shadcn components
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Form,
   FormControl,
@@ -25,22 +25,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { toast } from "sonner";
 // modules
+import { ScrollArea } from "@/components/ui/scroll-area";
+import useAddSchoolAdmin from "@/hooks/useAddSchoolAdmin";
+import { useSelectSchools } from "@/hooks/useSchools";
 import { cn } from "@/lib/utils";
 import { schoolAdminSchema } from "@/lib/validationSchema";
-import { useSelectSchools } from "@/hooks/useSchools";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
 
 // school admin interface
 interface Props {
@@ -52,9 +49,6 @@ interface Props {
 type schoolAdminData = z.infer<typeof schoolAdminSchema>;
 
 const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
-  // query client for updating data
-  const queryClient = useQueryClient();
-
   // define form using react hook form
   const form = useForm<schoolAdminData>({
     resolver: zodResolver(schoolAdminSchema),
@@ -67,22 +61,9 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
     },
   });
 
-  // fresh data after creation
-  const addSchoolAdmin = useMutation({
-    mutationFn: async (schoolAdmin: schoolAdminData) => {
-      // create school admin api request
-      const request = axios
-        .post("/api/users/schooladmin", schoolAdmin)
-        .then((res) => res.data)
-        .catch((err) => {
-          const apiError = err?.response?.data?.error;
-          if (apiError) {
-            throw new Error(apiError);
-          }
-          throw err;
-        });
-
-      // show toast
+  // custom hook for creating a new school admin with cache refresh
+  const addSchoolAdmin = useAddSchoolAdmin(
+    async (request) => {
       await toast.promise(request, {
         loading: "Creating school admin...",
         success: () => {
@@ -93,17 +74,9 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
           return err.message || "An unexpected error has occurred";
         },
       });
-
-      // Return the resolved data so useMutation has it
-      return request;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CACHE_KEY_SCHOOLADMIN });
-    },
-    onSettled: () => {
-      onSubmittingChange?.(false);
-    },
-  });
+    () => onSubmittingChange?.(false)
+  );
 
   // fetch schools using react query
   const { data: schools = [], isLoading, error } = useSelectSchools();

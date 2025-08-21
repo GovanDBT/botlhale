@@ -24,7 +24,7 @@ const AppInfoTooltip = ({
 }: Props) => {
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger className="hidden md:inline-flex">
         <Info size={iconSize} color={iconColor} />
       </TooltipTrigger>
       <TooltipContent>

@@ -25,7 +25,7 @@ const SchoolAdminFormSheet = () => {
     <Sheet>
       <SheetTrigger asChild>
         <Button className="text-base sm:text-sm cursor-pointer">
-          Register Admin
+          Register School Admin
         </Button>
       </SheetTrigger>
       <SheetContent
