@@ -21,21 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-// Define the type for the admin table
-export default interface SchoolAdmin {
-  id: number;
-  profile_id: string;
-  profile_status: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  phone: string;
-  school: {
-    name: string;
-  };
-  created_at: string;
-}
+import { SchoolAdmin } from "@/utils/interfaces";
 
 // Define the columns for the table
 export const columns: ColumnDef<SchoolAdmin>[] = [

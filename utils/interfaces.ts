@@ -1,6 +1,7 @@
 // utils/interfaces.ts
 // file for storing our reusable type interfaces
 
+// Define the type for schools
 export interface School {
   id: number;
   name: string;
@@ -14,4 +15,19 @@ export interface School {
     firstname: string;
     lastname: string;
   } | null;
+}
+
+// Define the type for the school admin
+export interface SchoolAdmin {
+  id: number;
+  profile_id: string;
+  profile_status: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone: string;
+  school: {
+    name: string;
+  };
+  created_at: string;
 }

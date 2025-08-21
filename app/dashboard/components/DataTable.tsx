@@ -1,7 +1,6 @@
 // app/dashboard/components/DataTable.tsx
 // table data
 "use client";
-
 import * as React from "react";
 import {
   ChevronDown,
@@ -46,7 +45,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import LoadingTable from "../superAdmin/components/LoadingTable";
 import {} from "@tanstack/react-table";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -59,6 +58,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import axios from "axios";
+import { SCHOOLADMIN_ENDPOINT } from "@/utils/endpoints";
+import { toast } from "sonner";
+import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -77,12 +80,42 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   error = null,
 }: DataTableProps<TData, TValue>) {
+  // query client for updating data
+  const queryClient = useQueryClient();
   const [sorting, setSorting] = useState([{ id: "created_at", desc: true }]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // query client for updating data
-  const queryClient = useQueryClient();
+  const deleteDataMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      // create a delete api request using axios
+      const request = axios
+        .delete(SCHOOLADMIN_ENDPOINT, { data: { ids } })
+        .then((res) => res.data)
+        .catch((err) => {
+          const apiError = err?.response?.data?.error;
+          if (apiError) {
+            throw new Error(apiError);
+          }
+          throw err;
+        });
+
+      await toast.promise(request, {
+        loading: "Deleting data...",
+        success: (success: any) => {
+          return success.message || "Data has been successfully Deleted";
+        },
+        error: (err: any) => {
+          return err.message || "Unexpected Error: Failed to delete data";
+        },
+      });
+      // Return the resolved data so useMutation has it
+      return request;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CACHE_KEY_SCHOOLADMIN });
+    },
+  });
 
   const table = useReactTable({
     data,
@@ -216,8 +249,8 @@ export function DataTable<TData, TValue>({
                   <Trash2 />
                   Delete {table.getFilteredSelectedRowModel().rows.length}{" "}
                   {table.getFilteredSelectedRowModel().rows.length > 1
-                    ? "users"
-                    : "user"}
+                    ? "rows"
+                    : "row"}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -236,8 +269,8 @@ export function DataTable<TData, TValue>({
                     <span className="font-bold text-red-400">
                       ({table.getFilteredSelectedRowModel().rows.length}{" "}
                       {table.getFilteredSelectedRowModel().rows.length > 1
-                        ? "users"
-                        : "user"}
+                        ? "rows"
+                        : "row"}
                       )
                     </span>{" "}
                     and remove the data from our servers and database.
@@ -247,8 +280,24 @@ export function DataTable<TData, TValue>({
                   <AlertDialogCancel className="cursor-pointer">
                     Cancel
                   </AlertDialogCancel>
-                  <AlertDialogAction className="bg-red-500 cursor-pointer hover:bg-red-700">
-                    Delete
+                  <AlertDialogAction
+                    className="bg-red-500 cursor-pointer hover:bg-red-700"
+                    disabled={deleteDataMutation.isPending}
+                    onClick={() => {
+                      const selectedIds = table
+                        .getFilteredSelectedRowModel()
+                        .rows.map((row) => (row.original as { id: string }).id);
+                      if (selectedIds.length === 0) return;
+                      deleteDataMutation.mutate(selectedIds);
+                    }}
+                  >
+                    {`Delete ${
+                      table.getFilteredSelectedRowModel().rows.length
+                    } ${
+                      table.getFilteredSelectedRowModel().rows.length > 1
+                        ? "rows"
+                        : "row"
+                    }`}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
