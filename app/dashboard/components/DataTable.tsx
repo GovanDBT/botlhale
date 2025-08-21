@@ -62,6 +62,7 @@ import axios from "axios";
 import { SCHOOLADMIN_ENDPOINT } from "@/utils/endpoints";
 import { toast } from "sonner";
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
+import useDeleteTableData from "@/hooks/useDeleteTableData";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -86,35 +87,17 @@ export function DataTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const deleteDataMutation = useMutation({
-    mutationFn: async (ids: string[]) => {
-      // create a delete api request using axios
-      const request = axios
-        .delete(SCHOOLADMIN_ENDPOINT, { data: { ids } })
-        .then((res) => res.data)
-        .catch((err) => {
-          const apiError = err?.response?.data?.error;
-          if (apiError) {
-            throw new Error(apiError);
-          }
-          throw err;
-        });
-
-      await toast.promise(request, {
-        loading: "Deleting data...",
-        success: (success: any) => {
-          return success.message || "Data has been successfully Deleted";
-        },
-        error: (err: any) => {
-          return err.message || "Unexpected Error: Failed to delete data";
-        },
-      });
-      // Return the resolved data so useMutation has it
-      return request;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CACHE_KEY_SCHOOLADMIN });
-    },
+  // deletes data using useMutation
+  const deleteDataMutation = useDeleteTableData(async (request) => {
+    await toast.promise(request, {
+      loading: "Deleting data...",
+      success: (success: any) => {
+        return success.message || "Data has been successfully Deleted";
+      },
+      error: (err: any) => {
+        return err.message || "Unexpected Error: Failed to delete data";
+      },
+    });
   });
 
   const table = useReactTable({
