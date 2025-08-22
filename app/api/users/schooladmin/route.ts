@@ -259,6 +259,7 @@ export async function DELETE(request: NextRequest) {
 
     // if no id's are empty
     if (!ids || ids.length === 0 ) {
+      Sentry.captureMessage("School Admin Delete: No IDs provided for deletion", "debug")
       return NextResponse.json(
         { error: "No IDs provided for deletion" },
         { status: 400 }
@@ -272,9 +273,9 @@ export async function DELETE(request: NextRequest) {
 
       // error response
       if (error) {
-        console.error(`Supabase Delete error: ${error.message}`);
+        Sentry.captureException(`School Admin Delete error: ${error.message}`);
         return NextResponse.json(
-          { success: false, error:`Supabase Delete error: ${error.message}` },
+          { success: false, error:`School Admin Delete error: ${error.message}` },
           { status: error?.status }
         )
       }
@@ -285,10 +286,10 @@ export async function DELETE(request: NextRequest) {
       { success: true, message: `${ids.length} School Admin(s) Successfully Deleted`},
       { status: 200 }
     )
-  } catch (error) {
-    console.error("Bulk delete error:", error);
+  } catch (error: any) {
+    Sentry.captureException(`School Admin Delete Server Error: ${error.message}`);
     return NextResponse.json(
-      { error: "Failed to delete admins" },
+      { error: "Failed to delete school admins" },
       { status: 500 }
     );
   }

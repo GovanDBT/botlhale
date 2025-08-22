@@ -1,18 +1,8 @@
 // app/dashboard/superAdmin/users/school_admins/SchoolAdminTableColumn.tsx
 // School admins data table columns
 "use client";
-import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import {
-  Archive,
-  ArrowUpDown,
-  BookUser,
-  Clipboard,
-  MoreHorizontal,
-  SquarePen,
-  Trash,
-} from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +11,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import useDeleteSchoolAdmin from "@/hooks/useDeleteSchoolAdmin";
 import { SchoolAdmin } from "@/utils/interfaces";
+import { ColumnDef } from "@tanstack/react-table";
+import {
+  Archive,
+  ArrowUpDown,
+  BookUser,
+  Clipboard,
+  MoreHorizontal,
+  SquarePen,
+  Trash2,
+} from "lucide-react";
+import { toast, Toaster } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Define the columns for the table
 export const columns: ColumnDef<SchoolAdmin>[] = [
@@ -128,48 +141,104 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
+      // delete school user and fetch catch
+      const deleteSchoolAdminMutation = useDeleteSchoolAdmin({
+        onSuccess: () => {
+          toast.success("School Admin Successfully Deleted");
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to Delete School Admin");
+        },
+      });
       const id = row.original;
-
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(id.toString())}
-            >
-              {" "}
-              <Clipboard className="!size-[14]" /> Copy Email
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              {" "}
-              <Clipboard className="!size-[14]" /> Copy Phone
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              {" "}
-              <BookUser className="!size-[14]" /> View details
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              {" "}
-              <SquarePen className="!size-[14]" /> Edit User
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              {" "}
-              <Archive className="!size-[14]" /> Archive User
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-500 hover:!text-red-500">
-              <Trash color="#fb2c36" className="!size-[14]" />
-              Delete User
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+          <Toaster position="bottom-right" />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(id.toString())}
+              >
+                {" "}
+                <Clipboard className="!size-[14]" /> Copy Email
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                {" "}
+                <Clipboard className="!size-[14]" /> Copy Phone
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                {" "}
+                <BookUser className="!size-[14]" /> View details
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                {" "}
+                <SquarePen className="!size-[14]" /> Edit User
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                {" "}
+                <Archive className="!size-[14]" /> Archive User
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {/* Delete User */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem
+                    className="!text-red-500 hover:!text-red-500 cursor-pointer"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    <Trash2 color="#fb2c36" className="!size-[14]" />
+                    Delete User
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="z-50">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="flex items-center gap-2 justify-center md:justify-start">
+                      {" "}
+                      <Trash2
+                        size={17}
+                        className="mb-0.5 hidden md:inline-flex"
+                      />{" "}
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      <span className="font-bold">
+                        This action cannot be undone.
+                      </span>{" "}
+                      This will permanently delete the selected user with email{" "}
+                      <span className="font-bold text-red-400">
+                        ({row.getValue("email")})
+                      </span>{" "}
+                      and remove the user from our servers and database.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="cursor-pointer">
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-red-500 cursor-pointer hover:bg-red-700"
+                      disabled={deleteSchoolAdminMutation.isPending}
+                      onClick={() => {
+                        const selectedId = [row.original.id.toString()];
+                        deleteSchoolAdminMutation.mutate(selectedId);
+                      }}
+                    >
+                      Delete User
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
       );
     },
   },

@@ -22,7 +22,7 @@ export default function Layout({ children, breadcrumbs }: Props) {
         </div>
         {children}
       </main>
-      <Toaster richColors position="top-center" closeButton />
+      <Toaster richColors position="top-center" />
     </SidebarProvider>
   );
 }

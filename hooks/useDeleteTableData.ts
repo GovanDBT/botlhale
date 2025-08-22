@@ -1,5 +1,6 @@
 // hooks/useDeleteTableData.ts
-// custom hook for deleting table data using react query mutation
+// custom hook for deleting table data (in bulk) using react query mutation
+// TODO: make hook reusable to delete other data besides school admins
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
 import { SCHOOLADMIN_ENDPOINT } from "@/utils/endpoints";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,9 +18,7 @@ const useDeleteTableData = (onAdd: (request: Promise<string>) => void) => {
         .then((res) => res.data)
         .catch((err) => {
           const apiError = err?.response?.data?.error;
-          if (apiError) {
-            throw new Error(apiError);
-          }
+          if (apiError) throw new Error(apiError);
           throw err;
         });
 
