@@ -35,6 +35,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SchoolAdminDetails from "@/app/dashboard/components/SchoolAdminDetails";
 
 // Define the columns for the table
 export const columns: ColumnDef<SchoolAdmin>[] = [
@@ -174,10 +183,15 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
                 <Clipboard className="!size-[14]" /> Copy Phone
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                {" "}
-                <BookUser className="!size-[14]" /> View details
-              </DropdownMenuItem>
+              {/* View User */}
+              <SchoolAdminDetails>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <BookUser className="!size-[14]" /> View details
+                </DropdownMenuItem>
+              </SchoolAdminDetails>
               <DropdownMenuItem>
                 {" "}
                 <SquarePen className="!size-[14]" /> Edit User
