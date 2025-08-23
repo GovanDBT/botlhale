@@ -43,7 +43,7 @@ const AppButton = ({
   const IconComponent = icon;
   return (
     <Button
-      className={`cursor-pointer hover:bg-primary-darker transition-all ease-in-out !px-5 font-bold group ${
+      className={`cursor-pointer hover:bg-primary-darker transition-all ease-in-out !px-5 group ${
         largerBtn ? "uppercase rounded-[3px] py-5" : "capitalize"
       } ${className}`}
       variant={variant}

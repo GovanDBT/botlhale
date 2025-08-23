@@ -30,5 +30,19 @@ export interface SchoolAdmin {
     name: string;
   };
   created_at: string;
-  
+}
+
+export interface Profile {
+  id: number;
+  profile_id: string;
+  profile_role: string;
+  profile_status: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone: string;
+  school?: {
+    name: string;
+  };
+  created_at: string;
 }
