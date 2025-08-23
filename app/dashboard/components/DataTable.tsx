@@ -1,52 +1,6 @@
 // app/dashboard/components/DataTable.tsx
 // table data
 "use client";
-import * as React from "react";
-import {
-  ChevronDown,
-  ClipboardList,
-  Columns3,
-  FolderOutput,
-  ListFilter,
-  RefreshCcw,
-  Trash2,
-} from "lucide-react";
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import LoadingTable from "../superAdmin/components/LoadingTable";
-import {} from "@tanstack/react-table";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,11 +12,45 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import axios from "axios";
-import { SCHOOLADMIN_ENDPOINT } from "@/utils/endpoints";
-import { toast } from "sonner";
-import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import useDeleteTableData from "@/hooks/useDeleteTableData";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import {
+  ChevronDown,
+  ClipboardList,
+  Columns3,
+  FolderOutput,
+  ListFilter,
+  RefreshCcw,
+  Trash2,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import LoadingTable from "../superAdmin/components/LoadingTable";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

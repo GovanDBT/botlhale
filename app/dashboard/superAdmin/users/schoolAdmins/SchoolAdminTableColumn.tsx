@@ -1,6 +1,18 @@
 // app/dashboard/superAdmin/users/school_admins/SchoolAdminTableColumn.tsx
 // School admins data table columns
 "use client";
+import SchoolAdminDetails from "@/app/dashboard/components/SchoolAdminDetails";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -24,29 +36,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SchoolAdminDetails from "@/app/dashboard/components/SchoolAdminDetails";
 
 // Define the columns for the table
-export const columns: ColumnDef<SchoolAdmin>[] = [
+const columns: ColumnDef<SchoolAdmin>[] = [
   // admin supabase id as a checkbox
   {
     id: "select",
@@ -184,7 +176,7 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               {/* View User */}
-              <SchoolAdminDetails>
+              <SchoolAdminDetails id={row.original.id.toString()}>
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onSelect={(e) => e.preventDefault()}
@@ -257,3 +249,5 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
     },
   },
 ];
+
+export default columns;

@@ -1,10 +1,10 @@
-// app/api/users/schooladmin/table
+// app/api/users/admin/table
 // retrieves list of admins for the admin table
 import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/services/supabase/server";
 import { NextResponse } from "next/server";
 
-// GET/schooladmin/table - retrieves admins
+// (GET/admin/table) - retrieves admins
 export async function GET() {
   try {
     // init supabase client

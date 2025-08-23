@@ -4,7 +4,7 @@
 // Define the type for schools
 export interface School {
   id: number;
-  name: string;
+  name?: string;
   email?: string;
   admins?: string[];
   teachers?: string[];
@@ -26,8 +26,9 @@ export interface SchoolAdmin {
   lastname: string;
   email: string;
   phone: string;
-  school: {
+  school?: {
     name: string;
   };
   created_at: string;
+  
 }

@@ -5,9 +5,9 @@ import AppSeparator from "@/app/components/AppSeparator";
 import AppInfoTooltip from "@/app/components/AppInfoTooltip";
 import SchoolAdminFormSheet from "../../components/SchoolAdminFormSheet";
 import { DataTable } from "@/app/dashboard/components/DataTable";
-import { columns } from "./SchoolAdminTableColumn";
 import useSchoolAdminTable from "@/hooks/useSchoolAdminTable";
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
+import columns from "./SchoolAdminTableColumn";
 
 const AdminsListPage = () => {
   // Fetch data using react-query

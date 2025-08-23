@@ -1,8 +1,8 @@
 // app/hooks/useSchool_adminTable.ts
 // for fetching school admin data for the school admin table
-import SchoolAdmin from "@/app/dashboard/superAdmin/users/schoolAdmins/SchoolAdminTableColumn";
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
 import { SCHOOLADMIN_TABLE_ENDPOINT } from "@/utils/endpoints";
+import { SchoolAdmin } from "@/utils/interfaces";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
