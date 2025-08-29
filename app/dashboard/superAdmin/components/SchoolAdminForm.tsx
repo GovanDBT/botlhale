@@ -38,26 +38,30 @@ import useAddSchoolAdmin from "@/hooks/useAddSchoolAdmin";
 import { useSelectSchools } from "@/hooks/useSchools";
 import { cn } from "@/lib/utils";
 import { schoolAdminSchema } from "@/lib/validationSchema";
+import { Profile } from "@/utils/interfaces";
+import { useState } from "react";
 
 // school admin interface
 interface Props {
   formRef?: React.RefObject<HTMLFormElement | null>;
   onSubmittingChange?: (isSubmitting: boolean) => void;
+  data?: Profile;
 }
 
 // define schema for school admin data
 type schoolAdminData = z.infer<typeof schoolAdminSchema>;
 
-const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
+const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
+  const [firstName, setFirstName] = useState(data?.firstname);
   // define form using react hook form
   const form = useForm<schoolAdminData>({
     resolver: zodResolver(schoolAdminSchema),
     defaultValues: {
-      firstname: "",
-      lastname: "",
-      email: "",
-      phone: "",
-      school: 0,
+      firstname: data?.firstname,
+      lastname: data?.lastname,
+      email: data?.email,
+      phone: data?.phone,
+      school: data?.school?.id,
     },
   });
 
@@ -159,13 +163,16 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
                       id="email"
                       className="h-12 sm:h-10"
                       placeholder="example@school.com"
+                      disabled={data ? true : false}
                       {...field}
                     />
                   </FormControl>
                   <FormMessage />
-                  <FormDescription className="lg:text-xs text-sm">
-                    Invite will be sent to this email address
-                  </FormDescription>
+                  {!data && (
+                    <FormDescription className="lg:text-xs text-sm">
+                      Invite will be sent to this email address
+                    </FormDescription>
+                  )}
                 </FormItem>
               )}
             />
@@ -184,6 +191,7 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
                       id="phone"
                       className="h-12 sm:h-10"
                       placeholder="+267 ..."
+                      disabled={data ? true : false}
                       {...field}
                     />
                   </FormControl>
@@ -208,10 +216,13 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
                           role="combobox"
                           className={cn(
                             "w-full justify-between h-12 sm:h-10",
-                            !field.value && "text-muted-foreground"
+                            field.value && "text-muted-foreground",
+                            !data && "text-muted-foreground"
                           )}
                         >
-                          {field.value
+                          {data
+                            ? data?.school?.name
+                            : field.value
                             ? schools.find(
                                 (school) => school.id === field.value
                               )?.name
@@ -241,30 +252,29 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange }: Props) => {
                               </p>
                             )}
                             <CommandGroup>
-                              {schools &&
-                                schools.map((school) => (
-                                  <CommandItem
-                                    value={school.name}
-                                    key={school.id}
-                                    onSelect={() => {
-                                      form.setValue("school", school.id, {
-                                        shouldValidate: true,
-                                        shouldDirty: true,
-                                        shouldTouch: true,
-                                      });
-                                    }}
-                                  >
-                                    {school.name}
-                                    <Check
-                                      className={cn(
-                                        "ml-auto",
-                                        school.id === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                  </CommandItem>
-                                ))}
+                              {schools.map((school) => (
+                                <CommandItem
+                                  key={school.id}
+                                  value={school.name}
+                                  onSelect={() => {
+                                    form.setValue("school", school.id, {
+                                      shouldValidate: true,
+                                      shouldDirty: true,
+                                      shouldTouch: true,
+                                    });
+                                  }}
+                                >
+                                  {school.name}
+                                  <Check
+                                    className={cn(
+                                      "ml-auto",
+                                      school.id === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
                             </CommandGroup>
                           </ScrollArea>
                         </CommandList>

@@ -9,7 +9,7 @@ import useSchoolAdminTable from "@/hooks/useSchoolAdminTable";
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
 import columns from "./SchoolAdminTableColumn";
 
-const AdminsListPage = () => {
+const SchoolAdminPage = () => {
   // Fetch data using react-query
   const { data: schoolAdmins = [], isLoading, error } = useSchoolAdminTable();
   return (
@@ -34,4 +34,4 @@ const AdminsListPage = () => {
   );
 };
 
-export default AdminsListPage;
+export default SchoolAdminPage;

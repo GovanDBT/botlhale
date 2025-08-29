@@ -36,6 +36,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
+import UpdateSchoolAdmin from "../../components/UpdateSchoolAdmin";
 
 // Define the columns for the table
 const columns: ColumnDef<SchoolAdmin>[] = [
@@ -184,10 +185,14 @@ const columns: ColumnDef<SchoolAdmin>[] = [
                   <BookUser className="!size-[14]" /> View details
                 </DropdownMenuItem>
               </SchoolAdminDetails>
-              <DropdownMenuItem>
-                {" "}
-                <SquarePen className="!size-[14]" /> Edit User
-              </DropdownMenuItem>
+              <UpdateSchoolAdmin id={row.original.id.toString()}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <SquarePen className="!size-[14]" /> Edit User
+                </DropdownMenuItem>
+              </UpdateSchoolAdmin>
               <DropdownMenuItem>
                 {" "}
                 <Archive className="!size-[14]" /> Archive User

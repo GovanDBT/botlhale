@@ -42,6 +42,7 @@ export interface Profile {
   email: string;
   phone: string;
   school?: {
+    id: number;
     name: string;
   };
   created_at: string;

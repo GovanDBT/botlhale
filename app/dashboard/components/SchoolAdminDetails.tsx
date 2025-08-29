@@ -42,9 +42,9 @@ const SchoolAdminDetails = ({ children, id }: Props) => {
         ? new Date(profile.created_at).toDateString()
         : null,
     },
-    { key: "Created By", value: "NULL" },
-    { key: "Last Login", value: "NULL" },
-    { key: "Last Update", value: "NULL" },
+    { key: "Created By", value: "N/A" },
+    { key: "Last Login", value: "N/A" },
+    { key: "Last Update", value: "N/A" },
   ];
 
   const tabTriggerStyle: string =
