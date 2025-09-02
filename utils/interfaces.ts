@@ -20,20 +20,20 @@ export interface School {
 // Define the type for the school admin
 export interface SchoolAdmin {
   id: number;
-  profile_id: string;
-  profile_status: string;
+  profile_id?: string;
+  profile_status?: string;
   firstname: string;
   lastname: string;
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
   school?: {
     name: string;
   };
-  created_at: string;
+  created_at?: string;
 }
 
 export interface Profile {
-  id: number;
+  id: string;
   profile_id: string;
   profile_role: string;
   profile_status: string;

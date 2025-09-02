@@ -35,7 +35,7 @@ import {
   SquarePen,
   Trash2,
 } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import UpdateSchoolAdmin from "../../components/UpdateSchoolAdmin";
 
 // Define the columns for the table
@@ -155,7 +155,6 @@ const columns: ColumnDef<SchoolAdmin>[] = [
       const id = row.original;
       return (
         <>
-          <Toaster position="bottom-right" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">

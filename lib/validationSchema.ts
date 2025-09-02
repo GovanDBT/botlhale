@@ -68,6 +68,7 @@ export const schoolSchema = z.object({
 
 // validate school admin registration input
 export const schoolAdminSchema = z.object({
+    id: z.string().optional(),
     firstname: z.string().min(1, "Firstname is required!"),
     lastname: z.string().min(1, "lastname is required!"),
     school: z.number().min(1, "School is required!"),
@@ -80,6 +81,8 @@ export const updateSchoolAdminSchema = z.object({
     firstname: z.string().min(1, "Firstname is required!"),
     lastname: z.string().min(1, "lastname is required!"),
     school: z.number().min(1, "School is required!"),
+    email: z.string().email().optional(),
+    phone: z.string().optional()
 })
 
 // validate reset password input

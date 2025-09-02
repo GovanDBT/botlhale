@@ -36,10 +36,13 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useAddSchoolAdmin from "@/hooks/useAddSchoolAdmin";
 import { useSelectSchools } from "@/hooks/useSchools";
+import useUpdateSchoolAdmin from "@/hooks/useUpdateSchoolAdmin";
 import { cn } from "@/lib/utils";
-import { schoolAdminSchema } from "@/lib/validationSchema";
+import {
+  schoolAdminSchema,
+  updateSchoolAdminSchema,
+} from "@/lib/validationSchema";
 import { Profile } from "@/utils/interfaces";
-import { useState } from "react";
 
 // school admin interface
 interface Props {
@@ -50,18 +53,19 @@ interface Props {
 
 // define schema for school admin data
 type schoolAdminData = z.infer<typeof schoolAdminSchema>;
+type updateSchoolAdminData = z.infer<typeof updateSchoolAdminSchema>;
 
 const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
-  const [firstName, setFirstName] = useState(data?.firstname);
   // define form using react hook form
   const form = useForm<schoolAdminData>({
     resolver: zodResolver(schoolAdminSchema),
     defaultValues: {
-      firstname: data?.firstname,
-      lastname: data?.lastname,
-      email: data?.email,
-      phone: data?.phone,
-      school: data?.school?.id,
+      id: data?.id || "",
+      firstname: data?.firstname || "",
+      lastname: data?.lastname || "",
+      email: data?.email || "",
+      phone: data?.phone || "",
+      school: data?.school?.id || 0,
     },
   });
 
@@ -82,13 +86,33 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
     () => onSubmittingChange?.(false)
   );
 
+  // custom hook for creating a new school admin with cache refresh
+  const updateSchoolAdmin = useUpdateSchoolAdmin(
+    async (request) => {
+      await toast.promise(request, {
+        loading: "Updating school admin...",
+        success: () => {
+          return "School admin has been successfully updated";
+        },
+        error: (err: any) => {
+          return err.message || "An unexpected error has occurred";
+        },
+      });
+    },
+    () => onSubmittingChange?.(false)
+  );
+
   // fetch schools using react query
   const { data: schools = [], isLoading, error } = useSelectSchools();
 
   // submit handler
-  const onSubmit = async (data: schoolAdminData) => {
+  const onSubmit = async (formData: schoolAdminData) => {
     onSubmittingChange?.(true);
-    addSchoolAdmin.mutate(data);
+    if (data) {
+      updateSchoolAdmin.mutate(formData as updateSchoolAdminData);
+    } else {
+      addSchoolAdmin.mutate(formData);
+    }
   };
 
   return (
@@ -216,13 +240,10 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
                           role="combobox"
                           className={cn(
                             "w-full justify-between h-12 sm:h-10",
-                            field.value && "text-muted-foreground",
-                            !data && "text-muted-foreground"
+                            !field.value && "text-muted-foreground"
                           )}
                         >
-                          {data
-                            ? data?.school?.name
-                            : field.value
+                          {field.value
                             ? schools.find(
                                 (school) => school.id === field.value
                               )?.name

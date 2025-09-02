@@ -323,6 +323,7 @@ export async function PATCH(request: NextRequest) {
 
     // If validation fails, show error
     if (!validation.success) {
+      console.log(body)
       return NextResponse.json(validation.error.format() || "Invalid input data", { status: 400 });
     }
 
@@ -348,7 +349,7 @@ export async function PATCH(request: NextRequest) {
     // if no updates were made
     if(profile.firstname === firstname && profile.lastname === lastname && profile.school === school) {
       return NextResponse.json(
-        { error: "No updates were made" },
+        { error: "Could not update user as no changes were made!" },
         { status: 406 }
       );
     }

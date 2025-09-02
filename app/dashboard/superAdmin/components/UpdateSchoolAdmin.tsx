@@ -42,9 +42,8 @@ const UpdateSchoolAdmin = ({ children, id }: Props) => {
               Update School Admin
             </SheetTitle>
             <SheetDescription className="text-base sm:text-sm">
-              Fill in the form below to register a new school admin. An email
-              will be sent to the user where they will be prompted to complete
-              their registration.
+              Update the form fields below to change the school admins data.
+              Cannot change email or phone for security reasons
             </SheetDescription>
           </SheetHeader>
         </div>

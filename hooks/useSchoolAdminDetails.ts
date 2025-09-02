@@ -9,7 +9,7 @@ export default function useSchoolAdminDetails(id: string) {
         const supabase = await createClient();
             const { data, error } = await supabase
             .from("profile")
-            .select("*, school!school(name)")
+            .select("*, school!school(name, id)")
             .eq("id", id)
             .single();
         if (error) {
