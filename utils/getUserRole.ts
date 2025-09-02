@@ -1,7 +1,6 @@
-/**
- * app/utils/getUserRole.ts
- * Used to get the users role (superAdmin, admin, student, etc) and access token
- */
+// utils/getUserRole.ts
+// Used to get the users role (superAdmin, admin, student, etc) and access token
+
 import { jwtDecode } from "jwt-decode";
 import { serverInstance } from "@/services/rollbar/rollbar";
 

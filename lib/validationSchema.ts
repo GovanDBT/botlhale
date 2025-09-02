@@ -75,6 +75,13 @@ export const schoolAdminSchema = z.object({
     phone: z.string().min(1, "Phone number is required!")
 })
 
+// validate school admin registration input
+export const updateSchoolAdminSchema = z.object({
+    firstname: z.string().min(1, "Firstname is required!"),
+    lastname: z.string().min(1, "lastname is required!"),
+    school: z.number().min(1, "School is required!"),
+})
+
 // validate reset password input
 export const resetPasswordSchema = z.object({
     newPassword: z.string().min(8, "Password must be at least 8 characters long"),

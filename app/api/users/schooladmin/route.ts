@@ -2,11 +2,12 @@
 // school admin response api's
 import { getUserRole } from "@/utils/getUserRole";
 import { NextRequest, NextResponse } from "next/server";
-import { schoolAdminSchema } from "@/lib/validationSchema";
+import { schoolAdminSchema, updateSchoolAdminSchema } from "@/lib/validationSchema";
 import { createClient } from "@/services/supabase/server";
 import { generateUserId } from "@/lib/generateUserId";
 import * as Sentry from "@sentry/nextjs";
 import { adminAuthClient } from "@/services/supabase/admin";
+import { getAccessToken } from "@/utils/getAccessToken";
 
 // POST /schooladmin - create new school admin
 export async function POST(request: NextRequest) {
@@ -291,6 +292,97 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(
       { error: "Failed to delete school admins" },
       { status: 500 }
+    );
+  }
+}
+
+// PATCH /schooladmin - update school admin
+export async function PATCH(request: NextRequest) {
+  try {
+    // create a new body request
+    const body = await request.json();
+    const { id, firstname, lastname, school } = body
+
+    // get current users access token
+    const accessToken = await getAccessToken(request)
+  
+    // get the current user's role
+    const userRole = await getUserRole(accessToken.toString());
+
+    // If user is not superAdmin, throw an error
+    if (userRole !== "superAdmin") {
+      Sentry.captureMessage("An unauthorized users tried to update school admin", "warning")
+      return NextResponse.json(
+        { error: "Unauthorized access!" },
+        { status: 403 }
+      );
+    }
+
+    //validate body
+    const validation = updateSchoolAdminSchema.safeParse(body);
+
+    // If validation fails, show error
+    if (!validation.success) {
+      return NextResponse.json(validation.error.format() || "Invalid input data", { status: 400 });
+    }
+
+    // initialize Supabase client with access
+    const supabase = await createClient(accessToken.toString());
+
+    // get users profile
+    const { data: profile, error: profileError } = await supabase
+      .from('profile')
+      .select('id, firstname, lastname, school')
+      .eq('id', id)
+      .single();
+    
+      // if profile error
+    if (profileError) {
+      Sentry.captureException(`Profile Error: ${profileError.message}`);
+      return NextResponse.json(
+        { error: `Profile Error: ${profileError.message}` || "User does not exist" },
+        { status: 404 }
+      );
+    }
+
+    // if no updates were made
+    if(profile.firstname === firstname && profile.lastname === lastname && profile.school === school) {
+      return NextResponse.json(
+        { error: "No updates were made" },
+        { status: 406 }
+      );
+    }
+
+    // update user
+    const { error: updateError } = await adminAuthClient.updateUserById(
+      id,
+      { user_metadata: {
+        firstname: firstname,
+        lastname: lastname,
+        school: school,
+        display_name: `${firstname} ${lastname}`
+      }}
+    )
+
+    // if update fails
+    if (updateError) {
+      Sentry.captureException(`Update School Admin Error: ${updateError.message}`);
+      return NextResponse.json(
+        { error: `Update School Admin Error: ${updateError.message}` || "Failed to update user" },
+        { status: 404 }
+      );
+    }
+
+    // if update succeed - send response
+    return NextResponse.json(
+      { message: "School Admin successfully updated" },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    Sentry.captureException(`Update School Admin Server Error: ${error.message}`)
+    return NextResponse.json(
+      { error: `Server error: ${error?.message || "An unexpected error has occurred"}`, },
+      { status: error?.status || 500 }
     );
   }
 }
