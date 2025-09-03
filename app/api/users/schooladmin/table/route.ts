@@ -23,7 +23,7 @@ export async function GET() {
     if (error) {
       Sentry.captureException(`School Admin Table Error: ${error.message}`)
       return NextResponse.json(
-        { success: false, error: `School Admin Table Error: ${error.message}` || "Failed to fetch school admin data" },
+        { success: false, error: `School Admin Table Error: ${error.message}` || "Failed to fetch school admin" },
         { status: 404 }
       );
     }

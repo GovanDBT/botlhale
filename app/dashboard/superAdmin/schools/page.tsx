@@ -1,28 +1,16 @@
+// app/dashboard/superAdmin/schools/page.tsx
+// page for showing a table of registered schools
 "use client";
-
-import AppSeparator from "@/app/components/AppSeparator";
 import AppInfoTooltip from "@/app/components/AppInfoTooltip";
+import AppSeparator from "@/app/components/AppSeparator";
+import { useGetSchool } from "@/hooks/useSchools";
 import { DataTable } from "../../components/DataTable";
-import { columns } from "./SchoolTableColumn";
 import SchoolFormSheet from "../components/SchoolFormSheet";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { columns } from "./SchoolTableColumn";
 
 const SchoolsPage = () => {
-  // Fetch data using react-query
-  const fetchSchools = async () => {
-    const { data } = await axios.get("/api/schools/table");
-    return data;
-  };
-
-  const {
-    data: schools = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["schools"],
-    queryFn: fetchSchools,
-  });
+  // fetch school using react-query
+  const { data: schools = [], isLoading, error } = useGetSchool();
 
   return (
     <div>
@@ -39,7 +27,7 @@ const SchoolsPage = () => {
         columns={columns}
         data={schools}
         isLoading={isLoading}
-        error={error ? "Failed to fetch schools" : null}
+        error={error && "Failed to fetch schools"}
       />
     </div>
   );

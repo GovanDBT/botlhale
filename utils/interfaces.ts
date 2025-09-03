@@ -4,7 +4,7 @@
 // Define the type for schools
 export interface School {
   id: number;
-  name?: string;
+  name: string;
   email?: string;
   admins?: string[];
   teachers?: string[];

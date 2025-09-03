@@ -1,10 +1,11 @@
-/**
- * An API routes for schools
- */
+// app/api/schools/route.ts
+// schools response api's - POST, GET
+
 import { NextRequest, NextResponse } from "next/server";
 import { schoolSchema } from "@/lib/validationSchema";
 import { getUserRole } from "@/utils/getUserRole";
 import { createClient } from "@/services/supabase/server";
+import * as Sentry from "@sentry/nextjs";
 import { serverInstance } from "@/services/rollbar/rollbar";
 
 // API request for create a school
@@ -171,26 +172,36 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ message: "School created successfully!" });
 }
 
-// API request for retrieving all schools
+// GET /schools - retrieves all schools
 export async function GET() {
-  // initialize supabase
-  const supabase = await createClient();
+  try {
+    // initialize supabase server client
+    const supabase = await createClient();
 
-  // get all schools
-  const { data, error } = await supabase
-    .from("school")
-    .select("*")
-    .order("name");
+    // get all schools - join with profile
+    const { data, error } = await supabase
+      .from("school")
+      .select("*, profile:created_by(firstname, lastname)")
+      .order("name");
 
-  // fails to retrieve schools
-  if (error) {
-    serverInstance.error("System failed to fetch all schools", { error });
+    // if fetch fails
+    if (error) {
+      Sentry.captureException(`Schools Error: ${error.message}`); // log to Sentry
+      return NextResponse.json(
+        { success: false, error: `Schools Error: ${error.message}` || "Failed to fetch schools" }, // log to client
+        { status: 404 }
+      );
+    }
+
+    // response
+    return NextResponse.json(data);
+
+  } catch (error: any) {
+    // any unexpected error
+    Sentry.captureException(`Schools Server Error: ${error.message}`); // log to Sentry
     return NextResponse.json(
-      { error: "Failed to fetch schools" },
-      { status: 400 }
+      { success: false, error: `Server error: ${error.message}`, }, // log to client
+      { status: error.status }
     );
   }
-
-  // retrieved schools
-  return NextResponse.json(data);
 }

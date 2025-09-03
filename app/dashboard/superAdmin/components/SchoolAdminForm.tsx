@@ -35,7 +35,7 @@ import { toast } from "sonner";
 // modules
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useAddSchoolAdmin from "@/hooks/useAddSchoolAdmin";
-import { useSelectSchools } from "@/hooks/useSchools";
+import { useSelectSchools } from "@/hooks/useSchool";
 import useUpdateSchoolAdmin from "@/hooks/useUpdateSchoolAdmin";
 import { cn } from "@/lib/utils";
 import {
