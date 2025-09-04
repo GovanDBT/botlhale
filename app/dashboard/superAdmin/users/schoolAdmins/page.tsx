@@ -7,7 +7,7 @@ import SchoolAdminFormSheet from "../../components/SchoolAdminFormSheet";
 import { DataTable } from "@/app/dashboard/components/DataTable";
 import useSchoolAdminTable from "@/hooks/useSchoolAdminTable";
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
-import columns from "./SchoolAdminTableColumn";
+import { columns } from "./SchoolAdminTableColumn";
 
 const SchoolAdminPage = () => {
   // Fetch data using react-query

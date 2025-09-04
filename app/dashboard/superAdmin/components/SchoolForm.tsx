@@ -1,18 +1,17 @@
-/**
- * School registration form component
- */
+// app/dashboard/superAdmin/SchoolForm.tsx
+// form component for registering a new school
 "use client";
-import { useMemo } from "react";
-import ReactMarkdown from "react-markdown";
-import ReactDOMServer from "react-dom/server";
-import { useForm } from "react-hook-form"; // react forms
-import dynamic from "next/dynamic";
-import SimpleMDE from "easymde";
-import "easymde/dist/easymde.min.css"; // Mark-down-editor css
-import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import SimpleMDE from "easymde";
+import "easymde/dist/easymde.min.css"; // Mark-down-editor css
+import dynamic from "next/dynamic";
+import { useMemo, useState } from "react";
+import ReactDOMServer from "react-dom/server";
+import { useForm } from "react-hook-form"; // react forms
+import ReactMarkdown from "react-markdown";
 import Rollbar from "rollbar";
+import z from "zod";
 // shadcn components
 import {
   Form,
@@ -25,8 +24,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 // modules
-import { clientConfig } from "@/services/rollbar/rollbar";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { schoolSchema } from "@/lib/validationSchema";
+import { clientConfig } from "@/services/rollbar/rollbar";
 
 // import Mark-down-editor using lazy loading
 // simpleMDE is a client-side component that is rendered in the server
@@ -42,17 +54,41 @@ interface Props {
   onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
+type Level = {
+  value: string;
+  label: string;
+};
+
+const levels: Level[] = [
+  {
+    value: "Senior School",
+    label: "Senior School",
+  },
+  {
+    value: "Junior School",
+    label: "Junior School",
+  },
+  {
+    value: "Primary School",
+    label: "Primary School",
+  },
+];
+
 const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
   // define form
   const form = useForm<schoolData>({
     resolver: zodResolver(schoolSchema),
     defaultValues: {
       name: "",
+      level: "",
       email: "",
       phone: "",
       location: "",
+      schoolName: "",
     },
   });
+  const [open, setOpen] = useState(false);
+  const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
 
   // Custom renderer options for SimpleMDE
   const customRendererOptions = useMemo(() => {
@@ -82,6 +118,7 @@ const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
         loading: "Creating school...",
         success: () => {
           form.reset();
+          setSelectedLevel(null);
           return "School created successfully!";
         },
         error: (err: any) => {
@@ -117,16 +154,67 @@ const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
                   <FormLabel htmlFor="name" className="text-base sm:text-sm">
                     School Name: <span className="text-red-400">*</span>
                   </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      id="name"
-                      className="h-12 sm:h-10"
-                      placeholder="eg. Strype Senior School"
-                      autoFocus
-                      {...field}
-                    />
-                  </FormControl>
+                  <div className="relative">
+                    <FormControl>
+                      <Input
+                        type="text"
+                        id="name"
+                        className="h-12 sm:h-10"
+                        placeholder="e.g. Botlhale"
+                        {...field}
+                      />
+                    </FormControl>
+                    {/* School level */}
+                    <Popover open={open} onOpenChange={setOpen} modal={true}>
+                      <PopoverTrigger
+                        asChild
+                        className="absolute inset-y-[1] md:inset-y-[2] right-0.5 flex items-center"
+                        tabIndex={-1}
+                      >
+                        <Button
+                          variant="outline"
+                          className="w-[160px] md:w-[240px] justify-start bg-primary text-white hover:bg-primary-darker hover:text-white cursor-pointer py-5.5 md:py-0"
+                        >
+                          {selectedLevel
+                            ? selectedLevel.label
+                            : "+ Set School Level"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-0" align="start">
+                        <Command>
+                          <CommandList>
+                            <CommandEmpty>No results found.</CommandEmpty>
+                            <CommandGroup>
+                              {levels.map((level) => (
+                                <CommandItem
+                                  key={level.value}
+                                  value={level.value}
+                                  className="cursor-pointer"
+                                  onSelect={(value) => {
+                                    const selected =
+                                      levels.find((l) => l.value === value) ||
+                                      null;
+                                    setSelectedLevel(selected);
+                                    form.setValue("level", value, {
+                                      shouldValidate: true,
+                                    });
+                                    setOpen(false);
+                                  }}
+                                >
+                                  {level.label}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  {form.formState.errors.level && (
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.level?.message}
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

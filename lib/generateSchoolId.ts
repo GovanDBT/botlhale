@@ -5,11 +5,8 @@ import dayjs from "dayjs";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient } from "@/services/supabase/serviceRole";
 
-export async function generateSchoolId(): Promise<string> {
-  // Get current year
+export async function generateSchoolId(): Promise<number> {
   const year = dayjs().year();
-
-  // Supabase client
   const supabase = createServerClient();
 
   // Fetch all existing school IDs
@@ -24,8 +21,8 @@ export async function generateSchoolId(): Promise<string> {
   const existingNumbers = new Set(
     (data ?? [])
       .map((row) => row.id)
-      .filter((id) => typeof id === "string" && id.startsWith(year.toString()))
-      .map((id) => parseInt(id.slice(4), 10)) // get last 4 digits
+      .filter((id) => typeof id === "number" && Math.floor(id / 10000) === year) // ensure same year
+      .map((id) => id % 10000) // get last 4 digits
       .filter((num) => !isNaN(num))
   );
 
@@ -38,6 +35,6 @@ export async function generateSchoolId(): Promise<string> {
   // Pad with leading zeros
   const padded = String(newNumber).padStart(4, "0");
 
-  // Return full ID: year + sequence
-  return `${year}${padded}`; // e.g. 20250002
+  // Return as integer: e.g., 20250002
+  return parseInt(`${year}${padded}`, 10);
 }

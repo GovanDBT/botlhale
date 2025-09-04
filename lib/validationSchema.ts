@@ -59,11 +59,18 @@ export const loginSchema = z.object({
 // validate school registration input
 export const schoolSchema = z.object({
     id: z.number().optional(),
+    schoolName: z.string(),
     name: z.string().min(1, "School name is required!"),
+    level: z.string().min(1, "School level is required!"),
     description: z.string().optional(),
     email: z.string().email().min(1, 'School email is required!'),
     location: z.string().min(1, 'School location is required!'),
     phone: z.string().min(1, 'School phone number is required!'),
+}).transform((data) => {
+  return {
+    ...data,
+    schoolName: `${data.name} ${data.level}`, // "Botlhale Senior School"
+  };
 });
 
 // validate school admin registration input

@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
       .insert([
         {
           id: schoolId,
-          name: body.name,
+          name: body.schoolName,
           description: body.description,
           email: body.email,
           phone: body.phone,

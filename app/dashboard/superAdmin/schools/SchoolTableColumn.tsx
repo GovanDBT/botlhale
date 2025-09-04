@@ -40,6 +40,12 @@ export const columns: ColumnDef<School>[] = [
     enableSorting: false,
     enableHiding: false,
   },
+  // school ID
+  {
+    accessorKey: "id",
+    header: () => <div>School ID</div>,
+    cell: ({ getValue }) => <div>{getValue<string>()}</div>,
+  },
   // school name
   {
     accessorKey: "name",
@@ -47,22 +53,14 @@ export const columns: ColumnDef<School>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="font-bold"
+        className="cursor-pointer"
       >
         Names
-        <ArrowUpDown />
+        <ArrowUpDown className="!size-[14]" />
       </Button>
     ),
     cell: ({ getValue }) => (
       <div className="text-wrap">{getValue<string>()}</div>
-    ),
-  },
-  // school email
-  {
-    accessorKey: "email",
-    header: () => <div className="hidden sm:table cell">Emails</div>,
-    cell: ({ row }) => (
-      <div className="hidden sm:table cell">{row.getValue("email")}</div>
     ),
   },
   // number of admins
@@ -108,10 +106,10 @@ export const columns: ColumnDef<School>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="font-bold hidden lg:flex cell"
+        className="hidden lg:flex cell cursor-pointer"
       >
         Created At
-        <ArrowUpDown />
+        <ArrowUpDown className="!size-[14]" />
       </Button>
     ),
     cell: ({ row }) => (

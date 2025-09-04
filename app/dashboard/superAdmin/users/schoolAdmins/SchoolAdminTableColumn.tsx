@@ -39,7 +39,7 @@ import { toast } from "sonner";
 import UpdateSchoolAdmin from "../../components/UpdateSchoolAdmin";
 
 // Define the columns for the table
-const columns: ColumnDef<SchoolAdmin>[] = [
+export const columns: ColumnDef<SchoolAdmin>[] = [
   // admin supabase id as a checkbox
   {
     id: "select",
@@ -78,7 +78,7 @@ const columns: ColumnDef<SchoolAdmin>[] = [
     header: () => <div>User ID</div>,
     cell: ({ getValue }) => <div>{getValue<string>()}</div>,
   },
-  // school admin fullname
+  // fullname
   {
     accessorFn: (row) => `${row.firstname} ${row.lastname}`,
     id: "fullname",
@@ -86,15 +86,15 @@ const columns: ColumnDef<SchoolAdmin>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="font-bold"
+        className="cursor-pointer"
       >
         Fullname
-        <ArrowUpDown />
+        <ArrowUpDown className="!size-[14]" />
       </Button>
     ),
     cell: ({ getValue }) => <div>{getValue<string>()}</div>,
   },
-  // school admin email
+  // email
   {
     accessorKey: "email",
     header: () => <div className="hidden sm:table cell">Email</div>,
@@ -102,7 +102,7 @@ const columns: ColumnDef<SchoolAdmin>[] = [
       <div className="hidden sm:table cell">{row.getValue("email")}</div>
     ),
   },
-  // school admin phone
+  // phone
   {
     accessorKey: "phone",
     header: () => <div className="hidden md:table cell">Phone</div>,
@@ -110,7 +110,7 @@ const columns: ColumnDef<SchoolAdmin>[] = [
       <div className="hidden md:table cell">{row.getValue("phone")}</div>
     ),
   },
-  // school admins school
+  // school
   {
     accessorFn: (row) => row.school?.name ?? "",
     id: "school",
@@ -126,10 +126,10 @@ const columns: ColumnDef<SchoolAdmin>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="font-bold hidden lg:flex cell"
+        className="hidden lg:flex cell cursor-pointer"
       >
         Created At
-        <ArrowUpDown />
+        <ArrowUpDown className="!size-[14]" />
       </Button>
     ),
     cell: ({ row }) => (
@@ -253,5 +253,3 @@ const columns: ColumnDef<SchoolAdmin>[] = [
     },
   },
 ];
-
-export default columns;
