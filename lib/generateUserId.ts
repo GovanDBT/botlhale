@@ -1,13 +1,16 @@
 // lib/generateUserId.ts
-// library for generating a user ID depending on their role
+// library for generating a unique user ID depending on the users role (e.g., admin = adm-2025-003, student = std-2025-0018, etc.)
 import dayjs from "dayjs";
-import { serverInstance } from "@/services/rollbar/rollbar";
+import * as Sentry from "@sentry/nextjs";
 import { createServerClient } from "@/services/supabase/serviceRole";
 
 export async function generateUserId(role: string): Promise<string> {
+  // grab year from dayjs library
   const year = dayjs().year();
+  // initiate supabase service role key
   const supabase = createServerClient();
 
+  // id prefix
   const prefixMap: Record<string, string> = {
     superAdmin: "sup",
     admin: "adm",
@@ -17,15 +20,18 @@ export async function generateUserId(role: string): Promise<string> {
     guardian: "gua",
   };
 
+  // map user role to prefix
   const prefix = prefixMap[role];
+  // if invalid role
   if (!prefix) throw new Error("Invalid role");
 
+  // go through existing profile id's
   const { data, error } = await supabase.from("profile").select("profile_id");
 
+  // if database error
   if (error) {
-    serverInstance.error("System failed to fetch existing ID", error);
-    console.error("Supabase error:", error);
-    throw new Error("Failed to fetch existing IDs", error);
+    Sentry.captureException(`Generate User ID Error: ${error.message}`)
+    throw new Error(`Generate User ID Error: ${error.message}`);
   }
 
   // Filter only relevant IDs
@@ -45,6 +51,9 @@ export async function generateUserId(role: string): Promise<string> {
     newNumber++;
   }
 
+  // pad the number to 4 digits
   const padded = String(newNumber).padStart(4, "0");
-  return `${prefix}-${year}-${padded}`; // stu-2025-0002
+
+  // result = stu-2025-0002
+  return `${prefix}-${year}-${padded}`;
 }

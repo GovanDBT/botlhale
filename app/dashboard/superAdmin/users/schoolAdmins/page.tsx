@@ -28,7 +28,7 @@ const SchoolAdminPage = () => {
         data={schoolAdmins}
         isLoading={isLoading}
         refresh={`${CACHE_KEY_SCHOOLADMIN}`}
-        error={error ? "Failed to fetch school admins" : null}
+        error={error && "Failed to fetch school admins"}
       />
     </div>
   );

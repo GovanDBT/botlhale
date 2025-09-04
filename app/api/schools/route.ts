@@ -1,175 +1,174 @@
 // app/api/schools/route.ts
 // schools response api's - POST, GET
-
+// TODO: reduce frequent calls to the supabase while checking school name, email, and phone
 import { NextRequest, NextResponse } from "next/server";
 import { schoolSchema } from "@/lib/validationSchema";
 import { getUserRole } from "@/utils/getUserRole";
 import { createClient } from "@/services/supabase/server";
 import * as Sentry from "@sentry/nextjs";
-import { serverInstance } from "@/services/rollbar/rollbar";
+import { generateSchoolId } from "@/lib/generateSchoolId";
+import { getAccessToken } from "@/utils/getAccessToken";
 
-// API request for create a school
+// POST /schools - creates a new school
 export async function POST(request: NextRequest) {
-  const body = await request.json(); // create a new body object
+  try {
+    // create a new body request
+    const body = await request.json();
 
-  // initialize supabase server client
-  const client = await createClient();
+    // get current users access token
+    const accessToken = await getAccessToken(request);
 
-  // grab user session
-  const {
-    data: { session },
-    error: sessionError,
-  } = await client.auth.getSession();
+    // Fetch the current user's role
+    const userRole = await getUserRole(accessToken.toString());
 
-  // if api fails to retrieve user session
-  if (sessionError) {
-    serverInstance.info("System failed to get user session", { sessionError });
+    // If user is not superAdmin, throw an error
+    if (userRole !== "superAdmin") {
+      Sentry.captureMessage("An unauthorized users tried to create school", "warning")
+      return NextResponse.json(
+        { error: "Unauthorized access!" },
+        { status: 403 }
+      );
+    }
+
+    // validate input body
+    const validation = schoolSchema.safeParse(body);
+
+    // If validation fails, show error
+    if (!validation.success)
+      return NextResponse.json(validation.error.format() || "Invalid input data", { status: 400 });
+
+    // initialize Supabase client with access token
+    const supabase = await createClient(accessToken.toString()); 
+
+    // fetch school by name
+    const { data: schoolName, error: schoolNameError } = await supabase
+      .from("school")
+      .select("name")
+      .eq("name", body.name)
+      .maybeSingle();
+
+    // if database error
+    if (schoolNameError) {
+      Sentry.captureException(`School Name Error: ${schoolNameError.message}`);
+      return NextResponse.json(
+        { error: `School Name Error: ${schoolNameError.message}` || "Failed to fetch school name" },
+        { status: 500 }
+      );
+    }
+
+    // if school name already exists, throw error
+    if (schoolName?.name === body.name) {
+      return NextResponse.json(
+        { error: "School name already exists! Please try a different school name" },
+        { status: 403 }
+      );
+    }
+
+    // fetch school by email
+    const { data: schoolEmail, error: schoolEmailError } = await supabase
+      .from("school")
+      .select("email")
+      .eq("email", body.email)
+      .maybeSingle();
+
+    // if database error
+    if (schoolEmailError) {
+      Sentry.captureException(`School Email Error: ${schoolEmailError.message}`);
+      return NextResponse.json(
+        { error: `School Email Error: ${schoolEmailError.message}` || "Failed to fetch school email" },
+        { status: 500 }
+      );
+    }
+
+    // if school email already exists, throw error
+    if (schoolEmail?.email === body.email) {
+      return NextResponse.json(
+        { error: "School email already exists! Please try a different school email address" },
+        { status: 403 }
+      );
+    }
+
+    // fetch school by phone
+    const { data: schoolPhone, error: schoolPhoneError } = await supabase
+      .from("school")
+      .select("phone")
+      .eq("phone", body.phone)
+      .maybeSingle();
+
+    // if database error
+    if (schoolPhoneError) {
+      Sentry.captureException(`School Phone Error: ${schoolPhoneError.message}`);
+      return NextResponse.json(
+        { error: `School Phone Error: ${schoolPhoneError.message}` || "Failed to fetch school phone" },
+        { status: 500 }
+      );
+    }
+
+    // if phone number exists, throw error
+    if (schoolPhone?.phone === body.phone) {
+      return NextResponse.json(
+        { error: "School phone already exists! Please try a different school phone number" },
+        { status: 403 }
+      );
+    }
+
+    // grabs the current users data
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    // if database fails
+    if (userError) {
+      Sentry.captureException(`User Error: ${userError.message}`);
+      return NextResponse.json(
+        { error: `User Error: ${userError.message}` || "Failed to fetch current user" },
+        { status: userError.status }
+      );
+    }
+
+    // generates a new school ID
+    const schoolId = await generateSchoolId();
+
+    // Insert the school into the database
+    const { error } = await supabase
+      .from("school")
+      .insert([
+        {
+          id: schoolId,
+          name: body.name,
+          description: body.description,
+          email: body.email,
+          phone: body.phone,
+          location: body.location,
+          created_by: user?.id,
+        },
+      ])
+      .select();
+
+    // if database error
+    if (error) {
+      Sentry.captureException(`Insert School Error: ${error.message}`);
+      return NextResponse.json(
+        { error: `Insert School Error: ${error.message}` || "Failed to created a new school" },
+        { status: 500 }
+      );
+    }
+
+    // success response
     return NextResponse.json(
-      { error: "System failed to get user session" },
-      { status: 400 }
+      { message: "School created successfully!" },
+      { status: 201 }
+    );
+  } catch (error: any) {
+    // unexpected error
+    Sentry.captureException(`Insert School Server Error: ${error.message}`);
+    return NextResponse.json(
+      { error: `Server error: ${error?.message || "An unexpected error has occurred"}`, },
+      { status: error?.status || 500 }
     );
   }
-
-  // get access token
-  const accessToken = session?.access_token;
-
-  // if api fails to retrieve user access token
-  if (!accessToken) {
-    serverInstance.info("System failed to provide access token");
-    return NextResponse.json(
-      { error: "No access token provided" },
-      { status: 400 }
-    );
-  }
-
-  // Fetch the current user's role
-  const userRole = await getUserRole(accessToken);
-
-  // If user is not superAdmin, throw an error
-  if (userRole !== "superAdmin") {
-    serverInstance.warning("An unauthorized users tried to create a school", {
-      accessToken,
-      userRole,
-    });
-    return NextResponse.json(
-      { error: "Unauthorized access!" },
-      { status: 401 }
-    );
-  }
-
-  // validate body
-  const validation = schoolSchema.safeParse(body);
-
-  // If validation fails, show error
-  if (!validation.success)
-    return NextResponse.json(validation.error.format(), { status: 400 });
-
-  const supabase = await createClient(accessToken); // initialize Supabase client on the server
-
-  // Check if the school name already exists
-  const { data: schoolName, error: nameError } = await supabase
-    .from("school")
-    .select("name")
-    .eq("name", body.name)
-    .maybeSingle();
-
-  if (nameError) {
-    serverInstance.info("System failed to verify school name", { nameError });
-    return NextResponse.json(
-      { error: "Failed to verify school name!" },
-      { status: 400 }
-    );
-  }
-
-  if (schoolName?.name) {
-    return NextResponse.json(
-      { error: "School name already exists!" },
-      { status: 400 }
-    );
-  }
-
-  // check if the school email already exists
-  const { data: schoolEmail, error: emailError } = await supabase
-    .from("school")
-    .select("email")
-    .eq("email", body.email)
-    .maybeSingle();
-
-  if (emailError) {
-    serverInstance.info("System failed to verify school email", { emailError });
-    return NextResponse.json(
-      { error: "Failed to verify school email" },
-      { status: 400 }
-    );
-  }
-
-  if (schoolEmail) {
-    return NextResponse.json(
-      { error: "School email already exists" },
-      { status: 400 }
-    );
-  }
-
-  // check if the school phone already exists
-  const { data: schoolPhone, error: phoneError } = await supabase
-    .from("school")
-    .select("phone")
-    .eq("phone", body.phone)
-    .maybeSingle();
-
-  if (phoneError) {
-    serverInstance.info("System failed to verify school phone", { phoneError });
-    return NextResponse.json(
-      { error: "Failed to verify school phone" },
-      { status: 400 }
-    );
-  }
-
-  if (schoolPhone) {
-    return NextResponse.json(
-      { error: "School phone already exists" },
-      { status: 400 }
-    );
-  }
-
-  // grabs the current users data
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError) {
-    serverInstance.info("System failed to get user id", { userError });
-    return NextResponse.json(
-      { error: "Failed to get user ID", userError },
-      { status: 400 }
-    );
-  }
-
-  // Insert the school into the database
-  const { error } = await supabase
-    .from("school")
-    .insert([
-      {
-        name: body.name,
-        description: body.description,
-        email: body.email,
-        phone: body.phone,
-        location: body.location,
-        created_by: user?.id,
-      },
-    ])
-    .select();
-
-  if (error) {
-    serverInstance.error("System failed to create school", { error });
-    return NextResponse.json(
-      { error: "Failed to create school!" },
-      { status: 500 }
-    );
-  }
-
-  return NextResponse.json({ message: "School created successfully!" });
+  
 }
 
 // GET /schools - retrieves all schools

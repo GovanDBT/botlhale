@@ -1,8 +1,5 @@
-/**
- * School table columns used to define the core of the table
- * data shown: school_id, school name, school email, school phone,
- * # of teachers, # of students, # of admins, date created, created by.
- */
+// app/dashboard/superAdmin/schools/SchoolTableColumn.tsx
+// School data table columns
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";

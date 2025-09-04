@@ -11,7 +11,6 @@ import { columns } from "./SchoolTableColumn";
 const SchoolsPage = () => {
   // fetch school using react-query
   const { data: schools = [], isLoading, error } = useGetSchool();
-
   return (
     <div>
       <div className="flex justify-between items-center">

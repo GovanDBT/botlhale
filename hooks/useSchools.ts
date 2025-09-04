@@ -1,8 +1,8 @@
 // hooks/useGetSchool.ts
 // custom hook used for managing schools data
 
-import { CACHE_KEY_SCHOOLS, CACHE_KEY_SCHOOLS_TABLE } from "@/utils/constants";
-import { SCHOOL_ENDPOINT, SCHOOL_TABLE_ENDPOINT } from "@/utils/endpoints";
+import { CACHE_KEY_SCHOOLS } from "@/utils/constants";
+import { SCHOOL_ENDPOINT } from "@/utils/endpoints";
 import { School } from "@/utils/interfaces";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";

@@ -1,5 +1,6 @@
 // app/api/users/schooladmin/route.ts
 // school admin response api's
+// TODO: put get access token library
 import { getUserRole } from "@/utils/getUserRole";
 import { NextRequest, NextResponse } from "next/server";
 import { schoolAdminSchema, updateSchoolAdminSchema } from "@/lib/validationSchema";
@@ -304,7 +305,7 @@ export async function PATCH(request: NextRequest) {
     const { id, firstname, lastname, school } = body
 
     // get current users access token
-    const accessToken = await getAccessToken(request)
+    const accessToken = await getAccessToken(request);
   
     // get the current user's role
     const userRole = await getUserRole(accessToken.toString());
@@ -323,7 +324,6 @@ export async function PATCH(request: NextRequest) {
 
     // If validation fails, show error
     if (!validation.success) {
-      console.log(body)
       return NextResponse.json(validation.error.format() || "Invalid input data", { status: 400 });
     }
 
