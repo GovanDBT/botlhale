@@ -37,6 +37,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { schoolSchema } from "@/lib/validationSchema";
 import { clientConfig } from "@/services/rollbar/rollbar";
 
@@ -85,6 +92,7 @@ const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
       phone: "",
       location: "",
       schoolName: "",
+      type: "",
     },
   });
   const [open, setOpen] = useState(false);
@@ -215,6 +223,30 @@ const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
                       {form.formState.errors.level?.message}
                     </p>
                   )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* School type */}
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="type" className="text-base sm:text-sm">
+                    School Type: <span className="text-red-400">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full !h-12 sm:!h-10">
+                        <SelectValue placeholder="Public/Private" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="public">Public</SelectItem>
+                        <SelectItem value="private">Private</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

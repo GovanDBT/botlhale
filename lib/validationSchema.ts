@@ -62,6 +62,7 @@ export const schoolSchema = z.object({
     schoolName: z.string(),
     name: z.string().min(1, "School name is required!"),
     level: z.string().min(1, "School level is required!"),
+    type: z.string().min(1, "School type is required!"),
     description: z.string().optional(),
     email: z.string().email().min(1, 'School email is required!'),
     location: z.string().min(1, 'School location is required!'),

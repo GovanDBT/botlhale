@@ -140,6 +140,7 @@ export async function POST(request: NextRequest) {
           description: body.description,
           email: body.email,
           phone: body.phone,
+          school_type: body.type,
           location: body.location,
           created_by: user?.id,
         },
