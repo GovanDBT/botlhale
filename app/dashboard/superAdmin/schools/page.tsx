@@ -8,6 +8,7 @@ import { DataTable } from "../../components/DataTable";
 import SchoolFormSheet from "../components/SchoolFormSheet";
 import { columns } from "./SchoolTableColumn";
 import { CACHE_KEY_SCHOOLS } from "@/utils/constants";
+import { SCHOOL_ENDPOINT } from "@/utils/endpoints";
 
 const SchoolsPage = () => {
   // fetch school using react-query
@@ -28,6 +29,7 @@ const SchoolsPage = () => {
         data={schools}
         isLoading={isLoading}
         refresh={`${CACHE_KEY_SCHOOLS}`}
+        endpoint={SCHOOL_ENDPOINT}
         error={error && "Failed to fetch schools"}
       />
     </div>

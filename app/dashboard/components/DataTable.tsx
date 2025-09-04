@@ -59,6 +59,7 @@ interface DataTableProps<TData, TValue> {
   error?: string | null;
   search: string[];
   refresh?: string;
+  endpoint: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -66,6 +67,7 @@ export function DataTable<TData, TValue>({
   data,
   search,
   refresh,
+  endpoint,
   isLoading = false,
   error = null,
 }: DataTableProps<TData, TValue>) {
@@ -74,19 +76,27 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState([{ id: "created_at", desc: true }]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [rowSelection, setRowSelection] = useState({});
 
   // deletes data using useMutation
-  const deleteDataMutation = useDeleteTableData(async (request) => {
-    await toast.promise(request, {
-      loading: "Deleting data...",
-      success: (success: any) => {
-        return success.message || "Data has been successfully Deleted";
-      },
-      error: (err: any) => {
-        return err.message || "Unexpected Error: Failed to delete data";
-      },
-    });
-  });
+  const deleteDataMutation = useDeleteTableData(
+    async (request) => {
+      await toast.promise(request, {
+        loading: "Deleting data...",
+        success: (success: any) => {
+          return success.message || "Data has been successfully Deleted";
+        },
+        error: (err: any) => {
+          return err.message || "Unexpected Error: Failed to delete data";
+        },
+        finally() {
+          setRowSelection({});
+        },
+      });
+    },
+    endpoint,
+    [`${refresh}`]
+  );
 
   const table = useReactTable({
     data,
@@ -94,9 +104,11 @@ export function DataTable<TData, TValue>({
     state: {
       sorting,
       globalFilter,
+      rowSelection,
     },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),

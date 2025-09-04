@@ -8,6 +8,7 @@ import { DataTable } from "@/app/dashboard/components/DataTable";
 import useSchoolAdminTable from "@/hooks/useSchoolAdminTable";
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
 import { columns } from "./SchoolAdminTableColumn";
+import { SCHOOLADMIN_ENDPOINT } from "@/utils/endpoints";
 
 const SchoolAdminPage = () => {
   // Fetch data using react-query
@@ -28,6 +29,7 @@ const SchoolAdminPage = () => {
         data={schoolAdmins}
         isLoading={isLoading}
         refresh={`${CACHE_KEY_SCHOOLADMIN}`}
+        endpoint={SCHOOLADMIN_ENDPOINT}
         error={error && "Failed to fetch school admins"}
       />
     </div>
