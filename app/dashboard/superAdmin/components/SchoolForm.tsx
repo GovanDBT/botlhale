@@ -2,7 +2,6 @@
 // form component for registering a new school
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import SimpleMDE from "easymde";
 import "easymde/dist/easymde.min.css"; // Mark-down-editor css
 import dynamic from "next/dynamic";
@@ -10,7 +9,6 @@ import { useMemo, useState } from "react";
 import ReactDOMServer from "react-dom/server";
 import { useForm } from "react-hook-form"; // react forms
 import ReactMarkdown from "react-markdown";
-import Rollbar from "rollbar";
 import z from "zod";
 // shadcn components
 import {
@@ -44,8 +42,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAddSchool } from "@/hooks/useSchools";
 import { schoolSchema } from "@/lib/validationSchema";
-import { clientConfig } from "@/services/rollbar/rollbar";
 
 // import Mark-down-editor using lazy loading
 // simpleMDE is a client-side component that is rendered in the server
@@ -82,6 +80,8 @@ const levels: Level[] = [
 ];
 
 const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
+  const [open, setOpen] = useState(false); // for opening popup
+  const [selectedLevel, setSelectedLevel] = useState<Level | null>(null); // for setting level
   // define form
   const form = useForm<schoolData>({
     resolver: zodResolver(schoolSchema),
@@ -95,8 +95,6 @@ const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
       type: "",
     },
   });
-  const [open, setOpen] = useState(false);
-  const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
 
   // Custom renderer options for SimpleMDE
   const customRendererOptions = useMemo(() => {
@@ -111,39 +109,27 @@ const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
     } as SimpleMDE.Options;
   }, []);
 
-  // Rollbar instance for client-side logging
-  const rollbar = new Rollbar(clientConfig);
+  // custom hook for creating a new school
+  const addSchool = useAddSchool(
+    async (request) => {
+      await toast.promise(request, {
+        loading: "Creating school...",
+        success: () => {
+          form.reset();
+          return "School has been successfully created";
+        },
+        error: (err: any) => {
+          return err.message || "An unexpected error has occurred";
+        },
+      });
+    },
+    () => onSubmittingChange?.(false)
+  );
 
   // submit handler
   const onSubmit = async (data: schoolData) => {
     onSubmittingChange?.(true);
-    try {
-      const promise = axios
-        .post("/api/schools", data)
-        .then((response) => response.data);
-
-      toast.promise(promise, {
-        loading: "Creating school...",
-        success: () => {
-          form.reset();
-          setSelectedLevel(null);
-          return "School created successfully!";
-        },
-        error: (err: any) => {
-          const apiError = err?.response?.data?.error;
-          if (apiError) return apiError;
-          rollbar.error("Unexpected error while creating school", err);
-          return "An unexpected error occurred while creating school, please try again later";
-        },
-      });
-      try {
-        await promise;
-      } finally {
-        onSubmittingChange?.(false);
-      }
-    } catch (error) {
-      rollbar.error("Unexpected error while creating school", error as Error);
-    }
+    addSchool.mutate(data);
   };
 
   return (
