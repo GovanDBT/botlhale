@@ -35,7 +35,6 @@ import { toast } from "sonner";
 // modules
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useAddSchoolAdmin from "@/hooks/useAddSchoolAdmin";
-import { useSelectSchools } from "@/hooks/useSchool";
 import useUpdateSchoolAdmin from "@/hooks/useUpdateSchoolAdmin";
 import { cn } from "@/lib/utils";
 import {
@@ -43,6 +42,7 @@ import {
   updateSchoolAdminSchema,
 } from "@/lib/validationSchema";
 import { Profile } from "@/utils/interfaces";
+import { useSelectSchools } from "@/hooks/useSchools";
 
 // school admin interface
 interface Props {

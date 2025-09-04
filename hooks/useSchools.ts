@@ -27,6 +27,36 @@ export function useGetSchool() {
   });
 }
 
+// manages fetch data - school name and ID only
+export function useSelectSchools() {
+  const fetchSchools = async (): Promise<School[]> => {
+    try {
+      const res = await axios.get(SCHOOL_ENDPOINT);
+      const allSchools = res.data;
+
+      // Return only id and name
+      return allSchools.map((school: any) => ({
+        id: school.id,
+        name: school.name,
+      }));
+    } catch (err: any) {
+      // Custom API error (if backend sends `error` property)
+      const apiError = err.response?.data?.error;
+      if (apiError) {
+        throw new Error(apiError);
+      }
+
+      // Fallback message for unexpected errors
+      throw new Error("Failed to fetch schools");
+    }
+  };
+
+  return useQuery<School[]>({
+    queryKey: CACHE_KEY_SCHOOLS,
+    queryFn: fetchSchools,
+  });
+}
+
 // manages inserted data
 export function useAddSchool(onAdd: (request: Promise<string>) => void, onSubmit?: () => void) {
   // query client for updating data
