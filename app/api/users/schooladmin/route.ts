@@ -1,6 +1,5 @@
 // app/api/users/schooladmin/route.ts
 // school admin response api's
-// TODO: put get access token library
 import { getUserRole } from "@/utils/getUserRole";
 import { NextRequest, NextResponse } from "next/server";
 import { schoolAdminSchema, updateSchoolAdminSchema } from "@/lib/validationSchema";
@@ -16,46 +15,11 @@ export async function POST(request: NextRequest) {
     // create a new body request
     const body = await request.json();
 
-    // grabs our current access token - postman testing
-    let accessToken = request.headers
-      .get("Authorization")
-      ?.replace("Bearer ", "");
-
-    // initialize Supabase client on the server
-    let supabase = await createClient();
-
-    // if no access token, grab token from session - client-side path
-    if (!accessToken) {
-      // grab user session
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-
-      // if api fails to retrieve user session
-      if (sessionError) {
-        Sentry.captureException(`Session error: ${sessionError.message}`)
-        return NextResponse.json(
-          { error: `Session error: ${sessionError.message}` || "Failed to fetch user session" },
-          { status: sessionError.status }
-        );
-      }
-
-      // get access token from session and assign to accessToken
-      accessToken = session?.access_token;
-    
-      // if no access token was provided
-      if (!accessToken) {
-        Sentry.captureMessage("System fails to provide access token", "error")
-        return NextResponse.json(
-          { error: "No access token provided" },
-          { status: 409 }
-        );
-      }
-    }
+    // get current users access token
+    const accessToken = await getAccessToken(request);
   
     // Fetch the current user's role
-    const userRole = await getUserRole(accessToken);
+    const userRole = await getUserRole(accessToken.toString());
 
     // If user is not superAdmin, throw an error
     if (userRole !== "superAdmin") {
@@ -75,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // initialize Supabase client with access
-    supabase = await createClient(accessToken);
+    const supabase = await createClient(accessToken.toString());
 
     // Get user data (email and phone) to check if user already exists
     const { data: user, error: userError } = await supabase
@@ -202,101 +166,6 @@ export async function POST(request: NextRequest) {
   
 }
 
-// DELETE /schooladmin - delete school admin
-export async function DELETE(request: NextRequest) {
-  try {
-    // create a new body request
-    const body = await request.json();
-    const { ids } = body; // expecting { "ids": [1,2,3] }
-
-    // grabs our current access token - postman testing
-    let accessToken = request.headers
-      .get("Authorization")
-      ?.replace("Bearer ", "");
-
-    // initialize Supabase client on the server
-    let supabase = await createClient();
-
-    // if no access token, grab token from session - client-side path
-    if (!accessToken) {
-      // grab user session
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-
-      // if api fails to retrieve user session
-      if (sessionError) {
-        Sentry.captureException(`Session error: ${sessionError.message}`)
-        return NextResponse.json(
-          { error: `Session error: ${sessionError.message}` || "Failed to fetch user session" },
-          { status: sessionError.status }
-        );
-      }
-
-      // get access token from session and assign to accessToken
-      accessToken = session?.access_token;
-    
-      // if no access token was provided
-      if (!accessToken) {
-        Sentry.captureMessage("System fails to provide access token", "error")
-        return NextResponse.json(
-          { error: "No access token provided" },
-          { status: 409 }
-        );
-      }
-    }
-  
-    // Fetch the current user's role
-    const userRole = await getUserRole(accessToken);
-
-    // If user is not superAdmin, throw an error
-    if (userRole !== "superAdmin") {
-      Sentry.captureMessage("An unauthorized users tried to delete school admin", "warning")
-      return NextResponse.json(
-        { error: "Unauthorized access!" },
-        { status: 403 }
-      );
-    }
-
-    // if no id's are empty
-    if (!ids || ids.length === 0 ) {
-      Sentry.captureMessage("School Admin Delete: No IDs provided for deletion", "debug")
-      return NextResponse.json(
-        { error: "No IDs provided for deletion" },
-        { status: 400 }
-      )
-    }
-    
-    // iterate through each user ids - for bulk or single delete
-    for (let id of ids) {
-      // delete user
-      const { error } = await adminAuthClient.deleteUser(id);
-
-      // error response
-      if (error) {
-        Sentry.captureException(`School Admin Delete error: ${error.message}`);
-        return NextResponse.json(
-          { success: false, error:`School Admin Delete error: ${error.message}` },
-          { status: error?.status }
-        )
-      }
-    }
-
-    // success response
-    return NextResponse.json(
-      { success: true, message: `${ids.length} School Admin(s) Successfully Deleted`},
-      { status: 200 }
-    )
-  } catch (error: any) {
-    Sentry.captureException(`School Admin Delete Server Error: ${error.message}`);
-    return NextResponse.json(
-      { error: "Failed to delete school admins" },
-      { status: 500 }
-    );
-  }
-}
-
 // PATCH /schooladmin - update school admin
 export async function PATCH(request: NextRequest) {
   try {
@@ -384,6 +253,66 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json(
       { error: `Server error: ${error?.message || "An unexpected error has occurred"}`, },
       { status: error?.status || 500 }
+    );
+  }
+}
+
+// DELETE /schooladmin - delete school admin
+export async function DELETE(request: NextRequest) {
+  try {
+    // create a new body request
+    const body = await request.json();
+    const { ids } = body; // expecting { "ids": [1,2,3] }
+
+    // get current users access token
+    const accessToken = await getAccessToken(request);
+  
+    // Fetch the current user's role
+    const userRole = await getUserRole(accessToken.toString());
+
+    // If user is not superAdmin, throw an error
+    if (userRole !== "superAdmin") {
+      Sentry.captureMessage("An unauthorized users tried to delete school admin", "warning")
+      return NextResponse.json(
+        { error: "Unauthorized access!" },
+        { status: 403 }
+      );
+    }
+
+    // if no id's are empty
+    if (!ids || ids.length === 0 ) {
+      Sentry.captureMessage("School Admin Delete: No IDs provided for deletion", "debug")
+      return NextResponse.json(
+        { error: "No IDs provided for deletion" },
+        { status: 400 }
+      )
+    }
+    
+    // iterate through each user ids - for bulk or single delete
+    for (let id of ids) {
+      // delete user
+      const { error } = await adminAuthClient.deleteUser(id);
+
+      // error response
+      if (error) {
+        Sentry.captureException(`School Admin Delete error: ${error.message}`);
+        return NextResponse.json(
+          { success: false, error:`School Admin Delete error: ${error.message}` },
+          { status: error?.status || 500 }
+        )
+      }
+    }
+
+    // success response
+    return NextResponse.json(
+      { success: true, message: `${ids.length} School Admin(s) Successfully Deleted`},
+      { status: 200 }
+    )
+  } catch (error: any) {
+    Sentry.captureException(`School Admin Delete Server Error: ${error.message}`);
+    return NextResponse.json(
+      { error: "Failed to delete school admins" },
+      { status: 500 }
     );
   }
 }

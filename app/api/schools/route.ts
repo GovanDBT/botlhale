@@ -9,6 +9,40 @@ import * as Sentry from "@sentry/nextjs";
 import { generateSchoolId } from "@/lib/generateSchoolId";
 import { getAccessToken } from "@/utils/getAccessToken";
 
+// GET /schools - retrieves all schools
+export async function GET() {
+  try {
+    // initialize supabase server client
+    const supabase = await createClient();
+
+    // get all schools - join with profile
+    const { data, error } = await supabase
+      .from("school")
+      .select("*, profile:created_by(firstname, lastname)")
+      .order("name");
+
+    // if fetch fails
+    if (error) {
+      Sentry.captureException(`Schools Error: ${error.message}`); // log to Sentry
+      return NextResponse.json(
+        { success: false, error: `Schools Error: ${error.message}` || "Failed to fetch schools" }, // log to client
+        { status: 404 }
+      );
+    }
+
+    // response
+    return NextResponse.json(data);
+
+  } catch (error: any) {
+    // any unexpected error
+    Sentry.captureException(`Schools Server Error: ${error.message}`); // log to Sentry
+    return NextResponse.json(
+      { success: false, error: `Server error: ${error.message}`, }, // log to client
+      { status: error.status }
+    );
+  }
+}
+
 // POST /schools - creates a new school
 export async function POST(request: NextRequest) {
   try {
@@ -172,36 +206,65 @@ export async function POST(request: NextRequest) {
   
 }
 
-// GET /schools - retrieves all schools
-export async function GET() {
+// DELETE /schools - deletes a school (in bulk or singular)
+export async function DELETE(request: NextRequest) {
   try {
-    // initialize supabase server client
-    const supabase = await createClient();
-
-    // get all schools - join with profile
-    const { data, error } = await supabase
-      .from("school")
-      .select("*, profile:created_by(firstname, lastname)")
-      .order("name");
-
-    // if fetch fails
-    if (error) {
-      Sentry.captureException(`Schools Error: ${error.message}`); // log to Sentry
+    // create a new body request
+    const body = await request.json();
+    const { ids } = body; // expecting { "ids": [1,2,3] }
+  
+    // get current users access token
+    const accessToken = await getAccessToken(request);
+    
+    // Fetch the current user's role
+    const userRole = await getUserRole(accessToken.toString());
+  
+    // If user is not superAdmin, throw an error
+    if (userRole !== "superAdmin") {
+      Sentry.captureMessage("An unauthorized users tried to delete schools", "warning")
       return NextResponse.json(
-        { success: false, error: `Schools Error: ${error.message}` || "Failed to fetch schools" }, // log to client
-        { status: 404 }
+        { error: "Unauthorized access!" },
+        { status: 403 }
       );
     }
 
-    // response
-    return NextResponse.json(data);
+    // initialize Supabase client with access token
+    const supabase = await createClient(accessToken.toString());
+  
+    // if id's are empty
+    if (!ids || ids.length === 0 ) {
+      Sentry.captureMessage("School Delete: No IDs provided for deletion", "debug")
+      return NextResponse.json(
+        { error: "No IDs provided for deletion" },
+        { status: 400 }
+      )
+    }
+      
+    // iterate through each school ids - for bulk or single delete
+    for (let id of ids) {
+      // delete school
+      const { error } = await supabase.from('school').delete().eq('id', id);
 
+      // error response
+      if (error) {
+        Sentry.captureException(`School Delete Error: ${error.message}`);
+        return NextResponse.json(
+          { success: false, error:`School Delete Error: ${error.message}` },
+          { status: 500 }
+        )
+      }
+    }
+  
+      // success response
+      return NextResponse.json(
+        { success: true, message: `${ids.length} School(s) Successfully Deleted`},
+        { status: 200 }
+      )
   } catch (error: any) {
-    // any unexpected error
-    Sentry.captureException(`Schools Server Error: ${error.message}`); // log to Sentry
+    Sentry.captureException(`School Delete Server Error: ${error.message}`);
     return NextResponse.json(
-      { success: false, error: `Server error: ${error.message}`, }, // log to client
-      { status: error.status }
+      { error: "Failed to delete school" },
+      { status: 500 }
     );
   }
 }

@@ -7,6 +7,7 @@ import { useGetSchool } from "@/hooks/useSchools";
 import { DataTable } from "../../components/DataTable";
 import SchoolFormSheet from "../components/SchoolFormSheet";
 import { columns } from "./SchoolTableColumn";
+import { CACHE_KEY_SCHOOLS } from "@/utils/constants";
 
 const SchoolsPage = () => {
   // fetch school using react-query
@@ -26,6 +27,7 @@ const SchoolsPage = () => {
         columns={columns}
         data={schools}
         isLoading={isLoading}
+        refresh={`${CACHE_KEY_SCHOOLS}`}
         error={error && "Failed to fetch schools"}
       />
     </div>
