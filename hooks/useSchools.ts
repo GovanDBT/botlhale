@@ -88,3 +88,26 @@ export function useAddSchool(onAdd: (request: Promise<string>) => void, onSubmit
         },
     });
 }
+
+export function useDeleteSchool(onAdd: (request: Promise<string>) => void) {
+  // query client for updating data  
+  const queryClient = useQueryClient(); 
+    return useMutation({
+        mutationFn: async (ids: string[]) => {
+          const request = axios
+            .delete(SCHOOL_ENDPOINT, { data: { ids } })
+            .then((res) => res.data)
+            .catch((err) => {
+              const apiError = err.response.data.error;
+              if (apiError) throw new Error(apiError);
+              throw err;
+            });
+          
+          onAdd(request);
+          return request;
+        },
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: CACHE_KEY_SCHOOLS });
+        },
+    });
+}
