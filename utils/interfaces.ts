@@ -6,6 +6,10 @@ export interface School {
   id: number;
   name: string;
   email?: string;
+  phone?: string;
+  school_type?: string;
+  location?: string;
+  description?: string;
   admins?: string[];
   teachers?: string[];
   students?: string[];

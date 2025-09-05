@@ -1,11 +1,12 @@
 // hooks/useGetSchool.ts
 // custom hook used for managing schools data
-
 import { schoolSchema } from "@/lib/validationSchema";
-import { CACHE_KEY_SCHOOLS } from "@/utils/constants";
+import { createClient } from "@/services/supabase/client";
+import { CACHE_KEY_SCHOOL_DETAILS, CACHE_KEY_SCHOOLS } from "@/utils/constants";
 import { SCHOOL_ENDPOINT } from "@/utils/endpoints";
 import { School } from "@/utils/interfaces";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import * as Sentry from "@sentry/nextjs"
 import axios from "axios";
 import z from "zod";
 
@@ -24,6 +25,28 @@ export function useGetSchool() {
   return useQuery<School[], Error>({
     queryKey: CACHE_KEY_SCHOOLS,
     queryFn: fetchSchools,
+  });
+}
+
+// manages fetched data for a specific school
+export function useGetSchoolDetails(id: string) {
+    const fetchSchool = async (): Promise<School> => {
+        const supabase = await createClient();
+            const { data, error } = await supabase
+            .from("school")
+            .select("*, profile:created_by(firstname, lastname)")
+            .eq("id", id)
+            .single();
+        if (error) {
+            Sentry.captureException(`School Details Error: ${error.message}`)
+            throw new Error("Failed to fetch school details");
+        }
+        return data;
+    };
+
+  return useQuery<School, Error>({
+    queryKey: CACHE_KEY_SCHOOL_DETAILS,
+    queryFn: fetchSchool,
   });
 }
 

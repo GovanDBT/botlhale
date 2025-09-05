@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   Archive,
   ArrowUpDown,
+  BookUser,
   Clipboard,
   MoreHorizontal,
   Trash2,
@@ -35,6 +36,7 @@ import {
 import { useDeleteSchool } from "@/hooks/useSchools";
 import { toast } from "sonner";
 import DeleteAlertDialog from "../../components/DeleteAlertDialog";
+import SchoolDetails from "../../components/SchoolDetails";
 
 // Define the columns for the table
 export const columns: ColumnDef<School>[] = [
@@ -189,6 +191,15 @@ export const columns: ColumnDef<School>[] = [
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              {/* School details */}
+              <SchoolDetails id={selectedId[0]}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <BookUser className="!size-[14]" /> School details
+                </DropdownMenuItem>
+              </SchoolDetails>
               {/* Archive school */}
               <DropdownMenuItem className="cursor-pointer">
                 <Archive className="!size-[14]" /> Archive School
