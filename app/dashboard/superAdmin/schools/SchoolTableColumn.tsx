@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useDeleteSchool } from "@/hooks/useSchools";
 import { toast } from "sonner";
+import DeleteAlertDialog from "../../components/DeleteAlertDialog";
 
 // Define the columns for the table
 export const columns: ColumnDef<School>[] = [
@@ -143,6 +144,7 @@ export const columns: ColumnDef<School>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
+      // delete mutation
       const deleteSchoolMutation = useDeleteSchool(async (request) => {
         await toast.promise(request, {
           loading: "Deleting school...",
@@ -158,6 +160,7 @@ export const columns: ColumnDef<School>[] = [
         });
       });
       const school = row.original;
+      const selectedId = [row.original.id.toString()];
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -169,12 +172,14 @@ export const columns: ColumnDef<School>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuGroup>
+              {/* Copy email */}
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(school.toString())}
                 className="cursor-pointer"
               >
                 <Clipboard className="!size-[14]" /> Copy Email
               </DropdownMenuItem>
+              {/* Copy phone */}
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(school.toString())}
                 className="cursor-pointer"
@@ -184,6 +189,7 @@ export const columns: ColumnDef<School>[] = [
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              {/* Archive school */}
               <DropdownMenuItem className="cursor-pointer">
                 <Archive className="!size-[14]" /> Archive School
               </DropdownMenuItem>
@@ -191,53 +197,11 @@ export const columns: ColumnDef<School>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               {/* Delete School */}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem
-                    className="!text-red-500 hover:!text-red-500 cursor-pointer"
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    <Trash2 color="#fb2c36" className="!size-[14]" />
-                    Delete School
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="z-50">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="flex items-center gap-2 justify-center md:justify-start">
-                      {" "}
-                      <Trash2
-                        size={17}
-                        className="mb-0.5 hidden md:inline-flex"
-                      />{" "}
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      <span className="font-bold">
-                        This action cannot be undone.
-                      </span>{" "}
-                      This will permanently delete the selected school
-                      <span className="font-bold text-red-400">
-                        ({row.getValue("name")})
-                      </span>{" "}
-                      and remove the school from our servers and database.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="cursor-pointer">
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-red-500 cursor-pointer hover:bg-red-700"
-                      onClick={() => {
-                        const selectedId = [row.original.id.toString()];
-                        deleteSchoolMutation.mutate(selectedId);
-                      }}
-                    >
-                      Delete School
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <DeleteAlertDialog
+                title="school"
+                data={() => row.getValue("name")}
+                deleteFn={() => deleteSchoolMutation.mutate(selectedId)}
+              />
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

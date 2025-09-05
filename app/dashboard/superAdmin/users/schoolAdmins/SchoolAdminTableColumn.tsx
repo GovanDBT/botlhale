@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -37,6 +38,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import UpdateSchoolAdmin from "../../components/UpdateSchoolAdmin";
+import DeleteAlertDialog from "@/app/dashboard/components/DeleteAlertDialog";
 
 // Define the columns for the table
 export const columns: ColumnDef<SchoolAdmin>[] = [
@@ -152,6 +154,7 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
           toast.error(error.message || "Failed to Delete School Admin");
         },
       });
+      const selectedId = [row.original.id.toString()];
       const id = row.original;
       return (
         <>
@@ -197,55 +200,14 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
                 <Archive className="!size-[14]" /> Archive User
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              {/* Delete User */}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem
-                    className="!text-red-500 hover:!text-red-500 cursor-pointer"
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    <Trash2 color="#fb2c36" className="!size-[14]" />
-                    Delete User
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="z-50">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="flex items-center gap-2 justify-center md:justify-start">
-                      {" "}
-                      <Trash2
-                        size={17}
-                        className="mb-0.5 hidden md:inline-flex"
-                      />{" "}
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      <span className="font-bold">
-                        This action cannot be undone.
-                      </span>{" "}
-                      This will permanently delete the selected user with email{" "}
-                      <span className="font-bold text-red-400">
-                        ({row.getValue("email")})
-                      </span>{" "}
-                      and remove the user from our servers and database.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="cursor-pointer">
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-red-500 cursor-pointer hover:bg-red-700"
-                      disabled={deleteSchoolAdminMutation.isPending}
-                      onClick={() => {
-                        const selectedId = [row.original.id.toString()];
-                        deleteSchoolAdminMutation.mutate(selectedId);
-                      }}
-                    >
-                      Delete User
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <DropdownMenuGroup>
+                {/* Delete User */}
+                <DeleteAlertDialog
+                  title="user"
+                  data={() => row.getValue("email")}
+                  deleteFn={() => deleteSchoolAdminMutation.mutate(selectedId)}
+                />
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         </>
