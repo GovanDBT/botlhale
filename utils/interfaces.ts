@@ -10,6 +10,7 @@ export interface School {
   school_type?: string;
   location?: string;
   description?: string;
+  school_level?: string;
   admins?: string[];
   teachers?: string[];
   students?: string[];

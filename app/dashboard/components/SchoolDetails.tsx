@@ -61,7 +61,8 @@ const SchoolAdminDetails = ({ children, id }: Props) => {
                   ) : (
                     <div className="flex items-center justify-between">
                       <span>{`${
-                        school?.name || "Failed to fetch school name"
+                        `${school?.name} ${school?.school_level}` ||
+                        "Failed to fetch school name"
                       }`}</span>
                       {/* <StatusBadge>{profile?.profile_status}</StatusBadge> */}
                     </div>

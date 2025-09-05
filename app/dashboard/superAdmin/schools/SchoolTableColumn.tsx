@@ -71,6 +71,7 @@ export const columns: ColumnDef<School>[] = [
   },
   // school name
   {
+    accessorFn: (row) => `${row.name} ${row.school_level}`,
     accessorKey: "name",
     header: ({ column }) => (
       <Button

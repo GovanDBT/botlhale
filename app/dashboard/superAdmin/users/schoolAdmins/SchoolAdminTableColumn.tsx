@@ -83,7 +83,7 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
   // fullname
   {
     accessorFn: (row) => `${row.firstname} ${row.lastname}`,
-    id: "fullname",
+    accessorKey: "fullname",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -204,7 +204,7 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
                 {/* Delete User */}
                 <DeleteAlertDialog
                   title="user"
-                  data={() => row.getValue("email")}
+                  data={() => row.getValue("fullname")}
                   deleteFn={() => deleteSchoolAdminMutation.mutate(selectedId)}
                 />
               </DropdownMenuGroup>

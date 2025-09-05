@@ -170,12 +170,13 @@ export async function POST(request: NextRequest) {
       .insert([
         {
           id: schoolId,
-          name: body.schoolName,
-          description: body.description,
+          name: body.name,
+          school_level: body.level,
           email: body.email,
           phone: body.phone,
-          school_type: body.type,
           location: body.location,
+          school_type: body.type,
+          description: body.description,
           created_by: user?.id,
         },
       ])
