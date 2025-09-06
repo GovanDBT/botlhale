@@ -14,7 +14,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("profile")
       .select(
-        "id, profile_id, firstname, lastname, email, phone, created_at, profile_status, school!school(name)"
+        "id, profile_id, firstname, lastname, email, phone, created_at, profile_status, school!school(name, school_level)"
       )
       .eq("profile_role", "schoolAdmin")
       .order("created_at");

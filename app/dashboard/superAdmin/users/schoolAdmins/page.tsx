@@ -5,14 +5,14 @@ import AppSeparator from "@/app/components/AppSeparator";
 import AppInfoTooltip from "@/app/components/AppInfoTooltip";
 import SchoolAdminFormSheet from "../../components/SchoolAdminFormSheet";
 import { DataTable } from "@/app/dashboard/components/DataTable";
-import useSchoolAdminTable from "@/hooks/useSchoolAdminTable";
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
 import { columns } from "./SchoolAdminTableColumn";
 import { SCHOOLADMIN_ENDPOINT } from "@/utils/endpoints";
+import { useGetSchoolAdmin } from "@/hooks/useSchoolAdmin";
 
 const SchoolAdminPage = () => {
   // Fetch data using react-query
-  const { data: schoolAdmins = [], isLoading, error } = useSchoolAdminTable();
+  const { data: schoolAdmins = [], isLoading, error } = useGetSchoolAdmin();
   return (
     <div>
       <div className="flex justify-between items-center">

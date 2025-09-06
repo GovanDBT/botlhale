@@ -21,7 +21,7 @@ import SchoolDetailsDesc from "./SchoolDetailsDesc";
 
 interface Props {
   children: ReactNode;
-  id: string;
+  id: number;
 }
 
 const SchoolAdminDetails = ({ children, id }: Props) => {
@@ -70,6 +70,7 @@ const SchoolAdminDetails = ({ children, id }: Props) => {
                 </SheetTitle>
               </SheetHeader>
             </div>
+            {/* Tabs content */}
             <SchoolDetailsOverview id={id} />
             <SchoolDetailsDesc id={id} />
             <SchoolDetailsDatabase />

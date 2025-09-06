@@ -4,7 +4,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { useGetSchoolDetails } from "@/hooks/useSchools";
 import MultiLineTextSkeleton from "./MultiLineTextSkeleton";
 
-const SchoolDetailsDesc = ({ id }: { id: string }) => {
+const SchoolDetailsDesc = ({ id }: { id: number }) => {
   const { data, error, isLoading } = useGetSchoolDetails(id);
   return (
     <TabsContent value="description" className="px-4">

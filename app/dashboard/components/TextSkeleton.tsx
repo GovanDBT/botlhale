@@ -1,11 +1,9 @@
+// app/dashboard/components/TextSkeleton.tsx
+// custom skeleton component for short text
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface Props {
-  width?: string;
-}
-
-const TextSkeleton = ({ width = "200px" }: Props) => {
-  return <Skeleton className={`h-[25px] rounded w-[${width}]`} />;
+const TextSkeleton = () => {
+  return <Skeleton className={`h-[25px] rounded w-[200]`} />;
 };
 
 export default TextSkeleton;

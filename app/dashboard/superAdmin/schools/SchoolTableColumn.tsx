@@ -1,18 +1,8 @@
 // app/dashboard/superAdmin/schools/SchoolTableColumn.tsx
 // School data table columns
 "use client";
-import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import {
-  Archive,
-  ArrowUpDown,
-  BookUser,
-  Clipboard,
-  MoreHorizontal,
-  SquarePen,
-  Trash2,
-} from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,19 +12,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { School } from "@/utils/interfaces";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { useDeleteSchool } from "@/hooks/useSchools";
+import { School } from "@/utils/interfaces";
+import { ColumnDef } from "@tanstack/react-table";
+import {
+  Archive,
+  ArrowUpDown,
+  BookUser,
+  Clipboard,
+  MoreHorizontal,
+  SquarePen,
+} from "lucide-react";
 import { toast } from "sonner";
 import DeleteAlertDialog from "../../components/DeleteAlertDialog";
 import SchoolDetails from "../../components/SchoolDetails";

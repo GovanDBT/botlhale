@@ -9,6 +9,43 @@ import * as Sentry from "@sentry/nextjs";
 import { adminAuthClient } from "@/services/supabase/admin";
 import { getAccessToken } from "@/utils/getAccessToken";
 
+// GET /schooladmin - fetches school admin 
+export async function GET() {
+  try {
+    // init supabase client
+    const supabase = await createClient();
+    
+    // fetch school admin - join with school
+    const { data, error } = await supabase
+      .from("profile")
+      .select(
+        "*, school!school(id, name, school_level)"
+      )
+      .eq("profile_role", "schoolAdmin")
+      .order("created_at");
+  
+    // if fetch fails
+    if (error) {
+      Sentry.captureException(`School Admin Error: ${error.message}`)
+      return NextResponse.json(
+        { success: false, error: `School Admin Error: ${error.message}` || "Failed to fetch school admin" },
+        { status: 404 }
+      );
+    }
+  
+    // response
+    return NextResponse.json(data);
+  } catch (error: any) {
+    // any unexpected errors
+    Sentry.captureException(`School Admin Server Error: ${error.message}`)
+    return NextResponse.json(
+      { success: false, error: `Server error: ${error.message}`, },
+      { status: error.status }
+    );
+  }
+
+}
+
 // POST /schooladmin - create new school admin
 export async function POST(request: NextRequest) {
   try {

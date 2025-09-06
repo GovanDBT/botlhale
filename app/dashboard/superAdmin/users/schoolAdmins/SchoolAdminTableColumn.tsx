@@ -24,7 +24,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useDeleteSchoolAdmin from "@/hooks/useDeleteSchoolAdmin";
 import { SchoolAdmin } from "@/utils/interfaces";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -39,6 +38,7 @@ import {
 import { toast } from "sonner";
 import UpdateSchoolAdmin from "../../components/UpdateSchoolAdmin";
 import DeleteAlertDialog from "@/app/dashboard/components/DeleteAlertDialog";
+import { useDeleteSchoolAdmin } from "@/hooks/useSchoolAdmin";
 
 // Define the columns for the table
 export const columns: ColumnDef<SchoolAdmin>[] = [
@@ -114,8 +114,8 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
   },
   // school
   {
-    accessorFn: (row) => row.school?.name ?? "",
-    id: "school",
+    accessorFn: (row) => `${row.school?.name} ${row.school?.school_level}`,
+    accessorKey: "school",
     header: () => <div className="hidden lg:table cell">School</div>,
     cell: ({ getValue }) => (
       <div className="hidden lg:table cell text-wrap">{getValue<string>()}</div>
@@ -145,15 +145,23 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      // delete school user and fetch catch
-      const deleteSchoolAdminMutation = useDeleteSchoolAdmin({
-        onSuccess: () => {
-          toast.success("School Admin Successfully Deleted");
-        },
-        onError: (error) => {
-          toast.error(error.message || "Failed to Delete School Admin");
-        },
-      });
+      // delete mutation
+      const deleteSchoolAdminMutation = useDeleteSchoolAdmin(
+        async (request) => {
+          await toast.promise(request, {
+            loading: "Deleting school admin...",
+            success: () => {
+              return "School admin has been successfully deleted";
+            },
+            error: (err: any) => {
+              return (
+                err.message ||
+                "Failed to delete school admin. An unexpected error has occurred"
+              );
+            },
+          });
+        }
+      );
       const selectedId = [row.original.id.toString()];
       const id = row.original;
       return (
@@ -184,7 +192,7 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
                   className="cursor-pointer"
                   onSelect={(e) => e.preventDefault()}
                 >
-                  <BookUser className="!size-[14]" /> View details
+                  <BookUser className="!size-[14]" /> User details
                 </DropdownMenuItem>
               </SchoolAdminDetails>
               <UpdateSchoolAdmin id={row.original.id.toString()}>
@@ -192,7 +200,7 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
                   className="cursor-pointer"
                   onSelect={(e) => e.preventDefault()}
                 >
-                  <SquarePen className="!size-[14]" /> Edit User
+                  <SquarePen className="!size-[14]" /> Update User
                 </DropdownMenuItem>
               </UpdateSchoolAdmin>
               <DropdownMenuItem>

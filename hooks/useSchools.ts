@@ -1,4 +1,4 @@
-// hooks/useGetSchool.ts
+// hooks/useSchools.ts
 // custom hook used for managing schools data
 import { schoolSchema } from "@/lib/validationSchema";
 import { createClient } from "@/services/supabase/client";
@@ -61,6 +61,7 @@ export function useSelectSchools() {
       return allSchools.map((school: any) => ({
         id: school.id,
         name: school.name,
+        school_level: school.school_level,
       }));
     } catch (err: any) {
       // Custom API error (if backend sends `error` property)

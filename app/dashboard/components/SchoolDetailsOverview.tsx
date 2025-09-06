@@ -10,7 +10,7 @@ import { Copy, ShieldMinus, Trash2 } from "lucide-react";
 import { useGetSchoolDetails } from "@/hooks/useSchools";
 import { Separator } from "@/components/ui/separator";
 
-const SchoolDetailsOverview = ({ id }: { id: string }) => {
+const SchoolDetailsOverview = ({ id }: { id: number }) => {
   const { data: school, error, isLoading } = useGetSchoolDetails(id);
 
   const details = [

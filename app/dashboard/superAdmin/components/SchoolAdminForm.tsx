@@ -34,8 +34,6 @@ import {
 import { toast } from "sonner";
 // modules
 import { ScrollArea } from "@/components/ui/scroll-area";
-import useAddSchoolAdmin from "@/hooks/useAddSchoolAdmin";
-import useUpdateSchoolAdmin from "@/hooks/useUpdateSchoolAdmin";
 import { cn } from "@/lib/utils";
 import {
   schoolAdminSchema,
@@ -43,6 +41,10 @@ import {
 } from "@/lib/validationSchema";
 import { Profile } from "@/utils/interfaces";
 import { useSelectSchools } from "@/hooks/useSchools";
+import {
+  useAddSchoolAdmin,
+  useUpdateSchoolAdmin,
+} from "@/hooks/useSchoolAdmin";
 
 // school admin interface
 interface Props {
@@ -244,9 +246,15 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
                           )}
                         >
                           {field.value
-                            ? schools.find(
-                                (school) => school.id === field.value
-                              )?.name
+                            ? `${
+                                schools.find(
+                                  (school) => school.id === field.value
+                                )?.name
+                              } ${
+                                schools.find(
+                                  (school) => school.id === field.value
+                                )?.school_level
+                              }`
                             : "Select School"}
                           <ChevronsUpDown className="opacity-50" />
                         </Button>
@@ -285,7 +293,7 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
                                     });
                                   }}
                                 >
-                                  {school.name}
+                                  {`${school.name} ${school.school_level}`}
                                   <Check
                                     className={cn(
                                       "ml-auto",

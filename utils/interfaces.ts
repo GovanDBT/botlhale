@@ -33,6 +33,7 @@ export interface SchoolAdmin {
   phone?: string;
   school?: {
     name: string;
+    school_level: string;
   };
   created_at?: string;
 }
@@ -49,6 +50,7 @@ export interface Profile {
   school?: {
     id: number;
     name: string;
+    school_level: string;
   };
   created_at: string;
 }
