@@ -10,6 +10,7 @@ import {
   BookUser,
   Clipboard,
   MoreHorizontal,
+  SquarePen,
   Trash2,
 } from "lucide-react";
 import {
@@ -37,6 +38,7 @@ import { useDeleteSchool } from "@/hooks/useSchools";
 import { toast } from "sonner";
 import DeleteAlertDialog from "../../components/DeleteAlertDialog";
 import SchoolDetails from "../../components/SchoolDetails";
+import UpdateSchool from "../../components/UpdateSchool";
 
 // Define the columns for the table
 export const columns: ColumnDef<School>[] = [
@@ -201,6 +203,15 @@ export const columns: ColumnDef<School>[] = [
                   <BookUser className="!size-[14]" /> School details
                 </DropdownMenuItem>
               </SchoolDetails>
+              {/* Update School */}
+              <UpdateSchool id={selectedId[0]}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <SquarePen className="!size-[14]" /> Update School
+                </DropdownMenuItem>
+              </UpdateSchool>
               {/* Archive school */}
               <DropdownMenuItem className="cursor-pointer">
                 <Archive className="!size-[14]" /> Archive School

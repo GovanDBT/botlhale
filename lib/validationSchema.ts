@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 // Enumerations
-const school_levels = ["Senior School", "Junior School", "Primary School"] as const;
+export const school_levels = ["Senior School", "Junior School", "Primary School"] as const;
+export const school_type = ["Public", "Private"] as const;
 
 // validate email input
 export const loginSchema = z.object({
@@ -64,7 +65,7 @@ export const schoolSchema = z.object({
     id: z.number().optional(),
     name: z.string().min(1, "School name is required!"),
     level: z.enum(school_levels, {errorMap: () => ({ message: 'School level is required!'})}),
-    type: z.string().min(1, "School type is required!"),
+    type: z.enum(school_type, {errorMap: () => ({ message: 'School type is required!'})}),
     description: z.string().optional(),
     email: z.string().email().min(1, 'School email is required!'),
     location: z.string().min(1, 'School location is required!'),

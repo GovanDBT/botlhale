@@ -43,7 +43,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAddSchool } from "@/hooks/useSchools";
-import { schoolSchema } from "@/lib/validationSchema";
+import { school_levels, schoolSchema } from "@/lib/validationSchema";
+import { School } from "@/utils/interfaces";
 
 // import Mark-down-editor using lazy loading
 // simpleMDE is a client-side component that is rendered in the server
@@ -57,42 +58,23 @@ type schoolData = z.infer<typeof schoolSchema>;
 interface Props {
   formRef?: React.RefObject<HTMLFormElement | null>;
   onSubmittingChange?: (isSubmitting: boolean) => void;
+  data?: School;
 }
 
-type Level = {
-  value: string;
-  label: string;
-};
-
-const levels: Level[] = [
-  {
-    value: "Senior School",
-    label: "Senior School",
-  },
-  {
-    value: "Junior School",
-    label: "Junior School",
-  },
-  {
-    value: "Primary School",
-    label: "Primary School",
-  },
-];
-
-const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
+const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
   const [open, setOpen] = useState(false); // for opening popup
-  const [selectedLevel, setSelectedLevel] = useState<Level | null>(null); // for setting level
+  const [selectedLevel, setSelectedLevel] = useState<string>(
+    `${data?.school_level || ""}`
+  );
   // define form
   const form = useForm<schoolData>({
     resolver: zodResolver(schoolSchema),
     defaultValues: {
-      name: "",
-      level: "",
-      email: "",
-      phone: "",
-      location: "",
-      schoolName: "",
-      type: "",
+      name: data?.name || "",
+      email: data?.email || "",
+      phone: data?.phone || "",
+      location: data?.location || "",
+      description: data?.description || "",
     },
   });
 
@@ -116,6 +98,7 @@ const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
         loading: "Creating school...",
         success: () => {
           form.reset();
+          setSelectedLevel("");
           return "School has been successfully created";
         },
         error: (err: any) => {
@@ -169,9 +152,7 @@ const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
                           variant="outline"
                           className="w-[160px] md:w-[240px] justify-start bg-primary text-white hover:bg-primary-darker hover:text-white cursor-pointer py-5.5 md:py-0"
                         >
-                          {selectedLevel
-                            ? selectedLevel.label
-                            : "+ Set School Level"}
+                          {selectedLevel ? selectedLevel : "+ Set School Level"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="p-0" align="start">
@@ -179,23 +160,29 @@ const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
                           <CommandList>
                             <CommandEmpty>No results found.</CommandEmpty>
                             <CommandGroup>
-                              {levels.map((level) => (
+                              {school_levels.map((level) => (
                                 <CommandItem
-                                  key={level.value}
-                                  value={level.value}
+                                  key={level}
+                                  value={level}
                                   className="cursor-pointer"
                                   onSelect={(value) => {
                                     const selected =
-                                      levels.find((l) => l.value === value) ||
-                                      null;
+                                      school_levels.find(
+                                        (level) => level === value
+                                      ) || "";
                                     setSelectedLevel(selected);
-                                    form.setValue("level", value, {
-                                      shouldValidate: true,
-                                    });
+                                    form.setValue(
+                                      "level",
+                                      selected as
+                                        | "Senior School"
+                                        | "Junior School"
+                                        | "Primary School",
+                                      { shouldValidate: true }
+                                    );
                                     setOpen(false);
                                   }}
                                 >
-                                  {level.label}
+                                  {level}
                                 </CommandItem>
                               ))}
                             </CommandGroup>
@@ -223,13 +210,17 @@ const SchoolForm = ({ formRef, onSubmittingChange }: Props) => {
                     School Type: <span className="text-red-400">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultValue={data?.school_type || ""}
+                    >
                       <SelectTrigger className="w-full !h-12 sm:!h-10">
                         <SelectValue placeholder="Public/Private" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="public">Public</SelectItem>
-                        <SelectItem value="private">Private</SelectItem>
+                        <SelectItem value="Public">Public</SelectItem>
+                        <SelectItem value="Private">Private</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
