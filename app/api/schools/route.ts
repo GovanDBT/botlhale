@@ -207,6 +207,100 @@ export async function POST(request: NextRequest) {
   
 }
 
+// PATCH /school - update school
+export async function PATCH(request: NextRequest) {
+  try {
+    // create a new body request
+    const body = await request.json();
+
+    // get current users access token
+    const accessToken = await getAccessToken(request);
+  
+    // get the current user's role
+    const userRole = await getUserRole(accessToken.toString());
+
+    // If user is not superAdmin, throw an error
+    if (userRole !== "superAdmin") {
+      Sentry.captureMessage("An unauthorized users tried to update a school", "warning")
+      return NextResponse.json(
+        { error: "Unauthorized access!" },
+        { status: 403 }
+      );
+    }
+
+    //validate body
+    const validation = schoolSchema.safeParse(body);
+
+    // If validation fails, show error
+    if (!validation.success) {
+      return NextResponse.json(validation.error.format() || "Invalid input data", { status: 400 });
+    }
+
+    // initialize Supabase client with access
+    const supabase = await createClient(accessToken.toString());
+
+    // get school data
+    const { data: school, error: schoolError } = await supabase
+      .from('school')
+      .select('*')
+      .eq('id', body.id)
+      .single();
+    
+      // if school error
+    if (schoolError) {
+      Sentry.captureException(`School Error: ${schoolError.message}`);
+      return NextResponse.json(
+        { error: "School does not exist" },
+        { status: 404 }
+      );
+    }
+
+    // if no updates were made
+    if(school.name === body.name && school.school_level === body.level && school.school_type === body.type && school.location === body.location && school.email === body.email && school.phone === body.phone) {
+      return NextResponse.json(
+        { error: "Could not update school as no changes were made!" },
+        { status: 406 }
+      );
+    }
+
+    // update user
+    const { error: updateError } = await supabase
+      .from('school')
+      .update({
+        name: body.name,
+        school_level: body.level,
+        school_type: body.type,
+        location: body.location,
+        email: body.email,
+        phone: body.phone,
+        description: body.description
+      })
+      .eq("id", body.id)
+      .select();
+
+    // if update fails
+    if (updateError) {
+      Sentry.captureException(`Update School Error: ${updateError.message}`);
+      return NextResponse.json(
+        { error: `Update School Error: ${updateError.message}` || "Failed to update school" },
+        { status: 404 }
+      );
+    }
+
+    // if update succeed - send response
+    return NextResponse.json(
+      { message: "School successfully updated" },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    Sentry.captureException(`Update School Server Error: ${error.message}`)
+    return NextResponse.json(
+      { error: `Server error: ${error?.message || "An unexpected error has occurred"}`, },
+      { status: error?.status || 500 }
+    );
+  }
+}
+
 // DELETE /schools - deletes a school (in bulk or singular)
 export async function DELETE(request: NextRequest) {
   try {
