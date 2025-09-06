@@ -69,7 +69,7 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
     },
   });
 
-  // custom hook for creating a new school admin with cache refresh
+  // custom hook for creating a new school admin
   const addSchoolAdmin = useAddSchoolAdmin(
     async (request) => {
       await toast.promise(request, {
@@ -86,7 +86,7 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
     () => onSubmittingChange?.(false)
   );
 
-  // custom hook for creating a new school admin with cache refresh
+  // custom hook for updating a school admin
   const updateSchoolAdmin = useUpdateSchoolAdmin(
     async (request) => {
       await toast.promise(request, {
@@ -102,7 +102,7 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
     () => onSubmittingChange?.(false)
   );
 
-  // fetch schools using react query
+  // custom hook for fetching schools (school name, level, and ID)
   const { data: schools = [], isLoading, error } = useSelectSchools();
 
   // submit handler

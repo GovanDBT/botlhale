@@ -29,7 +29,7 @@ export function useGetSchool() {
 }
 
 // manages fetched data for a specific school
-export function useGetSchoolDetails(id: string) {
+export function useGetSchoolDetails(id: number) {
     const fetchSchool = async (): Promise<School> => {
         const supabase = await createClient();
             const { data, error } = await supabase
@@ -112,6 +112,42 @@ export function useAddSchool(onAdd: (request: Promise<string>) => void, onSubmit
     });
 }
 
+// manages updated data
+export function useUpdateSchool(onAdd: (request: Promise<string>) => void, onSubmit?: () => void ) {
+    // query client for updating data
+    const queryClient = useQueryClient();
+    // mutation query for updating school
+    return useMutation({
+        mutationFn: async (school: schoolData) => {
+            // update school api request
+            const request = axios
+                .patch(SCHOOL_ENDPOINT, school)
+                .then((res) => res.data)
+                .catch((err) => {
+                    const apiError = err?.response?.data?.error;
+                    if (apiError) {
+                        throw new Error(apiError);
+                    }
+                    throw err;
+                });
+            // function for showing loading UI
+            onAdd(request);
+            // Return the resolved data so useMutation has it
+            return request;
+        },
+        onSuccess: () => {
+            // refresh cache
+            queryClient.invalidateQueries({ queryKey: CACHE_KEY_SCHOOLS });
+            queryClient.invalidateQueries({ queryKey: CACHE_KEY_SCHOOL_DETAILS });
+        },
+        onSettled: () => {
+            // pass submission to the form sheet
+            onSubmit?.();
+        },
+    });
+}
+
+// manages deleted data
 export function useDeleteSchool(onAdd: (request: Promise<string>) => void) {
   // query client for updating data  
   const queryClient = useQueryClient(); 

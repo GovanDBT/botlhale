@@ -13,10 +13,10 @@ type schoolAdminData = z.infer<typeof updateSchoolAdminSchema>;
 const useUpdateSchoolAdmin = (onAdd: (request: Promise<string>) => void, onSubmit?: () => void ) => {
     // query client for updating data
     const queryClient = useQueryClient();
-    // mutation query for creating school admin
+    // mutation query for updating school admin
     return useMutation({
         mutationFn: async (schoolAdmin: schoolAdminData) => {
-            // create school admin api request
+            // update school admin api request
             const request = axios
                 .patch(SCHOOLADMIN_ENDPOINT, schoolAdmin)
                 .then((res) => res.data)
@@ -27,16 +27,18 @@ const useUpdateSchoolAdmin = (onAdd: (request: Promise<string>) => void, onSubmi
                     }
                     throw err;
                 });
-            
+            // function for showing loading UI
             onAdd(request);
             // Return the resolved data so useMutation has it
             return request;
         },
         onSuccess: () => {
+            // refresh cache
             queryClient.invalidateQueries({ queryKey: CACHE_KEY_SCHOOLADMIN });
             queryClient.invalidateQueries({ queryKey: CACHE_KEY_SCHOOL_ADMIN_DETAILS });
         },
         onSettled: () => {
+            // pass submission to the form sheet
             onSubmit?.();
         },
     });

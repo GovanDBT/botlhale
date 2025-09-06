@@ -16,7 +16,7 @@ import { useGetSchoolDetails } from "@/hooks/useSchools";
 
 interface Props {
   children: ReactNode;
-  id: string;
+  id: number;
 }
 
 const UpdateSchool = ({ children, id }: Props) => {

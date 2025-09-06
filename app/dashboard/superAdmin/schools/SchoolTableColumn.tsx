@@ -204,7 +204,7 @@ export const columns: ColumnDef<School>[] = [
                 </DropdownMenuItem>
               </SchoolDetails>
               {/* Update School */}
-              <UpdateSchool id={selectedId[0]}>
+              <UpdateSchool id={row.original.id}>
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onSelect={(e) => e.preventDefault()}

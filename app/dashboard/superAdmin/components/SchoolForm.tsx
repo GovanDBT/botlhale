@@ -42,8 +42,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAddSchool } from "@/hooks/useSchools";
-import { school_levels, schoolSchema } from "@/lib/validationSchema";
+import { useAddSchool, useUpdateSchool } from "@/hooks/useSchools";
+import {
+  school_levels,
+  school_type,
+  schoolSchema,
+} from "@/lib/validationSchema";
 import { School } from "@/utils/interfaces";
 
 // import Mark-down-editor using lazy loading
@@ -70,11 +74,14 @@ const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
   const form = useForm<schoolData>({
     resolver: zodResolver(schoolSchema),
     defaultValues: {
+      id: data?.id || 0,
       name: data?.name || "",
       email: data?.email || "",
       phone: data?.phone || "",
       location: data?.location || "",
       description: data?.description || "",
+      level: (data?.school_level as (typeof school_levels)[number]) || "",
+      type: (data?.school_type as (typeof school_type)[number]) || "",
     },
   });
 
@@ -109,10 +116,30 @@ const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
     () => onSubmittingChange?.(false)
   );
 
+  // custom hook for updating a school
+  const updateSchool = useUpdateSchool(
+    async (request) => {
+      await toast.promise(request, {
+        loading: "Updating school...",
+        success: () => {
+          return "School has been successfully updated";
+        },
+        error: (err: any) => {
+          return err.message || "An unexpected error has occurred";
+        },
+      });
+    },
+    () => onSubmittingChange?.(false)
+  );
+
   // submit handler
   const onSubmit = async (data: schoolData) => {
     onSubmittingChange?.(true);
-    addSchool.mutate(data);
+    if (data) {
+      updateSchool.mutate(data);
+    } else {
+      addSchool.mutate(data);
+    }
   };
 
   return (
@@ -210,11 +237,7 @@ const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
                     School Type: <span className="text-red-400">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      defaultValue={data?.school_type || ""}
-                    >
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="w-full !h-12 sm:!h-10">
                         <SelectValue placeholder="Public/Private" />
                       </SelectTrigger>
