@@ -99,7 +99,7 @@ export async function POST(request: Request) {
         );
       }
     } else {
-      redirectPath = "/dashboard/superAdmin"
+      redirectPath = "/dashboard/admin"
     }
 
     // response

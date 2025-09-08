@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/services/supabase/server";
 import SignOutButton from "../../components/SignOutButton";
 import { Separator } from "@/components/ui/separator";
+import AppSeparator from "@/app/components/AppSeparator";
 
 export default async function PrivatePage() {
   const supabase = await createClient();
@@ -15,8 +16,8 @@ export default async function PrivatePage() {
   return (
     <>
       <h1 className="text-2xl/8 sm:text-xl/8 font-bold">Dashboard</h1>
-      <Separator className="my-4" />
-      <p>Hello {data.user.email}</p>
+      <AppSeparator />
+      <p>Hello {data.user.email} The superAdmin</p>
       <SignOutButton />
     </>
   );

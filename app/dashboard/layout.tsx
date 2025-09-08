@@ -5,7 +5,7 @@ import { ReactNode, useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 // custom components
-import { AppSidebar } from "@/app/dashboard/components/Sidebar";
+import { Dashboard } from "@/app/dashboard/components/Dashboard";
 interface Props {
   children?: React.ReactNode;
   breadcrumbs: ReactNode;
@@ -14,7 +14,7 @@ interface Props {
 export default function Layout({ children, breadcrumbs }: Props) {
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <Dashboard />
       <main className="w-screen bg-white grow lg:rounded-lg lg:m-2 px-4 lg:px-20 py-8">
         <div className="flex items-center gap-4 mb-3">
           <SidebarTrigger />

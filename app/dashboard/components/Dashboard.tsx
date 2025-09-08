@@ -1,17 +1,10 @@
+// app/dashboard/components/Dashboard.tsx
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import useUserRole from "../../../hooks/useUserRole";
-
-import {
-  LayoutDashboard,
-  UserRound,
-  ChevronDown,
-  Search,
-  Inbox,
-  School,
-} from "lucide-react";
-
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ChevronDown, Inbox, Search } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -27,147 +20,46 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { usePathname } from "next/navigation";
+import useUserRole from "@/hooks/useUserRole";
+import { menuConfig, MenuItem } from "@/utils/dashboardMenu";
+import DashboardSkeleton from "./DashboardSkeleton";
 
-export function AppSidebar() {
-  const { fetchUserRole } = useUserRole(); // Fetch user role custom hook
-  const pathname = usePathname(); // Get the current path
-  const [menuItems, setMenuItems] = useState<
-    {
-      title: string;
-      url: string;
-      icon: React.ComponentType;
-      subItem?: {
-        subTitle: string;
-        subUrl: string;
-      }[];
-    }[]
-  >([]); // State to store menu items
-  const [loading, setLoading] = useState(true); // State to track loading
-  const [openStates, setOpenStates] = useState<Record<string, boolean>>({}); // State to track collapsible open states
+export function Dashboard() {
+  const { fetchUserRole } = useUserRole();
+  const pathname = usePathname();
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [openStates, setOpenStates] = useState<Record<string, boolean>>({});
 
-  // Fetch menu items based on user role
   useEffect(() => {
-    const fetchMenuItems = async () => {
-      const userRole = await fetchUserRole();
-
-      if (!userRole) {
-        console.error("User role is not available yet.");
-        setLoading(false);
-        return;
-      }
-
-      if (userRole === "superAdmin") {
-        setMenuItems([
-          {
-            title: "Dashboard",
-            url: "/dashboard/superAdmin",
-            icon: LayoutDashboard,
-          },
-          {
-            title: "Schools",
-            url: "/dashboard/superAdmin/schools",
-            icon: School,
-          },
-          {
-            title: "Users",
-            url: "/dashboard/superAdmin/schools",
-            icon: UserRound,
-            subItem: [
-              {
-                subTitle: "School Admins",
-                subUrl: "/dashboard/superAdmin/users/schoolAdmins",
-              },
-              {
-                subTitle: "Staff/Teachers",
-                subUrl: "#",
-              },
-              {
-                subTitle: "Students",
-                subUrl: "we",
-              },
-              {
-                subTitle: "Parents",
-                subUrl: "fe",
-              },
-            ],
-          },
-        ]);
-      } else if (userRole === "schoolAdmin") {
-        setMenuItems([
-          {
-            title: "Dashboard",
-            url: "/dashboard/admin",
-            icon: LayoutDashboard,
-          },
-          {
-            title: "Users",
-            url: "#",
-            icon: UserRound,
-            subItem: [
-              {
-                subTitle: "Students",
-                subUrl: "/dashboard/admin/users/students",
-              },
-            ],
-          },
-        ]);
-      } else {
-        setMenuItems([
-          {
-            title: "Dashboard",
-            url: "#",
-            icon: LayoutDashboard,
-          },
-          {
-            title: "Subjects",
-            url: "#",
-            icon: UserRound,
-          },
-        ]);
-      }
-
+    const loadMenu = async () => {
+      const role = await fetchUserRole();
+      setMenuItems(menuConfig[role as keyof typeof menuConfig] || []);
       setLoading(false);
     };
-
-    fetchMenuItems();
+    loadMenu();
   }, [fetchUserRole]);
 
   const upperMenus = [
-    {
-      title: "Search",
-      url: "#",
-      icon: Search,
-    },
-    {
-      title: "Inbox",
-      url: "#",
-      icon: Inbox,
-    },
+    { title: "Search", url: "#", icon: Search },
+    { title: "Inbox", url: "#", icon: Inbox },
   ];
 
-  // Toggle collapsible state for a specific item
   const toggleCollapsible = (title: string) => {
-    setOpenStates((prev) => ({
-      ...prev,
-      [title]: !prev[title],
-    }));
+    setOpenStates((prev) => ({ ...prev, [title]: !prev[title] }));
   };
 
-  if (loading) {
-    return <div>Loading...</div>; // Show a loading state while fetching menu items
-  }
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarContent>
-        {/** Sidebar Header */}
+        {/* Logo */}
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem className="flex items-center gap-2">
@@ -181,14 +73,15 @@ export function AppSidebar() {
                 <h2 className="text-3xl uppercase text-primary font-logo font-bold">
                   Strype<span className="text-secondary">.</span>
                 </h2>
-                <p className="text-[9px] text-nowrap italic">
+                <p className="text-[9px] italic">
                   Earn your Strypes, Shape your Future
                 </p>
               </div>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
-        {/** Sidebar Upper Menu */}
+
+        {/* Top Static Menu */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -198,7 +91,7 @@ export function AppSidebar() {
                     asChild
                     className={`h-9 hover:bg-primary/10 ${
                       pathname === item.url &&
-                      "bg-primary/10 text-primary border-1 font-bold hover:text-primary"
+                      "bg-primary/10 text-primary font-bold"
                     }`}
                   >
                     <Link href={item.url}>
@@ -211,8 +104,10 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         <SidebarSeparator />
-        {/** Sidebar Main Menu */}
+
+        {/* Dynamic Menu */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -238,18 +133,18 @@ export function AppSidebar() {
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub>
-                          {item.subItem.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.subTitle}>
+                          {item.subItem.map((sub) => (
+                            <SidebarMenuSubItem key={sub.subTitle}>
                               <SidebarMenuSubButton
                                 asChild
                                 className={`h-9 hover:bg-primary/10 ${
-                                  pathname === subItem.subUrl &&
-                                  "bg-primary/10 text-primary border-1 font-bold hover:text-primary"
+                                  pathname === sub.subUrl &&
+                                  "bg-primary/10 !text-primary font-bold"
                                 }`}
                               >
-                                <Link href={subItem.subUrl}>
+                                <Link href={sub.subUrl}>
                                   <span className="text-base">
-                                    {subItem.subTitle}
+                                    {sub.subTitle}
                                   </span>
                                 </Link>
                               </SidebarMenuSubButton>
@@ -263,7 +158,7 @@ export function AppSidebar() {
                       asChild
                       className={`h-9 hover:bg-primary/10 ${
                         pathname === item.url &&
-                        "bg-primary/10 text-primary border-1 font-bold hover:text-primary"
+                        "bg-primary/10 !text-primary font-bold"
                       }`}
                     >
                       <Link href={item.url}>
@@ -277,6 +172,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         <SidebarRail />
       </SidebarContent>
     </Sidebar>

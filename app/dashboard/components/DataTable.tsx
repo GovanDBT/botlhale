@@ -50,7 +50,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import LoadingTable from "../superAdmin/components/LoadingTable";
+import LoadingTable from "../admin/components/LoadingTable";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
