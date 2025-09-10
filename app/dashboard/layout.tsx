@@ -1,6 +1,6 @@
 "use client";
 // react components
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 // Shadcn components
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";

@@ -133,12 +133,12 @@ const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
   );
 
   // submit handler
-  const onSubmit = async (data: schoolData) => {
+  const onSubmit = async (formData: schoolData) => {
     onSubmittingChange?.(true);
     if (data) {
-      updateSchool.mutate(data);
+      updateSchool.mutate(formData);
     } else {
-      addSchool.mutate(data);
+      addSchool.mutate(formData);
     }
   };
 

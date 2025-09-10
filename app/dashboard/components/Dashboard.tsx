@@ -1,4 +1,5 @@
 // app/dashboard/components/Dashboard.tsx
+// dashboard for authenticated users
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -25,41 +26,48 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import useUserRole from "@/hooks/useUserRole";
-import { menuConfig, MenuItem } from "@/utils/dashboardMenu";
+import useUserRole from "@/hooks/useGetUserRole";
+import { getMenuConfig, MenuItem } from "@/utils/dashboardMenu";
 import DashboardSkeleton from "./DashboardSkeleton";
+import useGetSchoolId from "@/hooks/useGetSchoolId";
 
 export function Dashboard() {
   const { fetchUserRole } = useUserRole();
+  const { fetchSchoolId } = useGetSchoolId();
   const pathname = usePathname();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [openStates, setOpenStates] = useState<Record<string, boolean>>({});
 
+  // get the dashboards menu links depending on the users role
   useEffect(() => {
     const loadMenu = async () => {
-      const role = await fetchUserRole();
-      setMenuItems(menuConfig[role as keyof typeof menuConfig] || []);
+      const role = await fetchUserRole(); // fetch the users role
+      const schoolId = await fetchSchoolId(); // fetch the school ID
+      setMenuItems(getMenuConfig(role, schoolId)); // set menu items depending on user role
       setLoading(false);
     };
     loadMenu();
-  }, [fetchUserRole]);
+  }, [fetchUserRole, fetchSchoolId]);
 
+  // the dashboards upper menu links
   const upperMenus = [
     { title: "Search", url: "#", icon: Search },
     { title: "Inbox", url: "#", icon: Inbox },
   ];
 
+  // dashboards drop-down
   const toggleCollapsible = (title: string) => {
     setOpenStates((prev) => ({ ...prev, [title]: !prev[title] }));
   };
 
+  // when the dashboard is loading
   if (loading) return <DashboardSkeleton />;
 
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarContent>
-        {/* Logo */}
+        {/* Logo + tagline */}
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem className="flex items-center gap-2">
