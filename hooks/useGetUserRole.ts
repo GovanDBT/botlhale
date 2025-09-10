@@ -5,6 +5,7 @@ import { useState, useCallback } from "react";
 import { createClient } from "@/services/supabase/client";
 import * as Sentry from "@sentry/nextjs";
 import { toast } from "sonner";
+import { jwtDecode } from "jwt-decode";
 
 const useUserRole = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -29,12 +30,44 @@ const useUserRole = () => {
       }
 
       // get the users role
-      const roleMetaData = userData.user.user_metadata.profile_role;
+      let role = userData.user.user_metadata.profile_role;
     
       // set the users role
-      if (roleMetaData) {
-        setUserRole(roleMetaData);
-        return roleMetaData;
+      if (role) {
+        setUserRole(role);
+        return role;
+      }
+
+      // second approach to fetch user role
+      if (!role) {
+        // get current users session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          
+        // if database fails
+        if (sessionError) {
+          Sentry.captureException(`Session Error: ${sessionError.message}`)
+          toast.error('Unexpected Error: Failed to fetch the current users session');
+          setUserRole(null);
+          return null
+        }
+          
+        // get access token from session and assign to accessToken
+        const accessToken: any = session?.access_token;
+
+        // decode access toke
+        const jwt: any = jwtDecode(accessToken);
+
+        if (jwt.error || !jwt) {
+          Sentry.captureException("Failed to decode access token " + jwt.error);
+          toast.error('Unexpected Error: Failed to decode JWT');
+          return null;
+        }
+
+        // get role from access toke and set it
+        setUserRole(jwt.user_role);
+
+        // return role
+        return jwt.user_role;
       }
     
       setUserRole(null);

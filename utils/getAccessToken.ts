@@ -6,9 +6,9 @@ import { createClient } from "@/services/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 
-export async function getAccessToken(request: NextRequest) {
+export async function getAccessToken(request?: NextRequest) {
     // grabs our current access token - postman testing
-    let accessToken = request.headers.get("Authorization")?.replace("Bearer ", "");
+    let accessToken = request?.headers.get("Authorization")?.replace("Bearer ", "");
   
     // initialize Supabase client on the server
     const supabase = await createClient();
