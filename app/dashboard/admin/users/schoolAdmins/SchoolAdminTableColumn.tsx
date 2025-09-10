@@ -1,18 +1,9 @@
 // app/dashboard/superAdmin/users/school_admins/SchoolAdminTableColumn.tsx
 // School admins data table columns
 "use client";
+import DeleteAlertDialog from "@/app/dashboard/components/DeleteAlertDialog";
 import SchoolAdminDetails from "@/app/dashboard/components/SchoolAdminDetails";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import UpdateSchoolAdmin from "@/app/dashboard/components/UpdateSchoolAdmin";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -24,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useDeleteSchoolAdmin } from "@/hooks/useSchoolAdmin";
 import { SchoolAdmin } from "@/utils/interfaces";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -33,12 +25,8 @@ import {
   Clipboard,
   MoreHorizontal,
   SquarePen,
-  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-import UpdateSchoolAdmin from "../../components/UpdateSchoolAdmin";
-import DeleteAlertDialog from "@/app/dashboard/components/DeleteAlertDialog";
-import { useDeleteSchoolAdmin } from "@/hooks/useSchoolAdmin";
 
 // Define the columns for the table
 export const columns: ColumnDef<SchoolAdmin>[] = [

@@ -11,7 +11,7 @@ import {
 import React, { ReactNode, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Spinner from "@/app/components/Spinner";
-import SchoolForm from "../admin/components/SchoolForm";
+import SchoolForm from "./SchoolForm";
 import { useGetSchoolDetails } from "@/hooks/useSchools";
 
 interface Props {

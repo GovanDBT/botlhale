@@ -1,3 +1,5 @@
+// app/dashboard/superAdmin/components/EditSchoolAdmin.tsx
+// client side sheet form for updating a school admin
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -8,24 +10,27 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import React, { useRef, useState } from "react";
-import SchoolForm from "./SchoolForm";
+import React, { ReactNode, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Spinner from "@/app/components/Spinner";
+import { useSchoolAdminDetails } from "@/hooks/useSchoolAdmin";
+import SchoolAdminForm from "./SchoolAdminForm";
 
-const SchoolFormSheet = () => {
+interface Props {
+  children: ReactNode;
+  id: string;
+}
+
+const UpdateSchoolAdmin = ({ children, id }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: profile } = useSchoolAdminDetails(id);
   const handleRegisterClick = () => {
     formRef.current?.requestSubmit();
   };
   return (
     <Sheet>
-      <SheetTrigger asChild>
-        <Button className="text-base sm:text-sm cursor-pointer">
-          Register School
-        </Button>
-      </SheetTrigger>
+      <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent
         className="sm:max-w-xl w-full flex flex-col"
         onInteractOutside={(event) => event.preventDefault()}
@@ -34,19 +39,21 @@ const SchoolFormSheet = () => {
         <div className="border-b">
           <SheetHeader>
             <SheetTitle className="text-xl/8 sm:text-lg font-bold">
-              Register New School
+              Update School Admin
             </SheetTitle>
             <SheetDescription className="text-base sm:text-sm">
-              Fill in the form below to register a new school.
+              Update the form fields below to change the school admins data.
+              Cannot change email or phone for security reasons
             </SheetDescription>
           </SheetHeader>
         </div>
 
         {/* Scrollable Form Area */}
         <ScrollArea className="flex-1 px-4 overflow-y-auto">
-          <SchoolForm
+          <SchoolAdminForm
             formRef={formRef}
             onSubmittingChange={(submitting) => setIsSubmitting(submitting)}
+            data={profile}
           />
         </ScrollArea>
 
@@ -68,10 +75,10 @@ const SchoolFormSheet = () => {
             {isSubmitting ? (
               <div className="flex items-center gap-2">
                 <Spinner />
-                Registering...
+                Updating...
               </div>
             ) : (
-              "Register"
+              "Update"
             )}
           </Button>
         </div>
@@ -80,4 +87,4 @@ const SchoolFormSheet = () => {
   );
 };
 
-export default SchoolFormSheet;
+export default UpdateSchoolAdmin;

@@ -12,7 +12,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Row } from "@tanstack/react-table";
 import { Trash2 } from "lucide-react";
 import React from "react";
 

@@ -1,9 +1,9 @@
+// app/dashboard/admin/page.tsx
+// dashboard page for super admins and admins
 import { redirect } from "next/navigation";
-
+import AppSeparator from "@/app/components/AppSeparator";
 import { createClient } from "@/services/supabase/server";
 import SignOutButton from "../../components/SignOutButton";
-import { Separator } from "@/components/ui/separator";
-import AppSeparator from "@/app/components/AppSeparator";
 
 export default async function PrivatePage() {
   const supabase = await createClient();

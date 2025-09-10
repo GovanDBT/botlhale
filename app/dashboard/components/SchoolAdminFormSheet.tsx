@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/sheet";
 import React, { useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import SchoolAdminForm from "./SchoolAdminForm";
 import Spinner from "@/app/components/Spinner";
+import SchoolAdminForm from "./SchoolAdminForm";
 
 const SchoolAdminFormSheet = () => {
   const formRef = useRef<HTMLFormElement>(null);

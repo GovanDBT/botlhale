@@ -3,12 +3,12 @@
 "use client";
 import AppSeparator from "@/app/components/AppSeparator";
 import AppInfoTooltip from "@/app/components/AppInfoTooltip";
-import SchoolAdminFormSheet from "../../components/SchoolAdminFormSheet";
 import { DataTable } from "@/app/dashboard/components/DataTable";
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
 import { columns } from "./SchoolAdminTableColumn";
 import { SCHOOLADMIN_ENDPOINT } from "@/utils/endpoints";
 import { useGetSchoolAdmin } from "@/hooks/useSchoolAdmin";
+import SchoolAdminFormSheet from "@/app/dashboard/components/SchoolAdminFormSheet";
 
 const SchoolAdminPage = () => {
   // Fetch data using react-query

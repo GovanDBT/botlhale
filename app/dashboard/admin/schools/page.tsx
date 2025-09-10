@@ -5,10 +5,10 @@ import AppInfoTooltip from "@/app/components/AppInfoTooltip";
 import AppSeparator from "@/app/components/AppSeparator";
 import { useGetSchool } from "@/hooks/useSchools";
 import { DataTable } from "../../components/DataTable";
-import SchoolFormSheet from "../components/SchoolFormSheet";
 import { columns } from "./SchoolTableColumn";
 import { CACHE_KEY_SCHOOLS } from "@/utils/constants";
 import { SCHOOL_ENDPOINT } from "@/utils/endpoints";
+import SchoolFormSheet from "../../components/SchoolFormSheet";
 
 const SchoolsPage = () => {
   // fetch school using react-query

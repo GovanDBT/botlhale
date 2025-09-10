@@ -183,7 +183,7 @@ export const columns: ColumnDef<School>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               {/* School details */}
-              <SchoolDetails id={selectedId[0]}>
+              <SchoolDetails id={row.original.id}>
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onSelect={(e) => e.preventDefault()}
