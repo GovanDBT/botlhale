@@ -1,6 +1,6 @@
 // utils/dashboardMenu.ts
 // the dashboards for the menu lists
-import { LayoutDashboard, UserRound, School } from "lucide-react";
+import { LayoutDashboard, UserRound, School, BookType } from "lucide-react";
 
 export type MenuItem = {
   title: string;
@@ -36,6 +36,11 @@ export const getMenuConfig = (
           { subTitle: "Students", subUrl: "/dashboard/admin/users/students" },
           { subTitle: "Parents", subUrl: "/dashboard/admin/users/parents" },
         ],
+      },
+      {
+        title: "Subjects",
+        url: "/dashboard/admin/subjects",
+        icon: BookType,
       },
     ],
     schoolAdmin: [

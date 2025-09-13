@@ -42,12 +42,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useSchoolLevels from "@/hooks/useSchoolLevels";
 import { useAddSchool, useUpdateSchool } from "@/hooks/useSchools";
-import {
-  school_levels,
-  school_type,
-  schoolSchema,
-} from "@/lib/validationSchema";
+import { school_type, schoolSchema } from "@/lib/validationSchema";
 import { School } from "@/utils/interfaces";
 
 // import Mark-down-editor using lazy loading
@@ -67,9 +64,7 @@ interface Props {
 
 const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
   const [open, setOpen] = useState(false); // for opening popup
-  const [selectedLevel, setSelectedLevel] = useState<string>(
-    `${data?.school_level || ""}`
-  );
+  const [selectedLevel, setSelectedLevel] = useState<string>("");
   // define form
   const form = useForm<schoolData>({
     resolver: zodResolver(schoolSchema),
@@ -80,7 +75,7 @@ const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
       phone: data?.phone || "",
       location: data?.location || "",
       description: data?.description || "",
-      level: (data?.school_level as (typeof school_levels)[number]) || "",
+      level: data?.school_level || "",
       type: (data?.school_type as (typeof school_type)[number]) || "",
     },
   });
@@ -131,6 +126,9 @@ const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
     },
     () => onSubmittingChange?.(false)
   );
+
+  // custom hook for fetching schools levels
+  const { data: levels = [], isLoading, error } = useSchoolLevels();
 
   // submit handler
   const onSubmit = async (formData: schoolData) => {
@@ -185,31 +183,40 @@ const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
                       <PopoverContent className="p-0" align="start">
                         <Command>
                           <CommandList>
-                            <CommandEmpty>No results found.</CommandEmpty>
+                            {isLoading && (
+                              <CommandEmpty>
+                                {isLoading
+                                  ? "Loading Schools Levels..."
+                                  : "No Schools Levels Found."}
+                              </CommandEmpty>
+                            )}
+                            {error && (
+                              <p className="text-red-500 text-sm text-center py-5">
+                                {error.message}
+                              </p>
+                            )}
                             <CommandGroup>
-                              {school_levels.map((level) => (
+                              {levels.map((level) => (
                                 <CommandItem
-                                  key={level}
-                                  value={level}
+                                  key={level.id}
+                                  value={level.level}
                                   className="cursor-pointer"
                                   onSelect={(value) => {
-                                    const selected =
-                                      school_levels.find(
-                                        (level) => level === value
-                                      ) || "";
-                                    setSelectedLevel(selected);
+                                    const selected = levels.find(
+                                      (item) => item.level === value
+                                    );
+                                    if (!selected) return;
+                                    setSelectedLevel(
+                                      `${selected.level} School`
+                                    );
                                     form.setValue(
                                       "level",
-                                      selected as
-                                        | "Senior School"
-                                        | "Junior School"
-                                        | "Primary School",
-                                      { shouldValidate: true }
+                                      `${selected.level} School`
                                     );
                                     setOpen(false);
                                   }}
                                 >
-                                  {level}
+                                  {`${level.level} School`}
                                 </CommandItem>
                               ))}
                             </CommandGroup>

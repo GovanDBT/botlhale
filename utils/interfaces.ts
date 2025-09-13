@@ -38,6 +38,7 @@ export interface SchoolAdmin {
   created_at?: string;
 }
 
+// Define the type for the user profile
 export interface Profile {
   id: string;
   profile_id: string;
@@ -52,5 +53,13 @@ export interface Profile {
     name: string;
     school_level: string;
   };
+  created_at: string;
+}
+
+// Define the type for school levels
+export interface SchoolLevels {
+  id: number;
+  level: string;
+  description: string;
   created_at: string;
 }
