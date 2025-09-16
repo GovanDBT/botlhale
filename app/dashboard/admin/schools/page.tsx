@@ -10,6 +10,7 @@ import { CACHE_KEY_SCHOOLS } from "@/utils/constants";
 import { SCHOOL_ENDPOINT } from "@/utils/endpoints";
 import SchoolFormSheet from "../../components/SchoolFormSheet";
 import { toast } from "sonner";
+import { useMemo } from "react";
 
 const SchoolsPage = () => {
   // fetch school using react-query
@@ -25,6 +26,9 @@ const SchoolsPage = () => {
           : "Failed to delete school. An unexpected error has occurred",
     });
   });
+  const columns = useMemo(() => {
+    return getColumns(deleteSchoolMutation.mutate);
+  }, [deleteSchoolMutation.mutate]);
   return (
     <div>
       <div className="flex justify-between items-center">
@@ -37,7 +41,7 @@ const SchoolsPage = () => {
       <AppSeparator />
       <DataTable
         search={["name"]}
-        columns={getColumns(deleteSchoolMutation)}
+        columns={columns}
         data={schools}
         isLoading={isLoading}
         refresh={`${CACHE_KEY_SCHOOLS}`}

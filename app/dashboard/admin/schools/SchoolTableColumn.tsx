@@ -29,7 +29,7 @@ import { UseMutationResult } from "@tanstack/react-query";
 
 // Define the columns for the table
 export const getColumns = (
-  deleteSchoolMutation: UseMutationResult<unknown, Error, string[], unknown>
+  deleteFn: (ids: string[]) => void
 ): ColumnDef<School>[] => [
   // school ID as a checkbox
   {
@@ -197,7 +197,7 @@ export const getColumns = (
               <DeleteAlertDialog
                 title="school"
                 data={() => row.getValue("name")}
-                deleteFn={() => deleteSchoolMutation.mutate(selectedId)}
+                deleteFn={() => deleteFn([row.original.id.toString()])}
               />
             </DropdownMenuGroup>
           </DropdownMenuContent>

@@ -5,6 +5,7 @@ import ReactQueryProvider from "../providers/ReactQueryProvider";
 import { Provider as RollbarProvider } from "@rollbar/react";
 import { clientConfig } from "@/services/rollbar/rollbar";
 import { usePathname } from "next/navigation";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({
         >
           <ReactQueryProvider>
             <main>{children}</main>
+            <Analytics />
           </ReactQueryProvider>
         </body>
       </html>
