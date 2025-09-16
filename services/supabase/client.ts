@@ -6,7 +6,7 @@ import { createBrowserClient } from "@supabase/ssr"; // server-side-auth to conf
 
 export function createClient() {
     return createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!, // supabase url
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! // supabase anon API key
+        process.env.SUPABASE_URL!, // supabase url
+        process.env.SUPABASE_ANON! // supabase anon API key
     )
 }
