@@ -29,7 +29,7 @@ import { UseMutationResult } from "@tanstack/react-query";
 
 // Define the columns for the table
 export const getColumns = (
-  deleteSchoolMutation: UseMutationResult<void, Error, string[], unknown>
+  deleteSchoolMutation: UseMutationResult<unknown, Error, string[], unknown>
 ): ColumnDef<School>[] => [
   // school ID as a checkbox
   {

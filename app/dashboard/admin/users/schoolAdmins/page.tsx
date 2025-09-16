@@ -13,6 +13,7 @@ import {
 } from "@/hooks/useSchoolAdmin";
 import SchoolAdminFormSheet from "@/app/dashboard/components/SchoolAdminFormSheet";
 import { toast } from "sonner";
+import { useMemo } from "react";
 
 const SchoolAdminPage = () => {
   // Fetch data using react-query
@@ -30,6 +31,9 @@ const SchoolAdminPage = () => {
           : "Failed to delete school admin. An unexpected error has occurred",
     });
   });
+  const columns = useMemo(() => {
+    return getColumns(deleteSchoolAdminMutation.mutate);
+  }, [deleteSchoolAdminMutation.mutate]);
   return (
     <div>
       <div className="flex justify-between items-center">
@@ -42,7 +46,7 @@ const SchoolAdminPage = () => {
       <AppSeparator />
       <DataTable
         search={["fullname", "school"]}
-        columns={getColumns(deleteSchoolAdminMutation)}
+        columns={columns}
         data={schoolAdmins}
         isLoading={isLoading}
         refresh={`${CACHE_KEY_SCHOOLADMIN}`}

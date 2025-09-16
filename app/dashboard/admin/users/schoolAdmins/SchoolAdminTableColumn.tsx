@@ -16,7 +16,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SchoolAdmin } from "@/utils/interfaces";
-import { UseMutationResult } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Archive,
@@ -29,7 +28,7 @@ import {
 
 // Define the columns for the table
 export const getColumns = (
-  deleteSchoolAdminMutation: UseMutationResult<void, Error, string[], unknown>
+  deleteFn: (ids: string[]) => void
 ): ColumnDef<SchoolAdmin>[] => [
   // admin supabase id as a checkbox
   {
@@ -134,7 +133,6 @@ export const getColumns = (
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const selectedId = [row.original.id.toString()];
       const id = row.original;
       return (
         <>
@@ -185,7 +183,7 @@ export const getColumns = (
                 <DeleteAlertDialog
                   title="user"
                   data={() => row.getValue("fullname")}
-                  deleteFn={() => deleteSchoolAdminMutation.mutate(selectedId)}
+                  deleteFn={() => deleteFn([row.original.id.toString()])}
                 />
               </DropdownMenuGroup>
             </DropdownMenuContent>
