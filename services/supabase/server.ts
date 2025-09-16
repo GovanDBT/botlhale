@@ -14,8 +14,8 @@ export async function createClient(accessToken?: string) {
     // create a server's supabase client with newly configured cookies,
     // which could be used to maintain user's session
     const supabase = createServerClient(
-        process.env.SUPABASE_URL!,
-        process.env.SUPABASE_ANON!,
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON!,
         {
             // manages cookies
             cookies: {
