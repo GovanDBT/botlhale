@@ -8,6 +8,7 @@ import { createClient } from "@/services/supabase/server";
 import * as Sentry from "@sentry/nextjs";
 import { generateSchoolId } from "@/lib/generateSchoolId";
 import { getAccessToken } from "@/utils/getAccessToken";
+import getUnexpectedError from "@/utils/getUnexpectedError";
 
 // GET /schools - retrieves all schools
 export async function GET() {
@@ -33,13 +34,9 @@ export async function GET() {
     // response
     return NextResponse.json(data);
 
-  } catch (error: any) {
-    // any unexpected error
-    Sentry.captureException(`Schools Server Error: ${error.message}`); // log to Sentry
-    return NextResponse.json(
-      { success: false, error: `Server error: ${error.message}`, }, // log to client
-      { status: error.status }
-    );
+  } catch (error) {
+    // handle unexpected errors
+    getUnexpectedError(error);
   }
 }
 
@@ -196,13 +193,9 @@ export async function POST(request: NextRequest) {
       { message: "School created successfully!" },
       { status: 201 }
     );
-  } catch (error: any) {
-    // unexpected error
-    Sentry.captureException(`Insert School Server Error: ${error.message}`);
-    return NextResponse.json(
-      { error: `Server error: ${error?.message || "An unexpected error has occurred"}`, },
-      { status: error?.status || 500 }
-    );
+  } catch (error) {
+    // handle unexpected errors
+    getUnexpectedError(error);
   }
   
 }
@@ -292,12 +285,9 @@ export async function PATCH(request: NextRequest) {
       { message: "School successfully updated" },
       { status: 200 }
     );
-  } catch (error: any) {
-    Sentry.captureException(`Update School Server Error: ${error.message}`)
-    return NextResponse.json(
-      { error: `Server error: ${error?.message || "An unexpected error has occurred"}`, },
-      { status: error?.status || 500 }
-    );
+  } catch (error) {
+    // handle unexpected errors
+    getUnexpectedError(error);
   }
 }
 
@@ -336,7 +326,7 @@ export async function DELETE(request: NextRequest) {
     }
       
     // iterate through each school ids - for bulk or single delete
-    for (let id of ids) {
+    for (const id of ids) {
       // delete school
       const { error } = await supabase.from('school').delete().eq('id', id);
 
@@ -355,11 +345,8 @@ export async function DELETE(request: NextRequest) {
         { success: true, message: `${ids.length} School(s) Successfully Deleted`},
         { status: 200 }
       )
-  } catch (error: any) {
-    Sentry.captureException(`School Delete Server Error: ${error.message}`);
-    return NextResponse.json(
-      { error: "Failed to delete school" },
-      { status: 500 }
-    );
+  } catch (error) {
+    // handle unexpected errors
+    getUnexpectedError(error);
   }
 }

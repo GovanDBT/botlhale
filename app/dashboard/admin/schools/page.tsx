@@ -3,16 +3,28 @@
 "use client";
 import AppInfoTooltip from "@/app/components/AppInfoTooltip";
 import AppSeparator from "@/app/components/AppSeparator";
-import { useGetSchool } from "@/hooks/useSchools";
+import { useDeleteSchool, useGetSchool } from "@/hooks/useSchools";
 import { DataTable } from "../../components/DataTable";
-import { columns } from "./SchoolTableColumn";
+import { getColumns } from "./SchoolTableColumn";
 import { CACHE_KEY_SCHOOLS } from "@/utils/constants";
 import { SCHOOL_ENDPOINT } from "@/utils/endpoints";
 import SchoolFormSheet from "../../components/SchoolFormSheet";
+import { toast } from "sonner";
 
 const SchoolsPage = () => {
   // fetch school using react-query
   const { data: schools = [], isLoading, error } = useGetSchool();
+  // delete mutation for deleting school
+  const deleteSchoolMutation = useDeleteSchool(async (request) => {
+    await toast.promise(request, {
+      loading: "Deleting school...",
+      success: () => "School has been successfully deleted",
+      error: (error: unknown) =>
+        error instanceof Error
+          ? error.message
+          : "Failed to delete school. An unexpected error has occurred",
+    });
+  });
   return (
     <div>
       <div className="flex justify-between items-center">
@@ -25,7 +37,7 @@ const SchoolsPage = () => {
       <AppSeparator />
       <DataTable
         search={["name"]}
-        columns={columns}
+        columns={getColumns(deleteSchoolMutation)}
         data={schools}
         isLoading={isLoading}
         refresh={`${CACHE_KEY_SCHOOLS}`}

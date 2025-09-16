@@ -12,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useDeleteSchool } from "@/hooks/useSchools";
 import { School } from "@/utils/interfaces";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -23,13 +22,15 @@ import {
   MoreHorizontal,
   SquarePen,
 } from "lucide-react";
-import { toast } from "sonner";
 import DeleteAlertDialog from "../../components/DeleteAlertDialog";
 import SchoolDetails from "../../components/SchoolDetails";
 import UpdateSchool from "../../components/UpdateSchool";
+import { UseMutationResult } from "@tanstack/react-query";
 
 // Define the columns for the table
-export const columns: ColumnDef<School>[] = [
+export const getColumns = (
+  deleteSchoolMutation: UseMutationResult<void, Error, string[], unknown>
+): ColumnDef<School>[] => [
   // school ID as a checkbox
   {
     id: "select",
@@ -81,19 +82,19 @@ export const columns: ColumnDef<School>[] = [
   {
     accessorKey: "admins",
     header: () => <div className="hidden md:table cell">Admins</div>,
-    cell: ({ row }) => <div className="hidden md:table cell">#</div>,
+    cell: () => <div className="hidden md:table cell">#</div>,
   },
   // number of teachers
   {
     accessorKey: "teachers",
     header: () => <div className="hidden lg:table cell">Teachers</div>,
-    cell: ({ row }) => <div className="hidden lg:table cell">#</div>,
+    cell: () => <div className="hidden lg:table cell">#</div>,
   },
   // number of students
   {
     accessorKey: "students",
     header: () => <div className="hidden lg:table cell">Students</div>,
-    cell: ({ row }) => <div className="hidden lg:table cell">#</div>,
+    cell: () => <div className="hidden lg:table cell">#</div>,
   },
   // created by
   {
@@ -137,21 +138,6 @@ export const columns: ColumnDef<School>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      // delete mutation
-      const deleteSchoolMutation = useDeleteSchool(async (request) => {
-        await toast.promise(request, {
-          loading: "Deleting school...",
-          success: () => {
-            return "School has been successfully deleted";
-          },
-          error: (err: any) => {
-            return (
-              err.message ||
-              "Failed to delete school. An unexpected error has occurred"
-            );
-          },
-        });
-      });
       const school = row.original;
       const selectedId = [row.original.id.toString()];
       return (

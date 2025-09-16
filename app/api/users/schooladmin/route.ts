@@ -8,6 +8,7 @@ import { generateUserId } from "@/lib/generateUserId";
 import * as Sentry from "@sentry/nextjs";
 import { adminAuthClient } from "@/services/supabase/admin";
 import { getAccessToken } from "@/utils/getAccessToken";
+import getUnexpectedError from "@/utils/getUnexpectedError";
 
 // GET /schooladmin - fetches school admin 
 export async function GET() {
@@ -35,13 +36,9 @@ export async function GET() {
   
     // response
     return NextResponse.json(data);
-  } catch (error: any) {
-    // any unexpected errors
-    Sentry.captureException(`School Admin Server Error: ${error.message}`)
-    return NextResponse.json(
-      { success: false, error: `Server error: ${error.message}`, },
-      { status: error.status }
-    );
+  } catch (error) {
+    // handle unexpected errors
+    getUnexpectedError(error);
   }
 
 }
@@ -148,7 +145,7 @@ export async function POST(request: NextRequest) {
     }
 
     // invite new user via email
-    let { data: invitedUser, error: inviteError } = await adminAuthClient.inviteUserByEmail(body.email, { 
+    const { data: invitedUser, error: inviteError } = await adminAuthClient.inviteUserByEmail(body.email, { 
       redirectTo: "http://localhost:3000/reset-password",
       data: {
         firstname: body.firstname,
@@ -193,12 +190,9 @@ export async function POST(request: NextRequest) {
       { message: "School Admin successfully registered" },
       { status: 201 }
     );
-  } catch (error: any) {
-    Sentry.captureException(`Post School Admin Server Error: ${error.message}`)
-    return NextResponse.json(
-      { error: `Server error: ${error?.message || "An unexpected error has occurred"}`, },
-      { status: error?.status || 500 }
-    );
+  } catch (error) {
+    // handle unexpected errors
+    getUnexpectedError(error);
   }
   
 }
@@ -285,12 +279,9 @@ export async function PATCH(request: NextRequest) {
       { message: "School Admin successfully updated" },
       { status: 200 }
     );
-  } catch (error: any) {
-    Sentry.captureException(`Update School Admin Server Error: ${error.message}`)
-    return NextResponse.json(
-      { error: `Server error: ${error?.message || "An unexpected error has occurred"}`, },
-      { status: error?.status || 500 }
-    );
+  } catch (error) {
+    // handle unexpected errors
+    getUnexpectedError(error);
   }
 }
 
@@ -326,7 +317,7 @@ export async function DELETE(request: NextRequest) {
     }
     
     // iterate through each user ids - for bulk or single delete
-    for (let id of ids) {
+    for (const id of ids) {
       // delete user
       const { error } = await adminAuthClient.deleteUser(id);
 
@@ -345,11 +336,8 @@ export async function DELETE(request: NextRequest) {
       { success: true, message: `${ids.length} School Admin(s) Successfully Deleted`},
       { status: 200 }
     )
-  } catch (error: any) {
-    Sentry.captureException(`School Admin Delete Server Error: ${error.message}`);
-    return NextResponse.json(
-      { error: "Failed to delete school admins" },
-      { status: 500 }
-    );
+  } catch (error) {
+    // handle unexpected errors
+    getUnexpectedError(error);
   }
 }

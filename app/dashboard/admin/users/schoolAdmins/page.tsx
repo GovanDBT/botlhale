@@ -5,14 +5,31 @@ import AppSeparator from "@/app/components/AppSeparator";
 import AppInfoTooltip from "@/app/components/AppInfoTooltip";
 import { DataTable } from "@/app/dashboard/components/DataTable";
 import { CACHE_KEY_SCHOOLADMIN } from "@/utils/constants";
-import { columns } from "./SchoolAdminTableColumn";
+import { getColumns } from "./SchoolAdminTableColumn";
 import { SCHOOLADMIN_ENDPOINT } from "@/utils/endpoints";
-import { useGetSchoolAdmin } from "@/hooks/useSchoolAdmin";
+import {
+  useDeleteSchoolAdmin,
+  useGetSchoolAdmin,
+} from "@/hooks/useSchoolAdmin";
 import SchoolAdminFormSheet from "@/app/dashboard/components/SchoolAdminFormSheet";
+import { toast } from "sonner";
 
 const SchoolAdminPage = () => {
   // Fetch data using react-query
   const { data: schoolAdmins = [], isLoading, error } = useGetSchoolAdmin();
+  // delete school admin mutation
+  const deleteSchoolAdminMutation = useDeleteSchoolAdmin(async (request) => {
+    await toast.promise(request, {
+      loading: "Deleting school admin...",
+      success: () => {
+        return "School admin has been successfully deleted";
+      },
+      error: (error: unknown) =>
+        error instanceof Error
+          ? error.message
+          : "Failed to delete school admin. An unexpected error has occurred",
+    });
+  });
   return (
     <div>
       <div className="flex justify-between items-center">
@@ -25,7 +42,7 @@ const SchoolAdminPage = () => {
       <AppSeparator />
       <DataTable
         search={["fullname", "school"]}
-        columns={columns}
+        columns={getColumns(deleteSchoolAdminMutation)}
         data={schoolAdmins}
         isLoading={isLoading}
         refresh={`${CACHE_KEY_SCHOOLADMIN}`}

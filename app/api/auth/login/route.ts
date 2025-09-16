@@ -1,11 +1,12 @@
 // app/api/auth/login/route.ts
 // login api
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@/services/supabase/server";
 import { loginSchema } from "@/lib/validationSchema";
 import * as Sentry from "@sentry/nextjs";
+import getUnexpectedError from "@/utils/getUnexpectedError";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     // create a new body
     const body = await request.json();
@@ -109,11 +110,8 @@ export async function POST(request: Request) {
       message: "Login Successful",
     });
 
-  } catch (err: any) {
-    Sentry.captureException("Failed to log in user", err)
-    return NextResponse.json(
-      { success: false, error: "Server error occurred" },
-      { status: 500 }
-    );
+  } catch (error) {
+    // handle unexpected errors
+    getUnexpectedError(error);
   }
 }

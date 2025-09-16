@@ -1,7 +1,7 @@
 // app/components/LinkButton.tsx
 // Custom button to navigate users to different pages
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Icon } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { ComponentType, ReactNode } from "react";
 
 interface Props {

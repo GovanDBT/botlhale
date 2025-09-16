@@ -3,10 +3,11 @@ import { createClient } from "@/services/supabase/server";
 import { notFound, redirect } from "next/navigation";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 const SchoolPage = async ({ params }: Props) => {
+  const { id } = await params;
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.getUser();
@@ -14,10 +15,10 @@ const SchoolPage = async ({ params }: Props) => {
     redirect("/login");
   }
 
-  let { data: school, error: schoolError } = await supabase
+  const { data: school, error: schoolError } = await supabase
     .from("school")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!school || schoolError) {

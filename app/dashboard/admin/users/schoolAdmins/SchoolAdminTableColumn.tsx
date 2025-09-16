@@ -15,8 +15,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useDeleteSchoolAdmin } from "@/hooks/useSchoolAdmin";
 import { SchoolAdmin } from "@/utils/interfaces";
+import { UseMutationResult } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Archive,
@@ -26,10 +26,11 @@ import {
   MoreHorizontal,
   SquarePen,
 } from "lucide-react";
-import { toast } from "sonner";
 
 // Define the columns for the table
-export const columns: ColumnDef<SchoolAdmin>[] = [
+export const getColumns = (
+  deleteSchoolAdminMutation: UseMutationResult<void, Error, string[], unknown>
+): ColumnDef<SchoolAdmin>[] => [
   // admin supabase id as a checkbox
   {
     id: "select",
@@ -133,23 +134,6 @@ export const columns: ColumnDef<SchoolAdmin>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      // delete mutation
-      const deleteSchoolAdminMutation = useDeleteSchoolAdmin(
-        async (request) => {
-          await toast.promise(request, {
-            loading: "Deleting school admin...",
-            success: () => {
-              return "School admin has been successfully deleted";
-            },
-            error: (err: any) => {
-              return (
-                err.message ||
-                "Failed to delete school admin. An unexpected error has occurred"
-              );
-            },
-          });
-        }
-      );
       const selectedId = [row.original.id.toString()];
       const id = row.original;
       return (

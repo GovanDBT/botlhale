@@ -8,7 +8,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import z from "zod";
-import Rollbar from "rollbar";
 import { CircleArrowLeftIcon, Eye, EyeOff } from "lucide-react";
 // Shadcn UI components
 import {
@@ -26,10 +25,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 // custom modules
 import { loginSchema } from "@/lib/validationSchema";
-import { clientConfig } from "@/services/rollbar/rollbar";
 import Spinner from "./Spinner";
 import Link from "next/link";
 import AppButton from "./AppButton";
+import * as Sentry from "@sentry/nextjs";
 
 // infer TypeScript type from Zod login schema
 type LoginData = z.infer<typeof loginSchema>;
@@ -40,7 +39,6 @@ const LoginForm = () => {
   const [forcePasswordChange, setForcePasswordChange] = useState(false); // when user is forced to change password
   const [showPassword, setShowPassword] = useState(false); // show or hide password
   const router = useRouter(); // programmatic navigation
-  const rollbar = new Rollbar(clientConfig); // client error logging
 
   // Initialize form with Zod validation
   const form = useForm<LoginData>({
@@ -78,9 +76,8 @@ const LoginForm = () => {
           });
           form.reset();
         } else {
-          rollbar.error(
-            "System failed to change user password",
-            res.data.error
+          Sentry.captureException(
+            `User password change failed: ${res.data.error}`
           );
           setError(res.data.error || "Failed to change password.");
         }
@@ -101,7 +98,9 @@ const LoginForm = () => {
       }
 
       if (!res.data.success) {
-        rollbar.error("System failed to login user", res.data.error);
+        Sentry.captureException(
+          `System failed to login user: ${res.data.error}`
+        );
         setError(
           res.data.error || "System currently down, please try again later"
         );
@@ -111,9 +110,16 @@ const LoginForm = () => {
 
       // Success: redirect user
       router.push(res.data.redirectPath);
-    } catch (err: any) {
-      const apiMsg = err.response?.data?.error || err.response?.data?.message;
-      setError(apiMsg || "An unexpected error occurred.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        Sentry.captureException(`Unexpected login fail: ${error.message}`);
+        setError(
+          "An unexpected login error has occurred! please try again later."
+        );
+      } else {
+        Sentry.captureException(`Unknown login fail error: ${error}`);
+        setError("An unexpected error has occurred! please try again later.");
+      }
       setIsRedirecting(false);
     }
   };

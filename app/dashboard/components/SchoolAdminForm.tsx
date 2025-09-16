@@ -80,9 +80,10 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
           form.reset();
           return "School admin has been successfully created";
         },
-        error: (err: any) => {
-          return err.message || "An unexpected error has occurred";
-        },
+        error: (error: unknown) =>
+          error instanceof Error
+            ? error.message
+            : "An unexpected error has occurred",
       });
     },
     () => onSubmittingChange?.(false)
@@ -96,9 +97,10 @@ const SchoolAdminForm = ({ formRef, onSubmittingChange, data }: Props) => {
         success: () => {
           return "School admin has been successfully updated";
         },
-        error: (err: any) => {
-          return err.message || "An unexpected error has occurred";
-        },
+        error: (error: unknown) =>
+          error instanceof Error
+            ? error.message
+            : "An unexpected error has occurred",
       });
     },
     () => onSubmittingChange?.(false)

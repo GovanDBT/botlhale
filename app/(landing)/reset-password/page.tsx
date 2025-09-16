@@ -22,6 +22,7 @@ import { Eye, EyeOff } from "lucide-react";
 import AppButton from "@/app/components/AppButton";
 import * as Sentry from "@sentry/nextjs";
 import { useRouter } from "next/navigation";
+import getErrorMessage from "@/utils/getErrorMessage";
 
 // Types
 type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
@@ -54,7 +55,7 @@ export default function ResetPasswordPage() {
     return () => {
       listener.subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   // Handle password update
   const handleSubmit = async (data: ResetPasswordData) => {
@@ -95,11 +96,10 @@ export default function ResetPasswordPage() {
           signOutError.message || "Password updated, but failed to log out."
         );
       }
-    } catch (err: any) {
-      Sentry.captureException(`Change Password Error: ${err.message}`);
-      setError(
-        err.message || "An unexpected error occurred. Please try again."
-      );
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      Sentry.captureException(`Change Password Error: ${message}`);
+      setError(message);
     } finally {
       setLoading(false);
     }

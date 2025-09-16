@@ -1,8 +1,11 @@
+// app/api/auth/change-password/route.ts
+// api endpoint for changing user password
 import { NextResponse } from "next/server";
 import { createClient } from "@/services/supabase/server";
 import { loginSchema} from "@/lib/validationSchema";
 import { serverInstance } from "@/services/rollbar/rollbar";
 import { adminAuthClient } from "@/services/supabase/admin";
+import getUnexpectedError from "@/utils/getUnexpectedError";
 
 export async function PUT(request: Request) {
   try {
@@ -55,10 +58,8 @@ export async function PUT(request: Request) {
       message: "Password updated successfully. Please log in again.",
     });
 
-  } catch (err) {
-    return NextResponse.json(
-      { success: false, error: "Server error occurred" },
-      { status: 500 }
-    );
+  } catch (error) {
+    // handle unexpected errors
+    getUnexpectedError(error);
   }
 }

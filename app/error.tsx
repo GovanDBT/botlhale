@@ -10,7 +10,6 @@ import * as Sentry from "@sentry/nextjs";
 
 export default function Error({
   error,
-  reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;

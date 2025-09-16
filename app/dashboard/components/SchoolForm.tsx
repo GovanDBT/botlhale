@@ -103,9 +103,10 @@ const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
           setSelectedLevel("");
           return "School has been successfully created";
         },
-        error: (err: any) => {
-          return err.message || "An unexpected error has occurred";
-        },
+        error: (error: unknown) =>
+          error instanceof Error
+            ? error.message
+            : "An unexpected error has occurred",
       });
     },
     () => onSubmittingChange?.(false)
@@ -119,9 +120,10 @@ const SchoolForm = ({ formRef, onSubmittingChange, data }: Props) => {
         success: () => {
           return "School has been successfully updated";
         },
-        error: (err: any) => {
-          return err.message || "An unexpected error has occurred";
-        },
+        error: (error: unknown) =>
+          error instanceof Error
+            ? error.message
+            : "An unexpected error has occurred",
       });
     },
     () => onSubmittingChange?.(false)

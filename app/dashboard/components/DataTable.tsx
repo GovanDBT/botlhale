@@ -83,12 +83,13 @@ export function DataTable<TData, TValue>({
     async (request) => {
       await toast.promise(request, {
         loading: "Deleting data...",
-        success: (success: any) => {
-          return success.message || "Data has been successfully Deleted";
+        success: () => {
+          return "Data has been successfully Deleted";
         },
-        error: (err: any) => {
-          return err.message || "Unexpected Error: Failed to delete data";
-        },
+        error: (error: unknown) =>
+          error instanceof Error
+            ? error.message
+            : "Unexpected Error: Failed to delete data",
         finally() {
           setRowSelection({});
         },
@@ -216,17 +217,18 @@ export function DataTable<TData, TValue>({
         ) : (
           // --- Bulk actions toolbar (when rows are selected) ---
           <div className="flex gap-2">
-            {/* Delete user button */}
+            {/* Delete button */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
                   variant="destructive"
                   className="text-[12px] cursor-pointer"
                   onClick={() => {
-                    const selectedIds = table
+                    table
                       .getFilteredSelectedRowModel()
-                      .rows.map((row) => (row.original as any).id);
-                    console.log("Delete these users", selectedIds);
+                      .rows.map(
+                        (row) => (row.original as { id: string | number }).id
+                      );
                   }}
                 >
                   <Trash2 />
@@ -306,7 +308,9 @@ export function DataTable<TData, TValue>({
               onClick={() => {
                 const selectedIds = table
                   .getFilteredSelectedRowModel()
-                  .rows.map((row) => (row.original as any).id);
+                  .rows.map(
+                    (row) => (row.original as { id: string | number }).id
+                  );
                 navigator.clipboard.writeText(selectedIds.join(", "));
               }}
             >
