@@ -25,7 +25,6 @@ import {
 import DeleteAlertDialog from "../../components/DeleteAlertDialog";
 import SchoolDetails from "../../components/SchoolDetails";
 import UpdateSchool from "../../components/UpdateSchool";
-import { UseMutationResult } from "@tanstack/react-query";
 
 // Define the columns for the table
 export const getColumns = (
@@ -139,7 +138,6 @@ export const getColumns = (
     enableHiding: false,
     cell: ({ row }) => {
       const school = row.original;
-      const selectedId = [row.original.id.toString()];
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
