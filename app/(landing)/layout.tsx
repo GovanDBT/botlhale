@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@/app/globals.css";
 import Navbar from "./Navbar";
 import { Toaster } from "sonner";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "Strype",
@@ -15,6 +16,7 @@ export default function RootLayout({
     <section className="container mx-auto px-4">
       <Navbar />
       <main>{children}</main>
+      <SpeedInsights />
       <Toaster position="top-center" />
     </section>
   );
