@@ -2,8 +2,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReactQueryProvider from "../providers/ReactQueryProvider";
-import { Provider as RollbarProvider } from "@rollbar/react";
-import { clientConfig } from "@/services/rollbar/rollbar";
 import { usePathname } from "next/navigation";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -29,18 +27,16 @@ export default function RootLayout({
     return "bg-white";
   })();
   return (
-    <RollbarProvider config={clientConfig}>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased ${backgroundClass}`}
-        >
-          <ReactQueryProvider>
-            <main>{children}</main>
-            <Analytics />
-            <SpeedInsights />
-          </ReactQueryProvider>
-        </body>
-      </html>
-    </RollbarProvider>
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased ${backgroundClass}`}
+      >
+        <ReactQueryProvider>
+          <main>{children}</main>
+          <Analytics />
+          <SpeedInsights />
+        </ReactQueryProvider>
+      </body>
+    </html>
   );
 }

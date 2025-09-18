@@ -3,9 +3,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/services/supabase/server";
 import { loginSchema} from "@/lib/validationSchema";
-import { serverInstance } from "@/services/rollbar/rollbar";
 import { adminAuthClient } from "@/services/supabase/admin";
 import getUnexpectedError from "@/utils/getUnexpectedError";
+import * as Sentry from "@sentry/nextjs";
 
 export async function PUT(request: Request) {
   try {
@@ -16,7 +16,7 @@ export async function PUT(request: Request) {
     const result = loginSchema.safeParse({ email, newPassword, confirmPassword });
     // if input validation fails
     if (!result.success) {
-      serverInstance.error('Change password input validation failed')
+      Sentry.captureMessage("Change password input validation failed", "info");
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
         { status: 400 }
