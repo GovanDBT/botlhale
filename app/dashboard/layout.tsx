@@ -1,6 +1,7 @@
 "use client";
 // react components
 import { ReactNode } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 // Shadcn components
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
@@ -22,6 +23,7 @@ export default function Layout({ children, breadcrumbs }: Props) {
         </div>
         {children}
       </main>
+      <SpeedInsights />
       <Toaster richColors position="top-center" />
     </SidebarProvider>
   );
